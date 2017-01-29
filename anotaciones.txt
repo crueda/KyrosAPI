@@ -1,0 +1,49 @@
+basado en:
+http://uno-de-piera.com/servicio-rest-con-nodejs-express-4-y-mysql/
+
+API DOC
+-------
+apidoc -i routes/ -o /Applications/MAMP/htdocs/dockyrosapi/
+rsync -r /Applications/MAMP/htdocs/dockyrosapi/* root@192.168.24.31:/var/www/dockyrosapi
+
+Acceso web :
+http://http://www.kyroslbs.es/dockyrosapi/
+
+
+----------------------
+MOVER CODIGO:
+rsync -r /Users/Carlos/Workspace/Kyros/API_REST_KYROS/* root@192.168.24.31:/opt/API_REST
+
+
+
+----------------------
+
+
+---
+Cabeceras autenticacion
+x-access-token
+x-key
+
+---
+
+TOKEN
+Ahi va un token con una validez de 1000 días:
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MjY5ODI1MDA1ODksImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9.CnX6I1puC-H-0AluXge8X4vVlUOfv8x-Nh6VwzxO-n8
+
+---
+generador md5:
+http://www.md5.cz/
+
+password "crueda":
+d79abf23b2ea0257722e644c1dfd157a
+
+
+--peticiones
+curl -X POST -H "X-Access-Token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0Mzk1MzQ2NTExMjcsImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9.ibplqJKyk9l5j1I99K2s5zm6pbU62aLy4hzKgeHIGFw" http://192.168.3.34:3003/kyrosapi/Status
+
+---test:
+mocha
+
+--- para el reporter
+mocha --reporter mocha-html-reporter > body.html
+cat node_modules/mocha-html-reporter/docs/head.html ./body.html node_modules/mocha-html-reporter/docs/tail.html > /Applications/MAMP/htdocs/dockyrosapi/test/test.html

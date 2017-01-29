@@ -1,0 +1,402 @@
+<ul id="stats"><li class="progress"><canvas width="40" height="40"></canvas></li><li class="passes">passes: <em>20</em></li><li class="failures">failures: <em>0</em></li><li class="duration">duration: <em>0.718</em>s</li></ul>
+<ul id="report">    <li class="suite">
+      <h1>Beacon</h1>
+      <ul>
+        <li class="suite">
+          <h1>API REST test</h1>
+          <ul>
+            <li class="test pass">
+              <h2>[POST]    Get all beacons<span class="duration">126ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+	  .post('/kyrosapi/beacons')
+
+// end handles the response
+	  .end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+					res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Add beacon<span class="duration">41ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  routeId: '892',
+  posBeacon: '1',
+  description: 'Baliza: 1',
+  radius: '10',
+  latitude: '43.31418735795812',
+  longitude: '-2.319488525390625'
+  	};
+	request(url)
+	.post('/kyrosapi/beacon')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+				res.status.should.be.equal(200);
+    beaconInserted = res.body.message;
+				done();
+			});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Get beacon<span class="duration">15ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+.post('/kyrosapi/beacon/'+beaconInserted)
+// end handles the response
+.end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+      res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[PUT]     Update beacon<span class="duration">16ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+id: beaconInserted,
+routeId: '8922',
+posBeacon: '12',
+description: 'Beacon: 12',
+radius: '102',
+latitude: '43.314187357958122',
+longitude: '-2.3194885253906252'
+};
+request(url)
+.put('/kyrosapi/beacon')
+.send(body)
+.expect('Content-Type', /json/)
+.expect(200) //Status code
+.end(function(err,res) {
+  if (err) {
+    throw err;
+  }
+  done();
+});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[DELETE]  Remove beacon<span class="duration">22ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  id: beaconInserted
+  	};
+	request(url)
+	.delete('/kyrosapi/beacon')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+				res.status.should.be.equal(200);
+				done();
+			});</code></pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li class="suite">
+      <h1>Certificate</h1>
+      <ul>
+        <li class="suite">
+          <h1>API REST test</h1>
+          <ul>
+            <li class="test pass">
+              <h2>[POST]    Get all certificates<span class="duration">41ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+	  .post('/kyrosapi/certificates')
+
+// end handles the response
+	  .end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+					res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Add certificate<span class="duration">10ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  name: 'certificate name',
+  description: 'certificate description'
+  	};
+	request(url)
+	.post('/kyrosapi/certificate')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+    //console.log(res);
+    certificateInserted = res.body.message;
+				res.status.should.be.equal(200);
+				done();
+			});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Get certificate<span class="duration">17ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+.post('/kyrosapi/certificate/'+certificateInserted)
+// end handles the response
+.end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+      res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[PUT]     Update certificate<span class="duration">35ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+id: 1,
+name: 'certificate name 2',
+description: 'certificate description 2'
+};
+request(url)
+.put('/kyrosapi/certificate')
+.send(body)
+.expect('Content-Type', /json/)
+.expect(200) //Status code
+.end(function(err,res) {
+  if (err) {
+    throw err;
+  }
+  // Should.js fluent syntax applied
+  done();
+});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[DELETE]  Remove certificate<span class="duration">22ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  id: certificateInserted
+  	};
+	request(url)
+	.delete('/kyrosapi/certificate')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+				res.status.should.be.equal(200);
+				done();
+			});</code></pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li class="suite">
+      <h1>UXO</h1>
+      <ul>
+        <li class="suite">
+          <h1>API REST test</h1>
+          <ul>
+            <li class="test pass">
+              <h2>[POST]    Get all UXOs<span class="duration">37ms</span></h2>
+              <pre style="display: none;"><code>//this.timeout(500);
+//setTimeout(done, 300);
+
+    request(url)
+	  .post('/kyrosapi/uxos')
+
+    // end handles the response
+	  .end(function(err, res) {
+    if (err) {
+      throw err;
+    }
+					res.status.should.be.equal(200);
+    done();
+  });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Add UXO<span class="duration">49ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  description: 'uxo description',
+  weight: '99',
+  latitude: '40.3',
+  longitude: '-2.1'
+  	};
+	request(url)
+	.post('/kyrosapi/uxo')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+    //console.log(res);
+    uxoInserted = res.body.message;
+				res.status.should.be.equal(200);
+				done();
+			});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Get UXO<span class="duration">18ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+.post('/kyrosapi/uxo/'+uxoInserted)
+// end handles the response
+.end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+      res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[PUT]     Update UXO<span class="duration">19ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+id: uxoInserted,
+description: 'new description',
+weight: '10',
+latitude: '41.3',
+longitude: '-3.1'
+};
+request(url)
+.put('/kyrosapi/uxo')
+.send(body)
+.expect('Content-Type', /json/)
+.expect(200) //Status code
+.end(function(err,res) {
+  if (err) {
+    throw err;
+  }
+  // Should.js fluent syntax applied
+  done();
+});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[DELETE]  Remove UXO<span class="duration">50ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  id: uxoInserted
+  	};
+	request(url)
+	.delete('/kyrosapi/uxo')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+				res.status.should.be.equal(200);
+				done();
+			});</code></pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li class="suite">
+      <h1>Vertex</h1>
+      <ul>
+        <li class="suite">
+          <h1>API REST test</h1>
+          <ul>
+            <li class="test pass">
+              <h2>[POST]    Get all vertexes<span class="duration">117ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+	  .post('/kyrosapi/vertexes')
+
+// end handles the response
+	  .end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+					res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Add vertex<span class="duration">16ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  areaId: '892',
+  description: 'Vértice: 1',
+  latitude: '43.31418735795812',
+  longitude: '-2.319488525390625'
+  	};
+	request(url)
+	.post('/kyrosapi/vertex')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+    //console.log(res);
+    //console.log(&quot;--&gt;&quot; + res.body.message);
+				res.status.should.be.equal(200);
+    vertexInserted = res.body.message;
+				done();
+			});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[POST]    Get vertex<span class="duration">14ms</span></h2>
+              <pre style="display: none;"><code>request(url)
+.post('/kyrosapi/vertex/'+vertexInserted)
+// end handles the response
+.end(function(err, res) {
+      if (err) {
+        throw err;
+      }
+      res.status.should.be.equal(200);
+      done();
+    });</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[PUT]     Update vertex<span class="duration">13ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+id: vertexInserted,
+areaId: '892',
+description: 'Vértice: 1',
+latitude: '43.31418735795812',
+longitude: '-2.319488525390625'
+};
+request(url)
+.put('/kyrosapi/vertex')
+.send(body)
+.expect('Content-Type', /json/)
+.expect(200) //Status code
+.end(function(err,res) {
+  if (err) {
+    throw err;
+  }
+  // Should.js fluent syntax applied
+  /*
+  res.body.should.have.property('_id');
+    res.body.firstName.should.equal('JP');
+              res.body.lastName.should.equal('Berd');
+              res.body.creationDate.should.not.equal(null);
+  */
+  done();
+});</code></pre>
+            </li>
+            <li class="test pass">
+              <h2>[DELETE]  Remove vertex<span class="duration">22ms</span></h2>
+              <pre style="display: none;"><code>var body = {
+  id: vertexInserted
+  	};
+	request(url)
+	.delete('/kyrosapi/vertex')
+	.send(body)
+	// end handles the response
+	.end(function(err, res) {
+				if (err) {
+					throw err;
+				}
+				res.status.should.be.equal(200);
+				done();
+			});</code></pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+<ul>
