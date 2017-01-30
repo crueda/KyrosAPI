@@ -6,7 +6,7 @@ var messages = require("../utils/statusMessages.js");
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('./kyrosview.properties');
+var properties = PropertiesReader('./api.properties');
 
 var TrackingModel = require('../models/tracking');
 
@@ -25,7 +25,7 @@ var log = require('tracer').console({
 });
 
 /**
- * @api {get} /api/tracking1/user/:username Últimas posiciones de los dispositivos de un username
+ * @api {get} /tracking1/user/:username Últimas posiciones de los dispositivos monitorizados por un usuario
  * @apiName GetTracking1User Obtener información de último tracking de todos los dispositivos de un usuario
  * @apiGroup Tracking
  * @apiDescription Datos del último tracking para todos los dispositivos monitorizados por el usuario
