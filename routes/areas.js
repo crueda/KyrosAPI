@@ -190,7 +190,7 @@ var log = require('tracer').console({
  * @apiUse TokenError
  * @apiUse TokenExpiredError
 */
-router.get('/areas/', function(req, res)
+router.post('/areas/', function(req, res)
 {
     log.info("POST: /areas");
 

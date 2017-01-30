@@ -1,17 +1,19 @@
-var status = require("../utils/statusCodes.js");
-var messages = require("../utils/statusMessages.js");
 var express = require('express');
 var router = express.Router();
-var TrackingModel = require('../models/tracking');
+
+var status = require("../utils/statusCodes.js");
+var messages = require("../utils/statusMessages.js");
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('./api.properties');
+var properties = PropertiesReader('./kyrosview.properties');
+
+var TrackingModel = require('../models/tracking');
 
 // Definición del log
 var fs = require('fs');
 var log = require('tracer').console({
-  transtracking : function(data) {
+  transport : function(data) {
     //console.log(data.output);
     fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
       fs.write(id, data.output+"\n", null, 'utf8', function() {
@@ -22,690 +24,588 @@ var log = require('tracer').console({
   }
 });
 
-function kcoords(px, py) {
-  var x  = Math.abs(x);
-  var dx = Math.floor(x);
-  var mx = Math.floor((x - dx)*60);
-  //var sx = Math.floor(((x - dx) - (mx/60))*3600);
-  if (px < 0) dx = -dx;
-  var y  = Math.abs(py);
-  var dy = Math.floor(y);
-  var my = Math.floor((y - dy)*60);
-  //var sy = Math.floor(((y - dy) - (my/60))*3600);
-  if (py < 0) dy = -dy;
-  //return (dx + '°' + mx + 'min ' + sx + 'seg ' + dy + '°' + my + 'min ' + sy + 'seg');
-  return (dx + ',' + mx + '-' + dy + ',' + my);
-}
-
 /**
-* @apiDefine LoginError
-*
-* @apiError UserNotFound The id of the User was not found
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -5,
-*        "description": "Invalid user or password"
-*      }
-*     }
-*/
-
-/**
-* @apiDefine PermissionError
-*
-* @apiError NotAllow Access not allow to User
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -4,
-*        "description": "User not authorized"
-*      }
-*     }
-*/
-
-/** @apiDefine TokenError
-*
-* @apiError TokenInvalid The token is invalid
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -5,
-*        "description": "Invalid token"
-*      }
-*     }
-*/
-
-/** @apiDefine TokenExpiredError
-*
-* @apiError TokenExpired The token is expired
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -5,
-*        "description": "Token expired"
-*      }
-*     }
-*/
-
-/** @apiDefine MissingParameterError
-*
-* @apiError MissingParameter Missing parameter
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -4,
-*        "description": "Missing parameter"
-*      }
-*     }
-*/
-
-/** @apiDefine MissingRegisterError
-*
-* @apiError MissingRegister Missing register
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -1000,
-*        "description": "Missing element"
-*      }
-*     }
-*/
-
-/** @apiDefine IdNumericError
-*
-* @apiError IdNumeric Id numeric error
-*
-* @apiErrorExample Error-Response:
-*     https/1.1 202
-*     {
-*     "response": {
-*        "status": -9,
-*        "description": "The id must be numeric"
-*      }
-*     }
-*/
-
-/** @apiDefine TokenHeader
-*
-* @apiHeader {String} x-access-token JSON Web Token (JWT)
-*
-* @apiHeaderExample {json} Header-Example:
-*     {
-*       "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MzIyMTg2ODc1ODksImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9._tYZLkBrESt9FwOccyvripIsZR5S0m8PLZmEgIDEFaY"
-*     }
-*/
-
-/* POST. Obtenemos y mostramos todos los tracking */
-/**
-* @api {post} /kyrosapi/tracking Request all tracking
-* @apiName GetTrackings
-* @apiGroup Tracking
-* @apiVersion 1.0.1
-* @apiDescription List of trackings
-*
-* @apiParam {Number} startRow Number of first element
-* @apiParam {Number} endRow Number of last element
-* @apiParam {String="id","elementId","speed","altitude","heading","latitude","longitude"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
-*
-* @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/trackings
-* @apiSuccessExample Success-Response:
-*     https/1.1 200 OK
-*     {
-*       "response" :
-*       {
-*         "status" : 0,
-*         "startRow" : 0,
-*         "endRow" : 2,
-*         "totalRows" : 2,
-*         "data": {
-*           "record": [
-*           {
-*            "id": 123,
-*            "elementId": 13432,
-*            "latitude": 43.314166666666665,
-*            "longitude": -2.033333333333333,
-*            "altitude": 0,
-*            "speed": 34,
-*            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
-*           {
-*            "id": 124,
-*            "deviceId": 23435,
-*            "latitude": 41.232326665,
-*            "longitude": 7.234324,
-*            "altitude": 0,
-*            "speed": 12,
-*            "heading": 45,
-*            "trackingDate": "2013-09-04T00:00:00.00Z"
-*           }
-*           }]
-*        }
-*       }
-*     }
-*
-* @apiSuccess {Object[]} tracking       List of trackings
-* @apiUse TokenHeader
-* @apiUse PermissionError
-* @apiUse TokenError
-* @apiUse TokenExpiredError
-*/
-router.post('/trackings/', function(req, res)
+ * @api {get} /api/tracking1/user/:username Últimas posiciones de los dispositivos de un username
+ * @apiName GetTracking1User Obtener información de último tracking de todos los dispositivos de un usuario
+ * @apiGroup Tracking
+ * @apiDescription Datos del último tracking para todos los dispositivos monitorizados por el usuario
+ * @apiVersion 1.0.1
+ * @apiSampleRequest http://view.kyroslbs.com/api/tracking1/user/crueda
+ *
+ * @apiParam {String} username Nombre de usuario en Kyros
+ *
+ * @apiSuccess {json} trackingData Datos de último tracking
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      [{"_id":399,
+ *        "deviceId":399,
+ *        "longitude":-4.72811,
+ *        "latitude":41.6283,
+ *        "speed":21.1,
+ *        "heading":0,
+ *        "pos_date":1346336184000,
+ *        "iconReal":"truck.png",
+ *        "iconCover":"truck_cover.png",
+ *        "iconAlarm":"truck_alarm.png",
+ *        "monitor":["flaa","crueda"],
+ *        "license":"Bici_Rohm",
+ *        "alias":"Bici rohm",
+ *        "vehicle_state":"0"
+ *        }]
+ *     }
+ */
+router.get('/tracking1/user/:username', function(req, res)
 {
-  log.info("POST: /trackings/");
-
-  var startRow = req.body.startRow || req.params.startRow || req.query.startRow;
-  var endRow = req.body.endRow || req.params.endRow || req.query.endRow;
-  var sortBy = req.body.sortBy || req.params.sortBy || req.query.sortBy;
-
-  if (startRow == null || endRow == null) {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-  }
-  else
-  {
-    // Limpiar espacios en blanco
-    if (sortBy!=null) {
-      sortBy = sortBy.replace(/\s/g, "");
+    if (req.session.user == null){
+      res.redirect('/');
     }
+    else {
+      var username = req.params.username;
+      log.info("GET: /tracking1/user/"+username);
 
-    TrackingModel.getTrackings(startRow, endRow, sortBy, function(error, data, totalRows)
-    {
-      if (data == null)
+      TrackingModel.getTracking1FromUser(username,function(error, data)
       {
-        res.status(200).json({"response": {"status":0,"data": {"record": []}}})
-      }
-      else if (typeof data !== 'undefined')
-      {
-        if (startRow == null || endRow == null) {
-          startRow = 0;
-          endRow = totalRows;
+        if (data == null)
+        {
+          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
         }
-        res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
-      }
-      //en otro caso se muestra error
-      else
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      }
-    });
-  }
-});
-
-/* POST. Se obtiene trackings de un vessel */
-/**
-* @api {post} /kyrosapi/trackings/vessel/:id Request tracking information
-* @apiName PostTracking Request tracking information from vessel
-* @apiGroup Tracking
-* @apiVersion 1.0.1
-* @apiDescription Tracking information from vessel
-* @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/trackings/vessel
-*
-* @apiParam {Number} id vessel unique ID
-* @apiParam {Number} startRow Number of first element
-* @apiParam {Number} endRow Number of last element
-* @apiParam {String="id","speed","altitude","heading","latitude","longitude"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
-*
-* @apiSuccess {Number} id tracking unique ID
-* @apiSuccess {Number} elementId Identification of the element
-* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
-* @apiSuccess {Number} speed Speed value (in Km/h)
-* @apiSuccess {Number} heading Heading value (in degress)
-* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
-* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
-* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
-* @apiSuccessExample Success-Response:
-*     https/1.1 200 OK
-*     {
-*       "response" :
-*       {
-*         "status" : 0,
-*         "startRow" : 0,
-*         "endRow" : 1,
-*         "totalRows" : 1,
-*         "data": {
-*           "record": [
-*           {
-*            "id": 123,
-*            "elementId": 13432,
-*            "latitude": 43.314166666666665,
-*            "longitude": -2.033333333333333,
-*            "altitude": 0,
-*            "speed": 34,
-*            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
-*           }]
-*        }
-*       }
-*     }
-*
-* @apiError vesselNotFound The <code>id</code> of the vessel was not found.
-*
-* @apiUse TokenHeader
-* @apiUse TokenError
-* @apiUse TokenExpiredError
-* @apiUse MissingRegisterError
-* @apiUse IdNumericError
-*/
-router.post('/trackings/vessel/:id', function(req, res)
-{
-  var id = req.params.id;
-  log.info("POST: /trackings/vessel/"+id);
-
-  var startRow = req.body.startRow || req.params.startRow || req.query.startRow;
-  var endRow = req.body.endRow || req.params.endRow || req.query.endRow;
-  var sortBy = req.body.sortBy || req.params.sortBy || req.query.sortBy;
-
-  if (startRow == null || endRow == null) {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-  }
-  else
-  {
-    // Limpiar espacios en blanco
-    if (sortBy!=null) {
-      sortBy = sortBy.replace(/\s/g, "");
+        else
+        {
+          //si existe enviamos el json
+          if (typeof data !== 'undefined' && data.length > 0)
+          {
+            res.status(200).json(data)
+          }
+          else if (typeof data == 'undefined' || data.length == 0)
+          {
+            res.status(200).json([])
+          }
+          //en otro caso mostramos un error
+          else
+          {
+            res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+          }
+        }
+      });
     }
-
-    TrackingModel.getTrackingsFromVessel(id, startRow, endRow, sortBy, function(error, data, totalRows)
-    {
-      if (data == null)
-      {
-        res.status(200).json({"response": {"status":0,"data": {"record": []}}})
-      }
-      else if (typeof data !== 'undefined')
-      {
-        if (startRow == null || endRow == null) {
-          startRow = 0;
-          endRow = totalRows;
-        }
-        res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
-      }
-      //en otro caso se muestra error
-      else
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      }
-    });
-  }
 });
 
-/* GET. Se obtiene un tracking por su id */
 /**
-* @api {get} /kyrosapi/tracking/:id Request tracking information
-* @apiName GetTracking Request tracking information
-* @apiGroup Tracking
-* @apiVersion 1.0.1
-* @apiDescription Tracking information
-* @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/tracking
-*
-* @apiParam {Number} id tracking unique ID
-*
-* @apiSuccess {Number} id tracking unique ID
-* @apiSuccess {Number} elementId Identification of the element
-* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
-* @apiSuccess {Number} speed Speed value (in Km/h)
-* @apiSuccess {Number} heading Heading value (in degress)
-* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
-* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
-* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
-* @apiSuccessExample Success-Response:
-*     https/1.1 200 OK
-*     {
-*       "response" :
-*       {
-*         "status" : 0,
-*         "startRow" : 0,
-*         "endRow" : 1,
-*         "totalRows" : 1,
-*         "data": {
-*           "record": [
-*           {
-*            "id": 123,
-*            "elementId": 13432,
-*            "latitude": 43.314166666666665,
-*            "longitude": -2.033333333333333,
-*            "altitude": 0,
-*            "speed": 34,
-*            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
-*           }]
-*        }
-*       }
-*     }
-*
-* @apiError trackingNotFound The <code>id</code> of the tracking was not found.
-*
-* @apiUse TokenHeader
-* @apiUse TokenError
-* @apiUse TokenExpiredError
-* @apiUse MissingRegisterError
-* @apiUse IdNumericError
-*/
-router.get('/tracking/:id', function(req, res)
+ * @api {get} /api/tracking1/vehicle/:vehicleLicense Última posición de un vehiculo
+ * @apiName GetTracking1Vehicle Obtener información de último tracking de un vehiculo
+ * @apiGroup Tracking
+ * @apiDescription Datos del último tracking de un vehiculo
+ * @apiVersion 1.0.2
+ * @apiSampleRequest http://view.kyroslbs.com/api/tracking1/vehicle/1615-FDW
+ *
+ * @apiParam {String} vehicleLicense Identificador del vehiculo en Kyros
+ *
+ * @apiSuccess {json} trackingData Datos de último tracking
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "_id" : ObjectId("57f3fd5efbb7137a40b5fa60"),
+ *      "pos_date" : NumberLong(1475600701000),
+ *      "battery" : 88,
+ *      "altitude" : 726,
+ *      "heading" : 306,
+ *      "location" : {
+ *        "type" : "Point",
+ *        "coordinates" : [
+ *           -4.713148,
+ *           41.655135
+ *        ]
+ *      },
+ *      "tracking_id" : 35815375,
+ *      "vehicle_license" : "1615-FDW",
+ *      "geocoding" : "",
+ *      "events" : [],
+ *      "device_id" : 13
+ *    }
+ */
+router.get('/tracking1/vehicle/:vehicleLicense', function(req, res)
 {
-  var id = req.params.id;
-  log.info("GET: /tracking/"+id);
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+      var vehicleLicense = req.params.vehicleLicense;
+      log.info("GET: /tracking1/vehicle/"+vehicleLicense);
 
-  //se comprueba que la id es un número
-  if(!isNaN(id))
-  {
-    TrackingModel.getTracking(id,function(error, data)
-    {
-      if (data == null)
+      TrackingModel.getTracking1FromVehicle(vehicleLicense,function(error, data)
       {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      }
-      else
-      {
-        //si existe enviamos el json
-        if (typeof data !== 'undefined' && data.length > 0)
-        {
-          res.status(200).json({"response": {"status":0,"totalRows":1,"startRow":0,"endRow":1,"data": {"record": data}}})
-        }
-        //en otro caso mostramos un error
-        else
-        {
-          res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-        }
-      }
-    });
-  }
-  //si la id no es numerica mostramos un error de servidor
-  else
-  {
-    res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
-  }
-});
-
-/* PUT. Actualizamos un tracking existente */
-/**
-* @api {put} /kyrosapi/tracking/ Update tracking
-* @apiName PutNewtracking
-* @apiGroup tracking
-* @apiVersion 1.0.1
-* @apiDescription Update tracking
-* @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/tracking
-*
-* @apiParam {Number} id tracking unique ID
-* @apiParam {Number} altitude Altitude over the sea level (in meters)
-* @apiParam {Number} speed Speed value (in Km/h)
-* @apiParam {Number} heading Heading value (in degress)
-* @apiParam {Number} longitude Longitude of the tracking (WGS84)
-* @apiParam {Number} latitude Latitude of the tracking (WGS84)
-*
-* @apiSuccess {json} message Result message
-* @apiSuccessExample Success-Response:
-*     https/1.1 200 OK
-*     {
-*       "response" :
-*       {
-*         "status" : 0,
-*         "data": {
-*           "record": [
-*           {
-*            "id": 123,
-*            "elementId": 13432,
-*            "latitude": 43.314166666666665,
-*            "longitude": -2.033333333333333,
-*            "altitude": 0,
-*            "speed": 34,
-*            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
-*           }]
-*        }
-*       }
-*     }
-*
-* @apiUse TokenHeader
-* @apiUse TokenError
-* @apiUse TokenExpiredError
-* @apiUse MissingParameterError
-*/
-router.put('/tracking/', function(req, res)
-{
-  log.info("PUT: /tracking/");
-
-  var id_value = req.body.id;
-  var altitude_value = req.body.altitude;
-  var speed_value = req.body.speed;
-  var heading_value = req.body.heading;
-  var latitude_value = req.body.latitude;
-  var longitude_value = req.body.longitude;
-
-  log.debug("  -> id:          " + id_value);
-  log.debug("  -> altitude:    " + altitude_value);
-  log.debug("  -> speed:       " + speed_value);
-  log.debug("  -> heading:     " + heading_value);
-  log.debug("  -> latitude:    " + latitude_value);
-  log.debug("  -> longitude:   " + longitude_value);
-
-  if (id_value == null || altitude_value == null || speed_value == null || heading_value == null || latitude_value == null || longitude_value == null) {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-  }
-  else
-  {
-    //almacenar los datos en un objeto
-    var trackingData = {
-      id : id_value,
-      altitude : altitude_value,
-      speed : speed_value,
-      heading : heading_value,
-      latitude : latitude_value,
-      longitude : longitude_value
-    };
-
-    TrackingModel.updateTracking(trackingData,function(error, data)
-    {
-      if (data == null)
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      }
-      else
-      {
-        //si se ha actualizado correctamente mostramos un mensaje
-        if(data && data.message)
-        {
-          res.status(200).json({"response": {"status":0,"data": {"record": [trackingData]}}})
-        }
-        else
+        if (data == null)
         {
           res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
         }
-      }
-    });
-  }
+        else
+        {
+          //si existe enviamos el json
+          if (typeof data !== 'undefined' && data.length > 0)
+          {
+            res.status(200).json(data)
+          }
+          else if (typeof data == 'undefined' || data.length == 0)
+          {
+            res.status(200).json([])
+          }
+          //en otro caso mostramos un error
+          else
+          {
+            res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+          }
+        }
+      });
+    }
+});
+
+/**
+ * @api {get} /api/tracking1 Últimas posiciones de los vehiculos (ordenadas por fecha)
+ * @apiName GetTracking1 Obtener información de último tracking de todos los vehiculos
+ * @apiGroup Tracking
+ * @apiDescription Datos del último tracking para todos los vehiculos
+ * @apiVersion 1.0.2
+ * @apiSampleRequest http://view.kyroslbs.com/api/tracking1
+ *
+ * @apiSuccess {json} trackingData Datos de último tracking
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *     [{
+ *      "_id" : ObjectId("57f3fd5efbb7137a40b5fa60"),
+ *      "pos_date" : NumberLong(1475600701000),
+ *      "battery" : 88,
+ *      "altitude" : 726,
+ *      "heading" : 306,
+ *      "location" : {
+ *        "type" : "Point",
+ *        "coordinates" : [
+ *           -4.713148,
+ *           41.655135
+ *        ]
+ *      },
+ *      "tracking_id" : 35815375,
+ *      "vehicle_license" : "1615-FDW",
+ *      "geocoding" : "",
+ *      "events" : [],
+ *      "device_id" : 13
+ *     }]
+ *     }
+ */
+router.get('/tracking1', function(req, res)
+{
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+        TrackingModel.getTracking1(function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json(data)
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
+
+    }
 });
 
 
 /**
-* @api {post} /kyrosapi/tracking/ Create new tracking
-* @apiName PostNewtracking
-* @apiGroup tracking
-* @apiVersion 1.0.1
-* @apiDescription Create new tracking
-* @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/tracking
-*
-* @apiParam {Number} altitude Altitude over the sea level (in meters)
-* @apiParam {Number} speed Speed value (in Km/h)
-* @apiParam {Number} heading Heading value (in degress)
-* @apiParam {Number} longitude Longitude of the tracking (WGS84)
-* @apiParam {Number} latitude Latitude of the tracking (WGS84)
-*
-* @apiSuccess {json} message Result message
-* @apiSuccessExample Success-Response:
-*     https/1.1 201 OK
-*     {
-*       "response" :
-*       {
-*         "status" : 0,
-*         "data": {
-*           "record": [
-*           {
-*            "id": 123,
-*            "elementId": 13432,
-*            "latitude": 43.314166666666665,
-*            "longitude": -2.033333333333333,
-*            "altitude": 0,
-*            "speed": 34,
-*            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
-*           }]
-*        }
-*       }
-*     }
-*
-* @apiUse TokenHeader
-* @apiUse TokenError
-* @apiUse TokenExpiredError
-* @apiUse MissingParameterError
-*/
-router.post("/tracking", function(req,res)
+ * @api {get} /api/tracking1/vehicles Últimas posiciones de los vehiculos que se indican por parámetro
+ * @apiName GetTracking1Vehicles Obtener información de último tracking de todos los vehiculos indicados
+ * @apiGroup Tracking
+ * @apiDescription Datos del último tracking para todos los vehiculos indicados
+ * @apiVersion 1.0.2
+ * @apiSampleRequest http://view.kyroslbs.com/api/tracking1/vehicles?vehicleLicenseList=651,652,655
+ *
+ * @apiParam {String} vehicleLicenseList Lista de matriculas separadas por comas
+ *
+ * @apiSuccess {json} trackingData Datos de último tracking
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *     [{
+ *      "_id" : ObjectId("57f3fd5efbb7137a40b5fa60"),
+ *      "pos_date" : NumberLong(1475600701000),
+ *      "battery" : 88,
+ *      "altitude" : 726,
+ *      "heading" : 306,
+ *      "location" : {
+ *        "type" : "Point",
+ *        "coordinates" : [
+ *           -4.713148,
+ *           41.655135
+ *        ]
+ *      },
+ *      "tracking_id" : 35815375,
+ *      "vehicle_license" : "1615-FDW",
+ *      "geocoding" : "",
+ *      "events" : [],
+ *      "device_id" : 13
+ *     }]
+ *     }
+ */
+router.get('/tracking1/vehicles', function(req, res)
 {
-  log.info("POST: /tracking/");
-
-  var altitude_value = req.body.altitude;
-  var speed_value = req.body.speed;
-  var heading_value = req.body.heading;
-  var latitude_value = req.body.latitude;
-  var longitude_value = req.body.longitude;
-
-  log.debug("  -> altitude:    " + altitude_value);
-  log.debug("  -> speed:       " + speed_value);
-  log.debug("  -> heading:     " + heading_value);
-  log.debug("  -> latitude:    " + latitude_value);
-  log.debug("  -> longitude:   " + longitude_value);
-
-  if (altitude_value == null || speed_value == null || heading_value == null || latitude_value == null || longitude_value == null) {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-  }
-  else
-  {
-    //almacenar los datos en un objeto
-    var trackingData = {
-      id : null,
-      altitude : altitude_value,
-      speed : speed_value,
-      heading : heading_value,
-      latitude : latitude_value,
-      longitude : longitude_value
-    };
-
-    TrackingModel.insertTracking(trackingData,function(error, data)
-    {
-      if (data == null)
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+      var vehicleLicenseList = req.query.vehicleLicenseList;
+      log.info("GET: /tracking1/vehicles?vehicleLicenseList="+vehicleLicenseList);
+      if (vehicleLicenseList==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
       }
-      else
-      {
-        // si se ha insertado correctamente mostramos su mensaje de exito
-        if(data && data.insertId)
+      else {
+        TrackingModel.getTracking1FromVehicles(vehicleLicenseList,function(error, data)
         {
-          trackingData.id = data.insertId;
-          res.status(201).json({"response": {"status":0,"data": {"record": [trackingData]}}})
-        }
-        else
-        {
-          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-        }
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json(data)
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
       }
-    });
-
-  }
+    }
 });
 
-/* DELETE. Eliminar un tracking */
-/**
-* @api {delete} /kyrosapi/tracking Delete tracking
-* @apiName Deletetracking
-* @apiGroup tracking
-* @apiVersion 1.0.1
-* @apiDescription Delete tracking
-* @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/tracking
-*
-* @apiParam {Number} id tracking unique ID
-*
-* @apiSuccess {json} message Result message
-* @apiSuccessExample Success-Response:
-*     https/1.1 200 OK
-*     {
-*       "response" :
-*       {
-*         "status" : 0,
-*         "data": {
-*           "record": [
-*           {
-*            "id": 123,
-*            "elementId": 13432,
-*            "latitude": 43.314166666666665,
-*            "longitude": -2.033333333333333,
-*            "altitude": 0,
-*            "speed": 34,
-*            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
-*           }]
-*        }
-*       }
-*     }
-*
-* @apiUse TokenHeader
-* @apiUse TokenError
-* @apiUse TokenExpiredError
-* @apiUse MissingParameterError
-*/
-router.delete("/tracking/", function(req, res)
+router.get('/tracking1radio', function(req, res)
 {
-  log.info("DELETE: /tracking/");
-
-  // id del elemento a eliminar
-  var id = req.body.id || req.params.id || req.query.id;
-  log.debug("  -> id: " + id);
-
-  if (id == null)
-  {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-  }
-  else if (typeof parseInt(id) != "number")
-  {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.PARAMETER_ERROR_TYPE}})
-  }
-  else
-  {
-    TrackingModel.deleteTracking(id,function(error, data)
-    {
-      if (data == null)
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+      var latitude = req.query.latitude;
+      var longitude = req.query.longitude;
+      var radio = req.query.radio;
+      log.info("GET: /tracking1radio?latitude="+latitude+"&longitude="+longitude+"&radio="+radio);
+      if (latitude==null || longitude==null || radio==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
       }
-      else
-      {
-        if(data && data.message != "notExist")
+      else {
+        TrackingModel.getTracking1Radio(latitude, longitude, radio,function(error, data)
         {
-          res.status(200).json({"response": {"status":0,"data": {"record": data}}})
-        }
-        else
-        {
-          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-        }
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json(data)
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
       }
-    });
-  }
+    }
+});
+
+/**
+ * @api {get} /api/last-trackings/vehicle/:vehicleLicense Últimas posiciones de un vehiculo
+ * @apiName GetLastTrackingsVehicle Obtener información los últimos trackings de un vehiculo
+ * @apiGroup Tracking
+ * @apiDescription Datos de los últimos puntos de tracking de un vehiculo
+ * @apiVersion 1.0.2
+ * @apiSampleRequest http://view.kyroslbs.com/api/trackings/vehicle/1615-FDW?ntrackings=5
+ *
+ * @apiParam {String} vehicleLicense Identificador del vehiculo en Kyros
+ * @apiParam {Number} ntrackings Número de posiciones d etracking
+ *
+ * @apiSuccess {json} trackingData Datos de los últimos puntos de tracking
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *     [{
+ *      "_id" : ObjectId("57f3fd5efbb7137a40b5fa60"),
+ *      "pos_date" : NumberLong(1475600701000),
+ *      "battery" : 88,
+ *      "altitude" : 726,
+ *      "heading" : 306,
+ *      "location" : {
+ *        "type" : "Point",
+ *        "coordinates" : [
+ *           -4.713148,
+ *           41.655135
+ *        ]
+ *      },
+ *      "tracking_id" : 35815375,
+ *      "vehicle_license" : "1615-FDW",
+ *      "geocoding" : "",
+ *      "events" : [],
+ *      "device_id" : 13
+ *     }, {......}, .... ]
+ *     }
+ */
+router.get('/last-trackings/vehicle/:vehicleLicense', function(req, res)
+{
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+      var vehicleLicense = req.params.vehicleLicense;
+
+      var ntrackings = req.query.ntrackings;
+
+      if (ntrackings==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+      }
+      else {
+        log.info("GET: /last-trackings/vehicle/?ntrackings="+ntrackings);
+
+        var requestData = {
+          vehicleLicense : vehicleLicense,
+          ntrackings : ntrackings
+        };
+        TrackingModel.getLastTrackingsFromVehicle(requestData,function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json(data)
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
+      }
+    }
+});
+
+/**
+ * @api {get} /api/tracking/vehicle/:vehicleLicense Posiciones de un vehiculo
+ * @apiName GetTrackingVehicle Obtener información de tracking de un vehiculo
+ * @apiGroup Tracking
+ * @apiDescription Datos de tracking de un vehiculo entre 2 fechas
+ * @apiVersion 1.0.2
+ * @apiSampleRequest http://view.kyroslbs.com/api/tracking/vehicle/1615-FDW?initDate=1473829136000&endDate=1473915536000
+ *
+ * @apiParam {String} vehicleLicense Identificador del vehiculo en Kyros
+ * @apiParam {Number} initDate Fecha inicial (epoch)
+ * @apiParam {Number} endDate Fecha final (epoch)
+ *
+ * @apiSuccess {json} trackingData Datos de todos los puntos de tracking entre esas fechas
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *     [{
+ *      "_id" : ObjectId("57f3fd5efbb7137a40b5fa60"),
+ *      "pos_date" : NumberLong(1475600701000),
+ *      "battery" : 88,
+ *      "altitude" : 726,
+ *      "heading" : 306,
+ *      "location" : {
+ *        "type" : "Point",
+ *        "coordinates" : [
+ *           -4.713148,
+ *           41.655135
+ *        ]
+ *      },
+ *      "tracking_id" : 35815375,
+ *      "vehicle_license" : "1615-FDW",
+ *      "geocoding" : "",
+ *      "events" : [],
+ *      "device_id" : 13
+ *     }, {......}, .... ]
+ *     }
+ */
+router.get('/tracking/vehicle/:vehicleLicense', function(req, res)
+{
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+      var vehicleLicense = req.params.vehicleLicense;
+      var initDate = req.query.initDate;
+      var endDate = req.query.endDate;
+
+      log.info("GET: /tracking/vehicle/"+vehicleLicense);
+
+      if (initDate==null || endDate==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+      }
+      else {
+        var requestData = {
+          vehicleLicense : vehicleLicense,
+          initDate : initDate,
+          endDate : endDate
+        };
+        TrackingModel.getTrackingFromVehicleAndDate(requestData, function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 6999)
+            {
+              res.status(200).json({"status": "nok", "result": data});
+            }
+            else if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json({"status": "ok", "result": data});
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json({"status": "ok", "result": []});
+              //res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
+      }
+    }
+});
+
+
+/**
+ * @api {get} /api/tracking Información de una posición de un vehiculo
+ * @apiName GetTracking Obtener información de una posición
+ * @apiGroup Tracking
+ * @apiDescription Datos de la posición de un vehiculo
+ * @apiVersion 1.0.1
+ * @apiSampleRequest http://view.kyroslbs.com/api/tracking?vehicleLicense&trackingId=35635027
+ *
+ * @apiParam {String} vehicleLicense Identificador del vehiculo en Kyros
+ * @apiParam {Number} trackingId Identificador de la posición
+ *
+ * @apiSuccess {json} trackingData Datos del punto de tracking
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "_id" : ObjectId("57f3fd5efbb7137a40b5fa60"),
+ *      "pos_date" : NumberLong(1475600701000),
+ *      "battery" : 88,
+ *      "altitude" : 726,
+ *      "heading" : 306,
+ *      "location" : {
+ *        "type" : "Point",
+ *        "coordinates" : [
+ *           -4.713148,
+ *           41.655135
+ *        ]
+ *      },
+ *      "tracking_id" : 35815375,
+ *      "vehicle_license" : "1615-FDW",
+ *      "geocoding" : "",
+ *      "events" : [],
+ *      "device_id" : 13
+ *     }
+ */
+router.get('/tracking', function(req, res)
+{
+    if (req.session.user == null){
+      res.redirect('/');
+    }
+    else {
+      var vehicleLicense = req.query.vehicleLicense;
+      var trackingId = req.query.trackingId;
+
+      if (vehicleLicense==null || trackingId==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+      }
+      else {
+        log.info("GET: /tracking?vehicleLicense="+vehicleLicense+"&trackingId="+trackingId);
+        var requestData = {
+          vehicleLicense : vehicleLicense,
+          trackingId : trackingId
+        };
+        TrackingModel.getTrackingFromVehicle(requestData, function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json(data)
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
+      }
+    }
 });
 
 module.exports = router;

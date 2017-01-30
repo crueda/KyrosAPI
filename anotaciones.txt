@@ -6,13 +6,15 @@ API DOC
 apidoc -i routes/ -o /Applications/MAMP/htdocs/dockyrosapi/
 rsync -r /Applications/MAMP/htdocs/dockyrosapi/* root@192.168.24.31:/var/www/dockyrosapi
 
-Acceso web :
-http://http://www.kyroslbs.es/dockyrosapi/
+Acceso web a la documentacion:
+http://www.kyroslbs.es/dockyrosapi/
 
 
 ----------------------
 MOVER CODIGO:
 rsync -r /Users/Carlos/Workspace/Kyros/API_REST_KYROS/* root@192.168.24.31:/opt/API_REST
+
+
 
 
 

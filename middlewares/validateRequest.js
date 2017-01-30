@@ -28,259 +28,102 @@ function checkPermission(req, serviceList) {
   var arrServiceList = serviceList.split(",");
 
 
-  // AREA
-  if (req.path.lastIndexOf('/kyrosapi/areas', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.area.admin')) > -1 ))
+  // TRACKING
+  if (req.path.lastIndexOf('/kyrosapi/trackings', 0) === 0) {
+    if ((arrServiceList.indexOf(properties.get('kyros.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.tracking.admin')) > -1 ))
       return true;
   }
-  else if (req.path.lastIndexOf('/kyrosapi/area', 0) === 0) {
+  else if (req.path.lastIndexOf('/kyrosapi/tracking', 0) === 0) {
     if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.area.admin')) > -1 ))
+      if ((arrServiceList.indexOf(properties.get('kyros.services.tracking.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.tracking.admin')) > -1 ))
         return true;
     }
     else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.area.admin')) > -1 )
+      if (arrServiceList.indexOf(properties.get('kyros.services.tracking.admin')) > -1 )
         return true;
     }
   }
 
-  // BEACON
-  if (req.path.lastIndexOf('/kyrosapi/beacons', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.area.admin')) > -1 ))
+  // AREA
+  if (req.path.lastIndexOf('/kyrosapi/areas', 0) === 0) {
+    if ((arrServiceList.indexOf(properties.get('kyros.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.area.admin')) > -1 ))
       return true;
   }
-  else if (req.path.lastIndexOf('/kyrosapi/beacon', 0) === 0) {
+  else if (req.path.lastIndexOf('/kyrosapi/area', 0) === 0) {
     if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.area.admin')) > -1 ))
+      if ((arrServiceList.indexOf(properties.get('kyros.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.area.admin')) > -1 ))
         return true;
     }
     else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.area.admin')) > -1 )
+      if (arrServiceList.indexOf(properties.get('kyros.services.area.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // VERTEX
+  if (req.path.lastIndexOf('/kyrosapi/vertexes', 0) === 0) {
+    if ((arrServiceList.indexOf(properties.get('kyros.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.area.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/kyrosapi/vertex', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrServiceList.indexOf(properties.get('kyros.services.area.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.area.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrServiceList.indexOf(properties.get('kyros.services.area.admin')) > -1 )
         return true;
     }
   }
 
   // ROUTE
   if (req.path.lastIndexOf('/kyrosapi/routes', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.route.admin')) > -1 ))
+    if ((arrServiceList.indexOf(properties.get('kyros.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.route.admin')) > -1 ))
       return true;
   }
   else if (req.path.lastIndexOf('/kyrosapi/route', 0) === 0) {
     if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.route.admin')) > -1 ))
+      if ((arrServiceList.indexOf(properties.get('kyros.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.route.admin')) > -1 ))
         return true;
     }
     else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.route.admin')) > -1 )
+      if (arrServiceList.indexOf(properties.get('kyros.services.route.admin')) > -1 )
         return true;
     }
   }
 
   // BEACON
   if (req.path.lastIndexOf('/kyrosapi/beacons', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.route.admin')) > -1 ))
+    if ((arrServiceList.indexOf(properties.get('kyros.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.route.admin')) > -1 ))
       return true;
   }
   else if (req.path.lastIndexOf('/kyrosapi/beacon', 0) === 0) {
     if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.route.admin')) > -1 ))
+      if ((arrServiceList.indexOf(properties.get('kyros.services.route.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.route.admin')) > -1 ))
         return true;
     }
     else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.route.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // LOG
-  else if (req.path.lastIndexOf('/kyrosapi/logs', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.log.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.log.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/log', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.log.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.log.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.log.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // UXO
-  else if (req.path.lastIndexOf('/kyrosapi/uxos', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.uxo.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.uxo.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/uxo', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.uxo.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.uxo.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.uxo.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // PERSONNEL
-  else if (req.path.lastIndexOf('/kyrosapi/personnels', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.personnel.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.personnel.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/personnel', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.personnel.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.personnel.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.personnel.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // CERTIFICATE
-  else if (req.path.lastIndexOf('/kyrosapi/certificates', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.personnel.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.personnel.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/certificate', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.personnel.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.personnel.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.personnel.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // TASK
-  else if (req.path.lastIndexOf('/kyrosapi/tasks', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.task.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.task.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/task', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.task.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.task.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.task.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // SWIPE
-  else if (req.path.lastIndexOf('/kyrosapi/swipes', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.personal_device.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.personal_device.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/swipe', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.personal_device.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.personal_device.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.personal_device.admin')) > -1 )
+      if (arrServiceList.indexOf(properties.get('kyros.services.route.admin')) > -1 )
         return true;
     }
   }
 
   // USER
   else if (req.path.lastIndexOf('/kyrosapi/users', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.user.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.user.admin')) > -1 ))
+    if ((arrServiceList.indexOf(properties.get('kyros.services.user.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.user.admin')) > -1 ))
       return true;
   }
   else if (req.path.lastIndexOf('/kyrosapi/user', 0) === 0) {
     if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.user.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.user.admin')) > -1 ))
+      if ((arrServiceList.indexOf(properties.get('kyros.services.user.read')) > -1 ) || (arrServiceList.indexOf(properties.get('kyros.services.user.admin')) > -1 ))
         return true;
     }
     else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.user.admin')) > -1 )
+      if (arrServiceList.indexOf(properties.get('kyros.services.user.admin')) > -1 )
         return true;
     }
   }
 
-  // ALARM
-  else if (req.path.lastIndexOf('/kyrosapi/alarms', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.alarm.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.alarm.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/alarm', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.alarm.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.alarm.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.alarm.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // VESSEL
-  else if (req.path.lastIndexOf('/kyrosapi/vessels', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.vessel.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.vessel.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/vessel', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.vessel.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.vessel.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.vessel.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // SUBSCRIPTION
-  else if (req.path.lastIndexOf('/listener/subscribe', 0) === 0) {
-    if (arrServiceList.indexOf(properties.get('sumo.services.subscription.create')) > -1 )
-      return true;
-  }
-  else if (req.path.lastIndexOf('/listener/unsubscribe', 0) === 0) {
-    if (arrServiceList.indexOf(properties.get('sumo.services.subscription.delete')) > -1 )
-      return true;
-  }
-  else if (req.path.lastIndexOf('/listener/unsubscribeAll', 0) === 0) {
-    if (arrServiceList.indexOf(properties.get('sumo.services.subscription.delete')) > -1 )
-      return true;
-  }
-
-  // WINDMILL
-  else if (req.path.lastIndexOf('/kyrosapi/windmills', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.windfarm.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.windfarm.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/windmill', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.windfarm.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.windfarm.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.windfarm.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // CABLING
-  else if (req.path.lastIndexOf('/kyrosapi/cablings', 0) === 0) {
-    if ((arrServiceList.indexOf(properties.get('sumo.services.windfarm.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.windfarm.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/kyrosapi/cabling', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrServiceList.indexOf(properties.get('sumo.services.windfarm.read')) > -1 ) || (arrServiceList.indexOf(properties.get('sumo.services.windfarm.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrServiceList.indexOf(properties.get('sumo.services.windfarm.admin')) > -1 )
-        return true;
-    }
-  }
 
   // LOGIN
   else if (req.path.lastIndexOf('/login', 0) === 0) {
@@ -298,22 +141,8 @@ function checkPermission(req, serviceList) {
   else if (req.path.lastIndexOf('/kyrosapi/layer', 0) === 0) {
     return true;
   }
-  // Add New Personnel’s Swipe
-  else if (req.path.lastIndexOf('/PersonnelSwipe', 0) === 0) {
-    return true;
-  }
-  // Add New AIS message
-  else if (req.path.lastIndexOf('/AISMessage', 0) === 0) {
-    return true;
-  }
-  // ROLE
-  else if (req.path.lastIndexOf('/kyrosapi/rol', 0) === 0) {
-    return true;
-  }
-  // SERVICE
-  else if (req.path.lastIndexOf('/kyrosapi/service', 0) === 0) {
-    return true;
-  }
+
+  
 
   return false;
 }
