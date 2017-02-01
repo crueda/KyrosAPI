@@ -34,6 +34,9 @@
   },
   "scripts": {
     "start": "node kyrosapi.js > kyrosapi.log 2> kyrosapi_error.log",
-    "start_forever": "forever start node kyrosapi.js > kyrosapi.log 2> kyrosapi_error.log"
+    "start_forever": "forever start node kyrosapi.js > kyrosapi.log 2> kyrosapi_error.log",
+    "test": "mocha -R nyan",
+    "test-xunit": "mocha --recursive -R xunit test/ > test-reports.xml",
+    "test-html": "mocha --reporter mocha-html-reporter |  cat node_modules/mocha-html-reporter/docs/head.html - node_modules/mocha-html-reporter/docs/tail.html > /Applications/MAMP/htdocs/dockyrosapi/test/test.html"
   }
 }

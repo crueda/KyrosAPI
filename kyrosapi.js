@@ -10,6 +10,12 @@ var MongoDBStore = require('connect-mongodb-session')(session);
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('./kyrosapi.properties');
 
+var api_area = require('./app/routes/area');
+var api_vertex = require('./app/routes/vertex');
+var api_route = require('./app/routes/route');
+var api_beacon = require('./app/routes/beacon');
+var api_driver = require('./app/routes/driver');
+
 var api_tracking = require('./app/routes/tracking');
 var api_odometer = require('./app/routes/odometer');
 var api_activity = require('./app/routes/activity');
@@ -71,30 +77,36 @@ app.all('/*', function(req, res, next) {
   }
 });
 
-app.use('/api', api_login);
-app.use('/api', api_push);
-app.use('/api', api_tracking);
-app.use('/api', api_odometer);
-app.use('/api', api_activity);
-app.use('/api', api_poi);
-app.use('/api', api_monitor);
-app.use('/api', api_numpositions);
-app.use('/api', api_image);
-app.use('/api', api_heatmap);
-app.use('/api', api_vehicle);
-app.use('/api', api_share);
-app.use('/api', api_watch);
-app.use('/api', api_icon);
+app.use('/', api_area);
+app.use('/', api_vertex);
+app.use('/', api_route);
+app.use('/', api_beacon);
+app.use('/', api_driver);
+
+app.use('/', api_login);
+app.use('/', api_push);
+app.use('/', api_tracking);
+app.use('/', api_odometer);
+app.use('/', api_activity);
+app.use('/', api_poi);
+app.use('/', api_monitor);
+app.use('/', api_numpositions);
+app.use('/', api_image);
+app.use('/', api_heatmap);
+app.use('/', api_vehicle);
+app.use('/', api_share);
+app.use('/', api_watch);
+app.use('/', api_icon);
 
 // AUTENTICACION TOKEN
 //app.all('/*', [require('./app/middlewares/validateRequest')]);
-//app.all('/api/app/*', [require('./app/middlewares/validateRequest')]);
-app.use('/api', api_app_notification);
-app.use('/api', api_app_user);
-app.use('/api', api_app_tracking);
-app.use('/api', api_app_vehicle);
-app.use('/api', api_app_monitor);
-app.use('/api', api_app_graph);
+//app.all('/app/*', [require('./app/middlewares/validateRequest')]);
+app.use('/', api_app_notification);
+app.use('/', api_app_user);
+app.use('/', api_app_tracking);
+app.use('/', api_app_vehicle);
+app.use('/', api_app_monitor);
+app.use('/', api_app_graph);
 
 
 // If no route is matched by now, it must be a 404
