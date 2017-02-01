@@ -1,9 +1,0 @@
-./test/test_tracking.js
-
---reporter spec
---growl
---colors
---timeout 2500
---slow 100
---sort
---full-trace

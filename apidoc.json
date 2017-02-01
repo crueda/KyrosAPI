@@ -1,7 +1,7 @@
 {
   "name": "Kyros API REST",
-  "version": "1.0.1",
-  "description": "Kyros API",
+  "version": "1.0.0",
+  "description": "KyrosView API",
   "title": "Kyros api",
-  "url" : "https://api.kyroslbs.com"
+  "url" : "http://view.kyroslbs.com"
 }

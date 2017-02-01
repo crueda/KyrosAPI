@@ -1,52 +1,52 @@
+var http = require('http');
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
-var Client = require('node-rest-client').Client;
-//var selfSignedHttps = require('self-signed-https')
-var schedule = require('node-schedule');
+var errorHandler = require('errorhandler');
+var cookieParser = require('cookie-parser');
+var MongoDBStore = require('connect-mongodb-session')(session);
+
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('./api.properties');
+var properties = PropertiesReader('./kyrosapi.properties');
 
-var login = require('./routes/login');
-var validate = require('./routes/validate');
+var api_tracking = require('./app/routes/tracking');
+var api_odometer = require('./app/routes/odometer');
+var api_activity = require('./app/routes/activity');
+var api_poi = require('./app/routes/poi');
+var api_monitor = require('./app/routes/monitor');
+var api_numpositions = require('./app/routes/numpositions');
+var api_image = require('./app/routes/image');
+var api_heatmap = require('./app/routes/heatmap');
+var api_vehicle = require('./app/routes/vehicle');
+var api_share = require('./app/routes/share');
+var api_watch = require('./app/routes/watch');
+var api_login = require('./app/routes/login');
+var api_push = require('./app/routes/push');
+var api_icon = require('./app/routes/icon');
 
-var kyrosapiService = require('./routes/kyrosapiService');
+var api_app_notification = require('./app/routes/app_notification');
+var api_app_tracking = require('./app/routes/app_tracking');
+var api_app_user = require('./app/routes/app_user');
+var api_app_vehicle = require('./app/routes/app_vehicle');
+var api_app_monitor = require('./app/routes/app_monitor');
+var api_app_graph = require('./app/routes/app_graph');
 
-var areas = require('./routes/areas');
-var vertex = require('./routes/vertex');
-var driver = require('./routes/driver');
-var vehicle = require('./routes/vehicle');
-var route = require('./routes/route');
-var beacon = require('./routes/beacon');
-var poi = require('./routes/poi');
-var tracking = require('./routes/tracking');
-
-//var port = require('./routes/port');
-
-// usuarios
-var user = require('./routes/user.js');
-
-var layer = require('./routes/layer.js');
+var i18n = require("i18n");
 
 //necesario para utilizar los verbos put y delete en formularios
 var methodOverride = require('method-override');
 
 var app = express();
 
-//configuración para ejs
-app.set('views', path.join(__dirname, 'views'));
-app.engine("html", require("ejs").renderFile);
-app.set('view engine', 'html');
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
-//app.use(session({secret: 'ssshhhhh',saveUninitialized: true,resave: true}));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.locals.pretty = true;
+app.set('port', process.env.PORT || 3000);
+app.use(cookieParser());
+app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
+app.use(express.static(__dirname + '/app/public'));
 
 //configuramos methodOverride
 app.use(methodOverride(function(req, res){
@@ -63,7 +63,7 @@ app.all('/*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // restrict it to the required domain
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   // Set custom headers for CORS
-  res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
+  res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Access,X-Key');
   if (req.method == 'OPTIONS') {
     res.status(200).end();
   } else {
@@ -71,31 +71,30 @@ app.all('/*', function(req, res, next) {
   }
 });
 
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'apidoc')));
-
-// Zona desmilitarizada
-app.use('/', login);
-app.use('/', validate);
-
-
+app.use('/api', api_login);
+app.use('/api', api_push);
+app.use('/api', api_tracking);
+app.use('/api', api_odometer);
+app.use('/api', api_activity);
+app.use('/api', api_poi);
+app.use('/api', api_monitor);
+app.use('/api', api_numpositions);
+app.use('/api', api_image);
+app.use('/api', api_heatmap);
+app.use('/api', api_vehicle);
+app.use('/api', api_share);
+app.use('/api', api_watch);
+app.use('/api', api_icon);
 
 // AUTENTICACION TOKEN
-//app.all('/*', [require('./middlewares/validateRequest')]);
-
-
-app.use('/kyrosapi', kyrosapiService);
-app.use('/kyrosapi', areas);
-app.use('/kyrosapi', vertex);
-app.use('/kyrosapi', driver);
-app.use('/kyrosapi', vehicle);
-app.use('/kyrosapi', route);
-app.use('/kyrosapi', beacon);
-app.use('/kyrosapi', poi);
-app.use('/kyrosapi', user);
-app.use('/kyrosapi', layer);
-app.use('/kyrosapi', tracking);
+//app.all('/*', [require('./app/middlewares/validateRequest')]);
+//app.all('/api/app/*', [require('./app/middlewares/validateRequest')]);
+app.use('/api', api_app_notification);
+app.use('/api', api_app_user);
+app.use('/api', api_app_tracking);
+app.use('/api', api_app_vehicle);
+app.use('/api', api_app_monitor);
+app.use('/api', api_app_graph);
 
 
 // If no route is matched by now, it must be a 404
@@ -106,22 +105,8 @@ app.use(function(req, res, next) {
   //next(err);
 });
 
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500).json({"message":err.message || "Internal error"})
-    });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-    res.status(err.status || 500).json({"message":err.message || "Internal error"})
+http.createServer(app).listen(app.get('port'), function(){
+	console.log('KyrosAPI server listening on port ' + app.get('port'));
 });
-
-
 
 module.exports = app;

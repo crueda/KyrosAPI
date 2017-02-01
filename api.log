@@ -1,6 +1,0 @@
-2017-01-29T19:30:44+0100 <info> areas.js:195 () POST: /areas
-2017-01-29T19:30:44+0100 <debug> area.js:43 (Object.areaModel.getAreas) Query: SELECT count(*) as nrows FROM AREA
-2017-01-29T19:30:44+0100 <debug> area.js:92 (Query._callback) Query: SELECT ID as id, DESCRIPTION as description, DATE_FORMAT(FROM_UNIXTIME(FLOOR(DATE_INIT/1000)), '%Y-%m-NaNT') as initDate, DATE_FORMAT(FROM_UNIXTIME(FLOOR(DATE_END/1000)), '%Y-%m-NaNT') as endDate, HOUR_INIT as initHour, HOUR_END as endHour, TYPE_AREA as typeArea, RADIUS as radius, USER_NAME as username FROM AREA ORDER BY id
-2017-01-29T19:43:47+0100 <info> areas.js:195 () POST: /areas
-2017-01-29T19:43:47+0100 <debug> area.js:43 (Object.areaModel.getAreas) Query: SELECT count(*) as nrows FROM AREA
-2017-01-29T19:43:47+0100 <debug> area.js:92 (Query._callback) Query: SELECT ID as id, DESCRIPTION as description, DATE_FORMAT(FROM_UNIXTIME(FLOOR(DATE_INIT/1000)), '%Y-%m-NaNT') as initDate, DATE_FORMAT(FROM_UNIXTIME(FLOOR(DATE_END/1000)), '%Y-%m-NaNT') as endDate, HOUR_INIT as initHour, HOUR_END as endHour, TYPE_AREA as typeArea, RADIUS as radius, USER_NAME as username FROM AREA ORDER BY id
