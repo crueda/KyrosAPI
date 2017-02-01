@@ -1,1 +1,2 @@
-./api.properties
+./kyrosapi.properties
+*.log

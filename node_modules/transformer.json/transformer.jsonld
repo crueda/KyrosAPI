@@ -1,0 +1,7 @@
+{
+ "@context": "http://transformer.io/context/transformer.jsonld",
+ "type": "type",
+ "id": "json",
+ "description": "JSON - JavaScript Object Notation",
+ "schema": "string"
+}
