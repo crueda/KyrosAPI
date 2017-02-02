@@ -243,7 +243,6 @@ router.post('/trackings/', function(req, res)
   }
 });
 
-
 /* POST. Se obtiene trackings de un vehiculo */
 /**
 * @api {post} /trackings/vehicle/:id Request all tracking from vehicle
