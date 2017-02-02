@@ -110,8 +110,7 @@ var log = require('tracer').console({
                 res.status(200);
                 res.json({
                   id: dbUser[0].id,
-                  user: decoded.iss,
-                  role: decoded.role
+                  user: decoded.iss
                 });
                 return;
               }

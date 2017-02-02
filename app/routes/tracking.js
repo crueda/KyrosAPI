@@ -6,7 +6,7 @@ var TrackingModel = require('../models/tracking');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('./api.properties');
+var properties = PropertiesReader('kyrosapi.properties');
 
 // Definición del log
 var fs = require('fs');
@@ -149,7 +149,7 @@ function kcoords(px, py) {
 
 /* POST. Obtenemos y mostramos todos los tracking */
 /**
-* @api {post} /kyrosapi/tracking Request all tracking
+* @api {post} /tracking Request all tracking
 * @apiName GetTrackings
 * @apiGroup Tracking
 * @apiVersion 1.0.1
@@ -157,9 +157,9 @@ function kcoords(px, py) {
 *
 * @apiParam {Number} startRow Number of first element
 * @apiParam {Number} endRow Number of last element
-* @apiParam {String="id","elementId","speed","altitude","heading","latitude","longitude"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
+* @apiParam {String="id","deviceId","speed","altitude","heading","latitude","longitude"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
 *
-* @apiSampleRequest https://sumo-api.kyroslbs.com/kyrosapi/trackings
+* @apiSampleRequest https://api.kyroslbs.com/trackings
 * @apiSuccessExample Success-Response:
 *     https/1.1 200 OK
 *     {
@@ -173,7 +173,7 @@ function kcoords(px, py) {
 *           "record": [
 *           {
 *            "id": 123,
-*            "elementId": 13432,
+*            "deviceId": 13432,
 *            "latitude": 43.314166666666665,
 *            "longitude": -2.033333333333333,
 *            "altitude": 0,
@@ -243,22 +243,22 @@ router.post('/trackings/', function(req, res)
   }
 });
 
-/* POST. Se obtiene trackings de un vessel */
+/* POST. Se obtiene trackings de un vehiculo */
 /**
-* @api {post} /kyrosapi/trackings/vessel/:id Request tracking information
-* @apiName PostTracking Request tracking information from vessel
+* @api {post} /trackings/vehicle/:id Request tracking information
+* @apiName PostTracking Request tracking information from vehicle
 * @apiGroup Tracking
 * @apiVersion 1.0.1
 * @apiDescription Tracking information from vessel
-* @apiSampleRequest https://sumo-api.kyroslbs.com/kyrosapi/trackings/vessel
+* @apiSampleRequest https://api.kyroslbs.com/trackings/vehicle/1231-BCW
 *
-* @apiParam {Number} id vessel unique ID
+* @apiParam {Number} id vehicle unique ID
 * @apiParam {Number} startRow Number of first element
 * @apiParam {Number} endRow Number of last element
 * @apiParam {String="id","speed","altitude","heading","latitude","longitude"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
 *
 * @apiSuccess {Number} id tracking unique ID
-* @apiSuccess {Number} elementId Identification of the element
+* @apiSuccess {Number} deviceId Identification of the element
 * @apiSuccess {Number} altitude Altitude over the sea level (in meters)
 * @apiSuccess {Number} speed Speed value (in Km/h)
 * @apiSuccess {Number} heading Heading value (in degress)
@@ -278,7 +278,7 @@ router.post('/trackings/', function(req, res)
 *           "record": [
 *           {
 *            "id": 123,
-*            "elementId": 13432,
+*            "deviceId": 13432,
 *            "latitude": 43.314166666666665,
 *            "longitude": -2.033333333333333,
 *            "altitude": 0,
@@ -291,7 +291,7 @@ router.post('/trackings/', function(req, res)
 *       }
 *     }
 *
-* @apiError vesselNotFound The <code>id</code> of the vessel was not found.
+* @apiError vehicleNotFound The <code>id</code> of the vehicle was not found.
 *
 * @apiUse TokenHeader
 * @apiUse TokenError
@@ -299,7 +299,7 @@ router.post('/trackings/', function(req, res)
 * @apiUse MissingRegisterError
 * @apiUse IdNumericError
 */
-router.post('/trackings/vessel/:id', function(req, res)
+router.post('/trackings/vehicle/:id', function(req, res)
 {
   var id = req.params.id;
   log.info("POST: /trackings/vessel/"+id);
@@ -318,7 +318,7 @@ router.post('/trackings/vessel/:id', function(req, res)
       sortBy = sortBy.replace(/\s/g, "");
     }
 
-    TrackingModel.getTrackingsFromVessel(id, startRow, endRow, sortBy, function(error, data, totalRows)
+    TrackingModel.getTrackingsFromVehicle(id, startRow, endRow, sortBy, function(error, data, totalRows)
     {
       if (data == null)
       {
@@ -343,17 +343,17 @@ router.post('/trackings/vessel/:id', function(req, res)
 
 /* GET. Se obtiene un tracking por su id */
 /**
-* @api {get} /kyrosapi/tracking/:id Request tracking information
+* @api {get} /tracking/:id Request tracking information
 * @apiName GetTracking Request tracking information
 * @apiGroup Tracking
 * @apiVersion 1.0.1
 * @apiDescription Tracking information
-* @apiSampleRequest https://sumo-api.kyroslbs.com/kyrosapi/tracking
+* @apiSampleRequest https://api.kyroslbs.com/tracking/234235621
 *
 * @apiParam {Number} id tracking unique ID
 *
 * @apiSuccess {Number} id tracking unique ID
-* @apiSuccess {Number} elementId Identification of the element
+* @apiSuccess {Number} deviceId Identification of the vehicle
 * @apiSuccess {Number} altitude Altitude over the sea level (in meters)
 * @apiSuccess {Number} speed Speed value (in Km/h)
 * @apiSuccess {Number} heading Heading value (in degress)
@@ -373,7 +373,7 @@ router.post('/trackings/vessel/:id', function(req, res)
 *           "record": [
 *           {
 *            "id": 123,
-*            "elementId": 13432,
+*            "deviceId": 13432,
 *            "latitude": 43.314166666666665,
 *            "longitude": -2.033333333333333,
 *            "altitude": 0,
@@ -431,13 +431,13 @@ router.get('/tracking/:id', function(req, res)
 });
 
 /* PUT. Actualizamos un tracking existente */
-/**
-* @api {put} /kyrosapi/tracking/ Update tracking
+/*
+* @api {put} /tracking/ Update tracking
 * @apiName PutNewtracking
 * @apiGroup tracking
 * @apiVersion 1.0.1
 * @apiDescription Update tracking
-* @apiSampleRequest https://sumo-api.kyroslbs.com/kyrosapi/tracking
+* @apiSampleRequest https://api.kyroslbs.com/tracking
 *
 * @apiParam {Number} id tracking unique ID
 * @apiParam {Number} altitude Altitude over the sea level (in meters)
@@ -457,7 +457,7 @@ router.get('/tracking/:id', function(req, res)
 *           "record": [
 *           {
 *            "id": 123,
-*            "elementId": 13432,
+*            "deviceId": 13432,
 *            "latitude": 43.314166666666665,
 *            "longitude": -2.033333333333333,
 *            "altitude": 0,
@@ -531,13 +531,13 @@ router.put('/tracking/', function(req, res)
 });
 
 
-/**
-* @api {post} /kyrosapi/tracking/ Create new tracking
+/*
+* @api {post} /tracking/ Create new tracking
 * @apiName PostNewtracking
 * @apiGroup tracking
 * @apiVersion 1.0.1
 * @apiDescription Create new tracking
-* @apiSampleRequest https://sumo-api.kyroslbs.com/kyrosapi/tracking
+* @apiSampleRequest https://api.kyroslbs.com/tracking
 *
 * @apiParam {Number} altitude Altitude over the sea level (in meters)
 * @apiParam {Number} speed Speed value (in Km/h)
@@ -630,13 +630,13 @@ router.post("/tracking", function(req,res)
 });
 
 /* DELETE. Eliminar un tracking */
-/**
-* @api {delete} /kyrosapi/tracking Delete tracking
+/*
+* @api {delete} /tracking Delete tracking
 * @apiName Deletetracking
 * @apiGroup tracking
 * @apiVersion 1.0.1
 * @apiDescription Delete tracking
-* @apiSampleRequest https://sumo-api.kyroslbs.com/kyrosapi/tracking
+* @apiSampleRequest https://api.kyroslbs.com/tracking
 *
 * @apiParam {Number} id tracking unique ID
 *
@@ -651,7 +651,7 @@ router.post("/tracking", function(req,res)
 *           "record": [
 *           {
 *            "id": 123,
-*            "elementId": 13432,
+*            "deviceId": 13432,
 *            "latitude": 43.314166666666665,
 *            "longitude": -2.033333333333333,
 *            "altitude": 0,
