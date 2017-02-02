@@ -133,18 +133,17 @@ var log = require('tracer').console({
 *     }
 */
 
-/* POST. Obtenemos y mostramos todos las rutas */
 /**
- * @api {post} /kyrosapi/routes Request all routes
+ * @api {post} /routes Request all routes
  * @apiName PostRoutes
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription List of routes
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/routes
+ * @apiSampleRequest https://api.kyroslbs.com/routes
  *
  * @apiParam {Number} [startRow] Number of first element
  * @apiParam {Number} [endRow] Number of last element
- * @apiParam {String="id","description","initDate","endDate","typeRoute"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
+ * @apiParam {String="id","description","initDate","endDate"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
  *
  * @apiSuccess {Object[]} route       List of routes
  * @apiSuccessExample Success-Response:
@@ -162,8 +161,7 @@ var log = require('tracer').console({
  *              "id": 744,
  *              "description": "Mad 3 cantos",
  *              "initDate": "2011-11-04T00:00:00Z,
- *              "endDate": 2015-11-04T23:59:59Z,
- *              "typeRoute": 2
+ *              "endDate": 2015-11-04T23:59:59Z
  *            },
  *            {
  *              "id": 768,
@@ -208,7 +206,6 @@ router.post('/routes/', function(req, res)
           }
           res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
         }
-        //en otro caso se muestra error
         else
         {
             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
@@ -217,19 +214,17 @@ router.post('/routes/', function(req, res)
 });
 
 
-/* GET. Se obtiene una ruta por su id */
 /**
- * @api {get} /kyrosapi/route/:id Request route information
+ * @api {get} /route/:id Request route information
  * @apiName GetRoute Request route information
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Route information
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/route
+ * @apiSampleRequest https://api.kyroslbs.com/route
  *
  * @apiParam {Number} id Route unique ID
  *
- * @apiSuccess {String} description Description of the vertex
- * @apiSuccess {String} routeType Type of route F=forbidden, A=Allow, G=Generic)
+ * @apiSuccess {String} description Description of the route
  * @apiSuccess {Number} initDate Init date of route in ISO format
  * @apiSuccess {Number} endDate End date of route in ISO format
  * @apiSuccessExample Success-Response:
@@ -247,8 +242,7 @@ router.post('/routes/', function(req, res)
  *              "id": 744,
  *              "description": "Mad 3 cantos",
  *              "initDate": "2011-11-04T00:00:00Z,
- *              "endDate": 2015-11-04T23:59:59Z,
- *              "typeRoute": 2
+ *              "endDate": 2015-11-04T23:59:59Z
  *            }
  *          }]
  *        }
@@ -298,18 +292,16 @@ router.get('/route/:id', function(req, res)
     }
 });
 
-  /* PUT. Actualizamos una ruta existente */
   /**
-   * @api {put} /kyrosapi/route/ Update route
+   * @api {put} /route/ Update route
    * @apiName PutUpdateRoute
    * @apiGroup Route
    * @apiVersion 1.0.1
    * @apiDescription Update route
-   * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/route
+   * @apiSampleRequest https://api.kyroslbs.com/route
    *
    * @apiParam {Number} id Route unique ID
-   * @apiParam {String} description Description of the vertex
-   * @apiParam {String} routeType Type of route F=forbidden, A=Allow, G=Generic)
+   * @apiParam {String} description Description of the route
    * @apiParam {String} initDate Init date of route in ISO format
    * @apiParam {String} endDate End date of route in ISO format
    *
@@ -326,8 +318,7 @@ router.get('/route/:id', function(req, res)
    *              "id": 744,
    *              "description": "Mad 3 cantos",
    *              "initDate": "2011-11-04T00:00:00Z,
-   *              "endDate": 2015-11-04T23:59:59Z,
-   *              "typeRoute": 2
+   *              "endDate": 2015-11-04T23:59:59Z
    *            }
    *          }]
    *        }
@@ -345,17 +336,15 @@ router.put('/route/', function(req, res)
 
     var id_value = req.body.id || req.query.id || req.params.id;
     var description_value = req.body.description || req.query.description || req.params.description;
-    var routeType_value = req.body.routeType || req.query.routeType || req.params.routeType;
     var initDate_value = req.body.initDate || req.query.initDate || req.params.initDate;
     var endDate_value = req.body.endDate || req.query.endDate || req.params.endDate;
 
     log.debug("  -> id:          " + id_value);
     log.debug("  -> description: " + description_value);
-    log.debug("  -> routeType:   " + routeType_value);
     log.debug("  -> initDate:    " + initDate_value);
     log.debug("  -> endDate:     " + endDate_value);
 
-    if (id_value == null || description_value == null || routeType_value == null || initDate_value == null || endDate_value == null) {
+    if (id_value == null || description_value == null || initDate_value == null || endDate_value == null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
     else if (!moment(initDate_value,'YYYY-MM-DDTHH:mm:ssZ', true).isValid()) {
@@ -366,11 +355,9 @@ router.put('/route/', function(req, res)
     }
     else
     {
-      //almacenamos los datos del formulario en un objeto
       var routeData = {
           id : id_value,
           description : description_value,
-          routeType : routeType_value,
           initDate : initDate_value,
           endDate : endDate_value
       };
@@ -398,15 +385,13 @@ router.put('/route/', function(req, res)
 });
 
 /**
- * @api {post} /kyrosapi/route/ Create new route
  * @apiName PostNewRoute
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Create new route
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/route
+ * @apiSampleRequest https://api.kyroslbs.com/route
  *
  * @apiParam {String} description Description of the route
- * @apiParam {String} routeType Type of route F=forbidden, A=Allow, G=Generic)
  * @apiParam {String} initDate Init date of rute in ISO format
  * @apiParam {String} endDate End date of rute in ISO format
  *
@@ -423,8 +408,7 @@ router.put('/route/', function(req, res)
  *              "id": 744,
  *              "description": "Mad 3 cantos",
  *              "initDate": "2011-11-04T00:00:00Z,
- *              "endDate": 2015-11-04T23:59:59Z,
- *              "typeRoute": 2
+ *              "endDate": 2015-11-04T23:59:59Z
  *            }
  *          }]
  *        }
@@ -442,16 +426,14 @@ router.post("/route", function(req,res)
     log.info("POST: /route");
 
     var description_value = req.body.description || req.query.description || req.params.description;
-    var routeType_value = req.body.routeType || req.query.routeType || req.params.routeType;
     var initDate_value = req.body.initDate || req.query.initDate || req.params.initDate;
     var endDate_value = req.body.endDate || req.query.endDate || req.params.endDate;
 
     log.debug("  -> description: " + description_value);
-    log.debug("  -> routeType:   " + routeType_value);
     log.debug("  -> initDate:    " + initDate_value);
     log.debug("  -> endDate:     " + endDate_value);
 
-    if (description_value == null || routeType_value == null || initDate_value == null || endDate_value == null) {
+    if (description_value == null || initDate_value == null || endDate_value == null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
     else if (!moment(initDate_value,'YYYY-MM-DDTHH:mm:ssZ', true).isValid()) {
@@ -462,11 +444,9 @@ router.post("/route", function(req,res)
     }
     else
     {
-      // Crear un objeto con los datos a insertar de la ruta
       var routeData = {
           id : null,
           description : description_value,
-          routeType : routeType_value,
           initDate : initDate_value,
           endDate : endDate_value
       };
@@ -494,14 +474,13 @@ router.post("/route", function(req,res)
     }
 });
 
-/* DELETE. Eliminamos una ruta */
 /**
- * @api {delete} /kyrosapi/route Delete route
+ * @api {delete} /route Delete route
  * @apiName DeleteRoute
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Delete route
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/route
+ * @apiSampleRequest https://api.kyroslbs.com/route
  *
  * @apiParam {Number} id Route unique ID
  * @apiSuccess {json} message Result message
@@ -517,8 +496,7 @@ router.post("/route", function(req,res)
  *              "id": 744,
  *              "description": "Mad 3 cantos",
  *              "initDate": "2011-11-04T00:00:00Z,
- *              "endDate": 2015-11-04T23:59:59Z,
- *              "typeRoute": 2
+ *              "endDate": 2015-11-04T23:59:59Z
  *            }
  *          }]
  *        }
