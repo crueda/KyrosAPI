@@ -149,12 +149,12 @@ function kcoords(px, py) {
 
 /* POST. Obtenemos y mostramos todos los vertices de un area */
 /**
- * @api {post} /kyrosapi/vertexes/assignedTo/:areaId Request all vertexes assigned to area
+ * @api {post} /vertexes/assignedTo/:areaId Request all vertexes assigned to area
  * @apiName GetVertexesArea
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription List of vertexes assigned to area
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/vertexes/assignedTo/1020
+ * @apiSampleRequest https://api.kyroslbs.com/vertexes/assignedTo/1020
  *
  * @apiParam {Number} [startRow] Number of first element
  * @apiParam {Number} [endRow] Number of last element
@@ -238,12 +238,12 @@ router.post('/vertexes/assignedTo/:id', function(req, res)
 
 /* POST. Obtenemos y mostramos todos los vertices */
 /**
- * @api {post} /kyrosapi/vertexes Request all vertexes
+ * @api {post} /vertexes Request all vertexes
  * @apiName GetVertexes
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription List of vertexes
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/vertexes
+ * @apiSampleRequest https://api.kyroslbs.com/vertexes
  * @apiSuccessExample Success-Response:
  *     https/1.1 200 OK
  *     {
@@ -318,12 +318,12 @@ router.post('/vertexes/', function(req, res)
 
 /* GET. Se obtiene un vertice por su id */
 /**
- * @api {get} /kyrosapi/vertex/:id Request vertex information
+ * @api {get} /vertex/:id Request vertex information
  * @apiName GetVertex Request vertex information
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription Vertex information
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/vertex
+ * @apiSampleRequest https://api.kyroslbs.com/vertex
  *
  * @apiParam {Number} id Vertex unique ID
  *
@@ -403,12 +403,12 @@ router.get('/vertex/:id', function(req, res)
 
 /* PUT. Actualizamos un vertice existente */
 /**
- * @api {put} /kyrosapi/vertex/ Update vertex
+ * @api {put} /vertex/ Update vertex
  * @apiName PutNewVertex
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription Update vertex
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/vertex
+ * @apiSampleRequest https://api.kyroslbs.com/vertex
  *
  * @apiParam {Number} id Vertex unique ID
  * @apiParam {String} areaId Identification of the area
@@ -500,12 +500,12 @@ router.put('/vertex/', function(req, res)
 
 
 /**
- * @api {post} /kyrosapi/vertex/ Create new vertex
+ * @api {post} /vertex/ Create new vertex
  * @apiName PostNewVertex
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription Create new vertex
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/vertex
+ * @apiSampleRequest https://api.kyroslbs.com/vertex
  *
  * @apiParam {Number} areaId Area identification
  * @apiParam {String} description Description of the vertex
@@ -596,12 +596,12 @@ router.post("/vertex", function(req,res)
 
 /* DELETE. Eliminar un vertice */
 /**
- * @api {delete} /kyrosapi/vertex Delete vertex
+ * @api {delete} /vertex Delete vertex
  * @apiName DeleteVertex
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription Delete vertex
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/vertex
+ * @apiSampleRequest https://api.kyroslbs.com/vertex
  *
  * @apiParam {Number} id Vertex unique ID
  *
