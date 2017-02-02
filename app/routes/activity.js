@@ -27,10 +27,120 @@ var log = require('tracer').console({
 });
 
 /**
- * @api {get} /activity/:vehicleLicense Actividad de un dispositivo
- * @apiName GetActivity Obtener información de actividad de un determinado dispositivo
- * @apiGroup Activity
- * @apiDescription Últimos datos de actividad de un determinado dispositivo
+* @apiDefine LoginError
+*
+* @apiError UserNotFound The id of the User was not found
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -5,
+*        "description": "Invalid user or password"
+*      }
+*     }
+*/
+
+/**
+* @apiDefine PermissionError
+*
+* @apiError NotAllow Access not allow to User
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -4,
+*        "description": "User not authorized"
+*      }
+*     }
+*/
+
+/** @apiDefine TokenError
+*
+* @apiError TokenInvalid The token is invalid
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -5,
+*        "description": "Invalid token"
+*      }
+*     }
+*/
+
+/** @apiDefine TokenExpiredError
+*
+* @apiError TokenExpired The token is expired
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -5,
+*        "description": "Token expired"
+*      }
+*     }
+*/
+
+/** @apiDefine MissingParameterError
+*
+* @apiError MissingParameter Missing parameter
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -4,
+*        "description": "Missing parameter"
+*      }
+*     }
+*/
+
+/** @apiDefine MissingRegisterError
+*
+* @apiError MissingRegister Missing register
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -1000,
+*        "description": "Missing element"
+*      }
+*     }
+*/
+
+/** @apiDefine IdNumericError
+*
+* @apiError IdNumeric Id numeric error
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -9,
+*        "description": "The id must be numeric"
+*      }
+*     }
+*/
+
+/** @apiDefine TokenHeader
+*
+* @apiHeader {String} x-access-token JSON Web Token (JWT)
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MzIyMTg2ODc1ODksImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9._tYZLkBrESt9FwOccyvripIsZR5S0m8PLZmEgIDEFaY"
+*     }
+*/
+
+/**
+ * @api {get} /activity/:vehicleLicense Vehicle activity
+ * @apiName GetActivity
+ * @apiGroup Vehicle
+ * @apiDescription Vehicle activity data
  * @apiVersion 1.0.1
  * @apiSampleRequest https://api.kyroslbs.com/activity/1615-FDW?initDate=1473915536000&endDate=1473915736000
  *
@@ -65,6 +175,11 @@ var log = require('tracer').console({
  *        ],
  *        "xData": [1472725489000, 1472726070000, 1472729044000]
  *     }
+ *
+ * @apiUse TokenHeader
+ * @apiUse PermissionError
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
  */
 router.get('/activity/:vehicleLicense', function(req, res)
 {

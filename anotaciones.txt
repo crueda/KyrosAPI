@@ -1,13 +1,16 @@
-basado en:
-http://uno-de-piera.com/servicio-rest-con-nodejs-express-4-y-mysql/
-
 API DOC
 -------
-apidoc -i routes/ -o /Applications/MAMP/htdocs/dockyrosapi/
-rsync -r /Applications/MAMP/htdocs/dockyrosapi/* root@192.168.24.31:/var/www/dockyrosapi
+apidoc -i app/routes/ -o /Applications/MAMP/htdocs/dockyrosapi/
+rsync -r /Applications/MAMP/htdocs/dockyrosapi/* root@172.26.7.3:/var/www/html/dockyrosapi
 
 Acceso web a la documentacion:
-http://www.kyroslbs.es/dockyrosapi/
+http://api-doc.kyroslbs.com
+
+
+Acceso a la api:
+http://api.kyroslbs.com
+
+
 
 
 ----------------------

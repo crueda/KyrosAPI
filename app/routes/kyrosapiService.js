@@ -30,20 +30,14 @@ router.post("/Status", function(req,res)
 
 });
 
-/* GET. Service status */
 /**
- * @api {get} /kyrosapi/Status Request Kyros API service status
+ * @api {get} /status Request Kyros API service status
  * @apiName GetStatus
  * @apiGroup Status
  * @apiVersion 1.0.1
  *
  * @apiDescription Kyros API service status
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/Status
- * @apiHeader {String} x-access-token JSON Web Token (JWT)
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MzIyMTg2ODc1ODksImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9._tYZLkBrESt9FwOccyvripIsZR5S0m8PLZmEgIDEFaY"
- *     }
+ * @apiSampleRequest https://api.kyroslbs.com/status
  *
  * @apiSuccess {String} status Status of service (ON/OFF)
  * @apiSuccess {String} upTime Uptime of service (in seconds)
@@ -53,25 +47,37 @@ router.post("/Status", function(req,res)
  *       "status": "ON",
  *       "upTime": "123.21",
  *     }
- * @apiErrorExample {json} Error-Response:
- *     https/1.1 401 Not authorized
- *     {
- *       "message": "Invalid user"
- *     }
- * @apiErrorExample {json} Error-Response:
- *     https/1.1 401 Not authorized
- *     {
- *       "message": "Invalid token"
- *     }
- * @apiErrorExample {json} Error-Response:
- *     https/1.1 401 Not authorized
- *     {
- *       "message": "Token expired"
- *     }
  */
-router.get("/Status", function(req,res)
+router.get("/status", function(req,res)
 {
   log.info("GET: /Status");
+
+  var time = process.uptime();
+  res.status(200).json({"status":"ON", "upTime":time})
+
+});
+
+/**
+ * @api {post} /status Request Kyros API service status
+ * @apiName PostStatus
+ * @apiGroup Status
+ * @apiVersion 1.0.1
+ *
+ * @apiDescription Kyros API service status
+ * @apiSampleRequest https://api.kyroslbs.com/status
+ *
+ * @apiSuccess {String} status Status of service (ON/OFF)
+ * @apiSuccess {String} upTime Uptime of service (in seconds)
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
+ *     {
+ *       "status": "ON",
+ *       "upTime": "123.21",
+ *     }
+ */
+router.post("/status", function(req,res)
+{
+  log.info("POST: /Status");
 
   var time = process.uptime();
   res.status(200).json({"status":"ON", "upTime":time})

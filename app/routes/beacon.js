@@ -134,12 +134,12 @@ var log = require('tracer').console({
 
 /* POST. Obtenemos y mostramos todos los beacons */
 /**
- * @api {post} /kyrosapi/beacons Request all beacons
+ * @api {post} /beacons Request all beacons
  * @apiName GetBeacons
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription List of beacons
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/beacons
+ * @apiSampleRequest https://api.kyroslbs.com/beacons
  *
  * @apiParam {Number} [startRow] Number of first element
  * @apiParam {Number} [endRow] Number of last element
@@ -221,12 +221,12 @@ router.post('/beacons/', function(req, res)
 
 /* GET. Se obtiene un beacon por su id */
 /**
- * @api {get} /kyrosapi/beacon/:id Request beacon information
+ * @api {get} /beacon/:id Request beacon information
  * @apiName GetBeacon Request beacon information
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Beacon information
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/beacon
+ * @apiSampleRequest https://api.kyroslbs.com/beacon
  *
  * @apiParam {Number} id Beacon unique ID
  *
@@ -306,12 +306,12 @@ router.get('/beacon/:id', function(req, res)
 
 /* PUT. Actualizamos un beacon existente */
 /**
- * @api {put} /kyrosapi/beacon/ Update beacon
+ * @api {put} /beacon/ Update beacon
  * @apiName PutNewBeacon
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Update beacon
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/beacon
+ * @apiSampleRequest https://api.kyroslbs.com/beacon
  *
  * @apiParam {Number} id Beacon unique ID
  * @apiParam {String} routeId Identification of the route
@@ -406,12 +406,12 @@ router.put('/beacon/', function(req, res)
 });
 
 /**
- * @api {post} /kyrosapi/beacon/ Create new beacon
+ * @api {post} /beacon/ Create new beacon
  * @apiName PostNewBeacon
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Create new beacon
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/beacon
+ * @apiSampleRequest https://api.kyroslbs.com/beacon
  *
  * @apiParam {Number} routeId Route identification
  * @apiParam {Number} posBeacon Position of beacon in the route
@@ -521,12 +521,12 @@ router.post("/beacon", function(req,res)
 
 /* DELETE. Eliminamos un beacon */
 /**
- * @api {delete} /kyrosapi/beacon Delete beacon
+ * @api {delete} /beacon Delete beacon
  * @apiName DeleteBeacon
  * @apiGroup Route
  * @apiVersion 1.0.1
  * @apiDescription Delete beacon
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/beacon
+ * @apiSampleRequest https://api.kyroslbs.com/beacon
  *
  * @apiParam {Number} id Beacon unique ID
  *

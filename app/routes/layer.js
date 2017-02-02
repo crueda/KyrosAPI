@@ -132,14 +132,13 @@ var log = require('tracer').console({
 *     }
 */
 
-/* POST. Obtenemos y mostramos todos */
 /**
- * @api {post} /kyrosapi/layers Request all layers
+ * @api {post} /layers Request all layers
  * @apiName GetLayers
  * @apiGroup Layer
  * @apiVersion 1.0.1
  * @apiDescription List of layers
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/layers
+ * @apiSampleRequest https://api.kyroslbs.com/layers
  *
  * @apiParam {Number} [startRow] Number of first element
  * @apiParam {Number} [endRow] Number of last element
@@ -206,7 +205,6 @@ router.post('/layers/', function(req, res)
           }
           res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
         }
-        //en otro caso se muestra un error
         else
         {
             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
@@ -214,18 +212,17 @@ router.post('/layers/', function(req, res)
     });
 });
 
-/* GET. Se obtiene un layer por su id */
 /**
- * @api {get} /kyrosapi/layer/:id Request layer information
+ * @api {get} /layer/:id Request layer information
  * @apiName GetLayer Request layer information
  * @apiGroup Layer
  * @apiVersion 1.0.1
  * @apiDescription Layer information
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/layer
+ * @apiSampleRequest https://api.kyroslbs.com/layer
  *
  * @apiParam {Number} id Layer unique ID
  *
- * @apiSuccess {Number} id Identification of the route
+ * @apiSuccess {Number} id Identification of the layer
  * @apiSuccess {String} name Name of WMS layer
  * @apiSuccess {String} showName Show name of the layer
  * @apiSuccess {String} visible Visibility of the layer ('true' or 'false')
@@ -297,14 +294,14 @@ router.get('/layer/:id', function(req, res)
 
 /* PUT. Actualizamos un layer existente */
 /**
- * @api {put} /kyrosapi/layer/ Update layer
+ * @api {put} /layer/ Update layer
  * @apiName PutNewLayer
  * @apiGroup Layer
  * @apiVersion 1.0.1
  * @apiDescription Update layer
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/layer
+ * @apiSampleRequest https://api.kyroslbs.com/layer
  *
- * @apiParam {Number} id Identification of the route
+ * @apiParam {Number} id Identification of the layer
  * @apiParam {String} name Name of WMS layer
  * @apiParam {String} showName Show name of the layer
  * @apiParam {String} visible Visibility of the layer ('true' or 'false')
@@ -391,12 +388,12 @@ router.put('/layer/', function(req, res)
 });
 
 /**
- * @api {post} /kyrosapi/layer/ Create new layer
+ * @api {post} /layer/ Create new layer
  * @apiName PostNewLayer
  * @apiGroup Layer
  * @apiVersion 1.0.1
  * @apiDescription Create new Layer
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/layer
+ * @apiSampleRequest https://api.kyroslbs.com/layer
  *
  * @apiParam {String} name Name of WMS layer
  * @apiParam {String} showName Show name of the layer
@@ -463,7 +460,6 @@ router.post("/layer", function(req,res)
         }
         else
         {
-          // si se ha insertado correctamente mostramos su messaje de exito
           if(data && data.insertId)
           {
               layerData.id = data.insertId;
@@ -478,14 +474,13 @@ router.post("/layer", function(req,res)
     }
 });
 
-/* DELETE. Eliminamos un layer */
 /**
- * @api {delete} /kyrosapi/layer Delete layer
+ * @api {delete} /layer Delete layer
  * @apiName DeleteLayer
  * @apiGroup Layer
  * @apiVersion 1.0.1
  * @apiDescription Delete layer
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/layer
+ * @apiSampleRequest https://api.kyroslbs.com/layer
  *
  * @apiParam {Number} id Layer unique ID
  *
@@ -518,7 +513,6 @@ router.delete("/layer/", function(req, res)
 {
     log.info("DELETE: /layer");
 
-    // id del layer a eliminar
     var id = req.body.id || req.params.id || req.query.id;
     log.debug("  -> id: " + id);
 

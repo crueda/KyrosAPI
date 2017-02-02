@@ -2,7 +2,7 @@ var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 var express = require('express');
 var router = express.Router();
-var PersonnelModel = require('../models/driver');
+var DriverModel = require('../models/driver');
 var moment = require("moment");
 
 // Fichero de propiedades
@@ -133,21 +133,20 @@ var log = require('tracer').console({
 *     }
 */
 
-/* POST. Obtenemos y mostramos todos las personnel */
 /**
- * @api {post} /kyrosapi/personnels Request all personnels
- * @apiName GetPersonnels
- * @apiGroup Personnel
+ * @api {post} /drivers Request all drivers
+ * @apiName GetDrivers
+ * @apiGroup Driver
  * @apiVersion 1.0.1
- * @apiDescription List of personnels
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/personnels
+ * @apiDescription List of drivers
+ * @apiSampleRequest https://api.kyroslbs.com/drivers
  *
  * @apiParam {Number} [startRow] Number of first element
  * @apiParam {Number} [endRow] Number of last element
  * @apiParam {String} [sortBy] Sort order on elements (comma separated)
- * @apiParam {String="id","firstName","lastName","license","logType"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
+ * @apiParam {String="id","firstName","lastName","license"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
  *
- * @apiSuccess {Object[]} personnel       List of personnels
+ * @apiSuccess {Object[]} driver       List of drivers
  * @apiSuccessExample Success-Response:
  *     https/1.1 200 OK
  *     {
@@ -167,28 +166,19 @@ var log = require('tracer').console({
  *            "certificateExpirationList": null,
  *            "firstName": "Miguel",
  *            "lastName": "Campoviejo",
- *            "company": Wikinger,
- *            "role": admin,
- *            "access": 1,
- *            "workingTime": null,
+ *            "company": "LBS",
  *            "phone": "+34 660519563",
- *            "email": "mcampoviejo@wikinger.com",
- *            "nok": null
+ *            "email": "mcampoviejo@kyroslbs.com"
  *          },
  *          {
  *            "id": 4,
  *            "license": "09121212B",
- *            "certificateList": null,
- *            "certificateExpirationList": null,
  *            "firstName": "Luis",
  *            "lastName": "Velez",
- *            "company": Wikinger,
- *            "role": admin,
- *            "access": 1,
+ *            "company": "LBS",
  *            "workingTime": null,
  *            "phone": "+34 660519563",
- *            "email": "mcampoviejo@wikinger.com",
- *            "nok": null
+ *            "email": "mcampoviejo@wikinger.com"
  *          }]
  *         }
  *       }
@@ -200,9 +190,9 @@ var log = require('tracer').console({
  * @apiUse TokenError
  * @apiUse TokenExpiredError
  */
-router.post('/personnels/', function(req, res)
+router.post('/drivers/', function(req, res)
 {
-    log.info("POST: /personnels");
+    log.info("POST: /drivers");
 
     var startRow = req.body.startRow || req.params.startRow || req.query.startRow;
     var endRow = req.body.endRow || req.params.endRow || req.query.endRow;
@@ -212,7 +202,7 @@ router.post('/personnels/', function(req, res)
       sortBy = sortBy.replace(/\s/g, "");
     }
 
-    PersonnelModel.getPersonels(startRow, endRow, sortBy, function(error, data, totalRows)
+    DriverModel.getDrivers(startRow, endRow, sortBy, function(error, data, totalRows)
     {
         //si existen datos, se envia el json
         if (data == null)
@@ -236,30 +226,24 @@ router.post('/personnels/', function(req, res)
     });
 });
 
-/* GET. Se obtiene un personnel por su id */
+/* GET. Se obtiene un driver por su id */
 /**
- * @api {get} /kyrosapi/personnel/:id Request personnel information
- * @apiName GetPersonnel Request personnel information
- * @apiGroup Personnel
+ * @api {get} /driver/:id Request driver information
+ * @apiName GetDriver Request driver information
+ * @apiGroup Driver
  * @apiVersion 1.0.1
- * @apiDescription Personnel information
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/personnel
+ * @apiDescription Driver information
+ * @apiSampleRequest https://api.kyroslbs.com/driver
  *
- * @apiParam {Number} id Personnel unique ID
+ * @apiParam {Number} id Driver unique ID
  *
- * @apiSuccess {Number} id Personnel unique ID
- * @apiSuccess {String} license License of the personnel
- * @apiSuccess {String} creationTime Creation time of personnel in ISO format
- * @apiSuccess {String} firstName First name of the personnel
- * @apiSuccess {String} lastName Last name of the personnel
- * @apiSuccess {String} company Company of the personnel
- * @apiSuccess {String} role Role of the personnel
- * @apiSuccess {Number} access Access of the personnel. 0=All area, 1=Restricted, 2=Visitor
- * @apiSuccess {Number} workingTime Working time limit of the personnel (in hours)
- * @apiSuccess {String} certificateList List of certificates (string split by comma)
- * @apiSuccess {String} certificateExpirationList list of certificates expiration (epoch split by comma)
- * @apiSuccess {String} email e-mail of the personnel
- * @apiSuccess {String} nok Next of kin of the personnel
+ * @apiSuccess {Number} id Driver unique ID
+ * @apiSuccess {String} license License of the driver
+ * @apiSuccess {String} creationTime Creation time of driver in ISO format
+ * @apiSuccess {String} firstName First name of the driver
+ * @apiSuccess {String} lastName Last name of the driver
+ * @apiSuccess {String} company Company of the driver
+ * @apiSuccess {String} email e-mail of the driver
  *
  * @apiSuccessExample Success-Response:
  *     https/1.1 200 OK
@@ -276,23 +260,17 @@ router.post('/personnels/', function(req, res)
  *            "id": 3,
  *            "license": "09121212B",
  *            "creationTime": "2011-11-04T00:00:00Z,
- *            "certificateList": null,
- *            "certificateExpirationList": null,
  *            "firstName": "Miguel",
  *            "lastName": "Campoviejo",
  *            "company": Wikinger,
- *            "role": admin,
- *            "access": 1,
- *            "workingTime": null,
  *            "phone": "+34 660519563",
- *            "email": "mcampoviejo@wikinger.com",
- *            "nok": null
+ *            "email": "mcampoviejo@wikinger.com"
  *          }]
  *         }
  *       }
  *     }
  *
- * @apiError PersonnelNotFound The <code>id</code> of the personnel was not found
+ * @apiError DriverNotFound The <code>id</code> of the driver was not found
  *
  * @apiUse TokenHeader
  * @apiUse LoginError
@@ -301,15 +279,15 @@ router.post('/personnels/', function(req, res)
  * @apiUse MissingRegisterError
  * @apiUse IdNumericError
 */
-router.get('/personnel/:id', function(req, res)
+router.get('/driver/:id', function(req, res)
 {
     var id = req.params.id;
-    log.info("GET: /personnel/"+id);
+    log.info("GET: /driver/"+id);
 
     //se comprueba que la id es un número
     if(!isNaN(id))
     {
-      PersonnelModel.getPersonnel(id,function(error, data)
+      DriverModel.getDriver(id,function(error, data)
       {
           if (data == null)
           {
@@ -337,25 +315,19 @@ router.get('/personnel/:id', function(req, res)
     }
 });
 
-/* PUT. Actualizamos un personnel existente */
 /**
- * @api {put} /kyrosapi/personnel/ Update personnel
- * @apiName PutNewPersonnel
- * @apiGroup Personnel
+ * @api {put} /driver/ Update driver
+ * @apiName PutNewDriver
+ * @apiGroup Driver
  * @apiVersion 1.0.1
- * @apiDescription Update personnel information
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/personnel
+ * @apiDescription Update driver information
+ * @apiSampleRequest https://api.kyroslbs.com/driver
  *
- * @apiParam {String} id Personnel unique ID
- * @apiParam {String} lastName Last name of the personnel
- * @apiParam {String} company Company of the personnel
- * @apiParam {String} role Role of the personnel
- * @apiParam {Number} Access Access of the personnel. 0=All area, 1=Restricted, 2=Visitor
- * @apiParam {Number} workingTime Working time limit of the personnel (in hours)
- * @apiParam {String} [certificateList] List of certificates (string split by comma)
- * @apiParam {String} [certificateExpirationList] list of certificates expiration (epoch split by comma)
- * @apiParam {String} email e-mail of the personnel
- * @apiParam {String} nok Next of kin of the personnel
+ * @apiParam {String} id Driver unique ID
+ * @apiParam {String} firstName First name of the driver
+ * @apiParam {String} lastName Last name of the driver
+ * @apiParam {String} company Company of the driver
+ * @apiParam {String} email e-mail of the driver
  *
  * @apiSuccess {json} message Result message
  *
@@ -391,63 +363,41 @@ router.get('/personnel/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
-router.put('/personnel/', function(req, res)
+router.put('/driver/', function(req, res)
 {
-    log.info("PUT: /personnel");
+    log.info("PUT: /driver");
 
     var id_value = req.body.id || req.query.id || req.params.id;
     //var license_value = req.body.license || req.query.license || req.params.license;
     var firstName_value = req.body.firstName || req.query.firstName || req.params.firstName;
     var lastName_value = req.body.lastName || req.query.lastName || req.params.lastName;
     var company_value = req.body.company || req.query.company || req.params.company;
-    var role_value = req.body.role || req.query.role || req.params.role;
-    var access_value = req.body.access || req.query.access || req.params.access;
-    var workingTime_value = req.body.workingTime || req.query.workingTime || req.params.workingTime;
-    var certificateList_value = req.body.certificateList || req.certificateList || req.params.certificateList;
-    var certificateExpirationList_value = req.body.certificateExpirationList || req.query.certificateExpirationList || req.params.certificateExpirationList;
     var phone_value = req.body.phone || req.query.phone || req.params.phone;
     var email_value = req.body.email || req.query.email || req.params.email;
-    var nok_value = req.body.nok || req.query.nok || req.params.nok;
 
     log.debug("  -> id:                        " + id_value);
     //log.debug("  -> license:                   " + license_value);
     log.debug("  -> firstName:                 " + firstName_value);
     log.debug("  -> lastName:                  " + lastName_value);
     log.debug("  -> company:                   " + company_value);
-    log.debug("  -> role:                      " + role_value);
-    log.debug("  -> access:                    " + access_value);
-    log.debug("  -> workingTime:               " + workingTime_value);
-    log.debug("  -> certificateList:           " + certificateList_value);
-    log.debug("  -> certificateExpirationList: " + certificateExpirationList_value);
     log.debug("  -> phone:                     " + phone_value);
     log.debug("  -> email:                     " + email_value);
-    log.debug("  -> nok:                       " + nok_value);
 
-    if (id_value == null || firstName_value == null || lastName_value == null || company_value == null || role_value == null || access_value == null || workingTime_value == null || phone_value == null || email_value == null || nok_value == null) {
+    if (id_value == null || firstName_value == null || lastName_value == null || company_value == null || phone_value == null || email_value == null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-    }
-    else if (access_value != 0 && access_value != 1 && access_value != 2) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.PARAMETER_ERROR}})
     }
     else
     {
 
-      // Actualizar el personnel
-      var personnelData = {
+      var driverData = {
           id : id_value,
           firstName : firstName_value,
           lastName : lastName_value,
           company : company_value,
-          role : role_value,
-          access : access_value,
-          workingTime : workingTime_value,
-          certificateList : certificateList_value,
-          certificateExpirationList : certificateExpirationList_value,
           phone : phone_value,
-          email : email_value,
-          nok : nok_value
+          email : email_value
       };
-      PersonnelModel.updatePersonnel(personnelData,function(error, data)
+      DriverModel.updateDriver(driverData,function(error, data)
       {
           if (data == null)
           {
@@ -455,22 +405,13 @@ router.put('/personnel/', function(req, res)
           }
           else
           {
-            //si se ha actualizado correctamente mostramos un mensaje
             if(data && data.message)
             {
               if (data.message=="bad_request") {
                 res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.PARAMETER_ERROR}})
               }
               else {
-                // Enviar evento
-                var eventManager = new EventManager();
-                var eventData = {
-                    eventType : properties.get('sumo.event.personnel.updated'),
-                    resourceId: id_value
-                };
-                eventManager.sendEvent(eventData);
-
-                res.status(200).json({"response": {"status":0,"data": {"record": [personnelData]}}})
+                res.status(200).json({"response": {"status":0,"data": {"record": [driverData]}}})
               }
             }
             else
@@ -483,23 +424,17 @@ router.put('/personnel/', function(req, res)
   });
 
 /**
- * @api {post} /kyrosapi/personnel/ Create new personnel
- * @apiName PostNewPersonnel
- * @apiGroup Personnel
+ * @api {post} /driver/ Create new driver
+ * @apiName PostNewDriver
+ * @apiGroup Driver
  * @apiVersion 1.0.1
- * @apiDescription Create new personnel
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/personnel
+ * @apiDescription Create new driver
+ * @apiSampleRequest https://api.kyroslbs.com/driver
  *
- * @apiParam {String} license Personnel unique ID
- * @apiParam {String} lastName Last name of the personnel
- * @apiParam {String} company Company of the personnel
- * @apiParam {String} role Role of the personnel
- * @apiParam {Number} Access Access of the personnel. 0=All area, 1=Restricted, 2=Visitor
- * @apiParam {Number} workingTime Working time limit of the personnel (in hours)
- * @apiParam {String} [certificateList] List of certificates (string split by comma)
- * @apiParam {String} [certificateExpirationList] list of certificates expiration (epoch split by comma)
- * @apiParam {String} email e-mail of the personnel
- * @apiParam {String} nok Next of kin of the personnel
+ * @apiParam {String} license Driver unique ID
+ * @apiParam {String} lastName Last name of the driver
+ * @apiParam {String} company Company of the driver
+ * @apiParam {String} email e-mail of the driver
  *
  * @apiSuccess {String} message Result message
  *
@@ -517,13 +452,8 @@ router.put('/personnel/', function(req, res)
  *            "creationTime": "2011-11-04T00:00:00Z,
  *            "firstName": "Miguel",
  *            "lastName": "Campoviejo",
- *            "company": Wikinger,
- *            "role": admin,
- *            "access": 1,
- *            "workingTime": null,
  *            "phone": "+34 660519563",
- *             "email": "mcampoviejo@wikinger.com",
- *            "nok": null
+ *            "email": "mcampoviejo@wikinger.com"
  *          }]
  *         }
  *       }
@@ -536,62 +466,40 @@ router.put('/personnel/', function(req, res)
  * @apiUse MissingParameterError
  *
 */
-router.post("/personnel", function(req,res)
+router.post("/driver", function(req,res)
 {
-    log.info("POST: /personnel");
+    log.info("POST: /driver");
 
     var license_value = req.body.license || req.query.license || req.params.license;
     var firstName_value = req.body.firstName || req.query.firstName || req.params.firstName;
     var lastName_value = req.body.lastName || req.query.lastName || req.params.lastName
     var company_value = req.body.company || req.query.company || req.params.company;
-    var role_value = req.body.role || req.query.role || req.params.role;
-    var access_value = req.body.access || req.query.access || req.params.access;
-    var workingTime_value = req.body.workingTime || req.query.workingTime || req.params.workingTime;
-    var certificateList_value = req.body.certificateList || req.params.certificateList || req.params.certificateList;
-    var certificateExpirationList_value = req.body.certificateExpirationList || req.params.certificateExpirationList || req.params.certificateExpirationList;
     var phone_value = req.body.phone || req.query.phone || req.params.phone;
     var email_value = req.body.email || req.query.email || req.params.email;
-    var nok_value = req.body.nok || req.query.nok || req.params.nok;
 
     log.debug("  -> license:                   " + license_value);
     log.debug("  -> firstName:                 " + firstName_value);
     log.debug("  -> lastName:                  " + lastName_value);
     log.debug("  -> company:                   " + company_value);
-    log.debug("  -> role:                      " + role_value);
-    log.debug("  -> access:                    " + access_value);
-    log.debug("  -> workingTime:               " + workingTime_value);
-    log.debug("  -> certificateList:           " + certificateList_value);
-    log.debug("  -> certificateExpirationList: " + certificateExpirationList_value);
     log.debug("  -> phone:                     " + phone_value);
     log.debug("  -> email:                     " + email_value);
-    log.debug("  -> nok:                       " + nok_value);
 
-    if (license_value == null || firstName_value == null || lastName_value == null || company_value == null || role_value == null || access_value == null || workingTime_value == null || phone_value == null || email_value == null || nok_value == null) {
+    if (license_value == null || firstName_value == null || lastName_value == null || company_value == null || phone_value == null || email_value == null) {
       log.debug("Missing parameter");
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
-    else if (access_value != 0 && access_value != 1 && access_value != 2) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.PARAMETER_ERROR}})
-    }
     else
     {
-      // Crear un objeto con los datos a insertar
-      var personnelData = {
+      var driverData = {
           id : null,
           license : license_value,
           firstName : firstName_value,
           lastName : lastName_value,
           company : company_value,
-          role : role_value,
-          access : access_value,
-          workingTime : workingTime_value,
-          certificateList : certificateList_value,
-          certificateExpirationList : certificateExpirationList_value,
           phone : phone_value,
-          email : email_value,
-          nok : nok_value
+          email : email_value
       };
-      PersonnelModel.insertPersonnel(personnelData,function(error, data)
+      DriverModel.insertDriver(driverData,function(error, data)
       {
         if (data == null)
         {
@@ -599,20 +507,11 @@ router.post("/personnel", function(req,res)
         }
         else
         {
-          // si se ha insertado correctamente mostramos su messaje de exito
           if(data && data.insertId)
           {
-              personnelData.id = data.insertId;
+              driverData.id = data.insertId;
 
-              // Enviar evento
-              var eventManager = new EventManager();
-              var eventData = {
-                  eventType : properties.get('sumo.event.personnel.added'),
-                  resourceId: personnelData.id
-              };
-              eventManager.sendEvent(eventData);
-
-              res.status(201).json({"response": {"status":0,"data": {"record": [personnelData]}}})
+              res.status(201).json({"response": {"status":0,"data": {"record": [driverData]}}})
           }
           else
           {
@@ -623,16 +522,15 @@ router.post("/personnel", function(req,res)
   }
 });
 
-/* DELETE. Eliminar personnel */
 /**
- * @api {delete} /kyrosapi/personnel Delete personnel
- * @apiName DeletePersonnel
- * @apiGroup Personnel
+ * @api {delete} /driver Delete driver
+ * @apiName DeleteDriver
+ * @apiGroup Driver
  * @apiVersion 1.0.1
- * @apiDescription Delete personnel
- * @apiSampleRequest https://sumo.kyroslbs.com/kyrosapi/personnel
+ * @apiDescription Delete driver
+ * @apiSampleRequest https://api.kyroslbs.com/driver
  *
- * @apiParam {Number} id Personnel unique ID
+ * @apiParam {Number} id Driver unique ID
  *
  * @apiSuccess {String} message Result message
  *
@@ -651,12 +549,8 @@ router.post("/personnel", function(req,res)
  *            "firstName": "Miguel",
  *            "lastName": "Campoviejo",
  *            "company": Wikinger,
- *            "role": admin,
- *            "access": 1,
- *            "workingTime": null,
  *            "phone": "+34 660519563",
- *            "email": "mcampoviejo@wikinger.com",
- *            "nok": null
+ *            "email": "mcampoviejo@wikinger.com"
  *          }]
  *         }
  *       }
@@ -668,9 +562,9 @@ router.post("/personnel", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
-router.delete("/personnel/", function(req, res)
+router.delete("/driver/", function(req, res)
 {
-    log.info("DELETE: /personnels");
+    log.info("DELETE: /driver");
 
     // id a eliminar
     var id = req.body.id || req.params.id || req.query.id;
@@ -682,7 +576,7 @@ router.delete("/personnel/", function(req, res)
     }
     else
     {
-      PersonnelModel.deletePersonnel(id,function(error, data)
+      DriverModel.deleteDriver(id,function(error, data)
       {
             if (data == null)
             {
@@ -692,14 +586,6 @@ router.delete("/personnel/", function(req, res)
             {
                 if(data && data.message != "notExist")
                 {
-                  // Enviar evento
-                  var eventManager = new EventManager();
-                  var eventData = {
-                      eventType : properties.get('sumo.event.personnel.removed'),
-                      resourceId: id
-                  };
-                  eventManager.sendEvent(eventData);
-
                   res.status(200).json({"response": {"status":0,"data": {"record": data}}})
                 }
                 else
