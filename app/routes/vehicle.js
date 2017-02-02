@@ -1,6 +1,5 @@
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
-var EventManager = require("../bl/eventManager.js");
 var express = require('express');
 var router = express.Router();
 var VehicleModel = require('../models/vehicle');

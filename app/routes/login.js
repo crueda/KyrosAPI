@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var jwt = require('jwt-simple');
+var crypto 		= require('crypto');
+var crypt     = require('crypt3');
+var moment 		= require('moment');
 
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
@@ -9,7 +12,7 @@ var messages = require("../utils/statusMessages.js");
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
 
-var LoginModel = require('../models/login');
+var UserModel = require('../models/user');
 
 // Definición del log
 var fs = require('fs');
@@ -82,40 +85,32 @@ var log = require('tracer').console({
          log.debug('Invalid credentials');
          res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
          return;
-      }
+        }
 
-     // Authorize the user to see if s/he can access our resources
-     var passwordDB = '';
+        // Authorize the user to see if s/he can access our resources
+        var passwordDB = '';
 
-     UserModel.getUserFromUsername(username,function(error, dbUser) {
+        UserModel.getUserFromUsername(username,function(error, dbUser) {
          if (dbUser==null) {
            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.SERVER_ERROR}})
            return;
          }
          if (typeof dbUser == 'undefined' || dbUser.length == 0) {
-
            log.debug('Invalid user');
            res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
            return;
          }
          else {
-           id = dbUser[0].id;
-           passwordDB = dbUser[0].password;
            username = dbUser[0].username;
+           passwordDB = dbUser[0].password;
 
-           //var passwordDBsha256 = crypto.createHash('sha256').update(passwordDB).digest("hex");
-           //log.debug('Password:'+passwordDBsha256);
-
-           //if (password!=passwordDBsha256) {
-           if (password!=passwordDB) {
+            if( crypt(password,passwordDB) !== passwordDB) {
                log.debug('Invalid credentials');
                res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
-           }
-           else {
-             log.debug('Login OK - Generando token');
-
-             res.json(genToken(id, username, passwordDB));
-           }
+            } else {
+              log.debug('Login OK - Generando token');
+              res.json(genToken(username, passwordDB));
+            }
        }
 
      });
@@ -171,7 +166,7 @@ router.get('/app/login/', function(req, res)
 });
 
 // private method
-function genToken(id, username, password) {
+function genToken(username, password) {
   var expires = expiresInDays(7); // 7 dias
   var expiresISO = expiresInDaysISO(7); // 7 dias
   var token = jwt.encode({
@@ -181,7 +176,6 @@ function genToken(id, username, password) {
   }, require('../config/secret')());
 
   return {
-    id: id,
     user: username,
     token: token,
     //expires: expires,

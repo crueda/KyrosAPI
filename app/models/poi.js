@@ -1,5 +1,5 @@
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('./api.properties');
+var properties = PropertiesReader('kyrosapi.properties');
 
 // Definición del log
 var fs = require('fs');

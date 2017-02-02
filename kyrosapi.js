@@ -10,6 +10,7 @@ var MongoDBStore = require('connect-mongodb-session')(session);
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('./kyrosapi.properties');
 
+var api_status = require('./app/routes/kyrosapiService');
 var api_area = require('./app/routes/area');
 var api_vertex = require('./app/routes/vertex');
 var api_route = require('./app/routes/route');
@@ -77,15 +78,31 @@ app.all('/*', function(req, res, next) {
   }
 });
 
+app.use('/', api_status);
+app.use('/', api_login);
+
+/*
+app.use('/', api_app_notification);
+app.use('/', api_app_user);
+app.use('/', api_app_tracking);
+app.use('/', api_app_vehicle);
+app.use('/', api_app_monitor);
+app.use('/', api_app_graph);
+*/
+
+// AUTENTICACION TOKEN
+app.all('/*', [require('./app/middlewares/validateRequest')]);
+
 app.use('/', api_area);
+app.use('/', api_tracking);
+
+/*
 app.use('/', api_vertex);
 app.use('/', api_route);
 app.use('/', api_beacon);
 app.use('/', api_driver);
 
-app.use('/', api_login);
 app.use('/', api_push);
-app.use('/', api_tracking);
 app.use('/', api_odometer);
 app.use('/', api_activity);
 app.use('/', api_poi);
@@ -97,16 +114,7 @@ app.use('/', api_vehicle);
 app.use('/', api_share);
 app.use('/', api_watch);
 app.use('/', api_icon);
-
-// AUTENTICACION TOKEN
-//app.all('/*', [require('./app/middlewares/validateRequest')]);
-//app.all('/app/*', [require('./app/middlewares/validateRequest')]);
-app.use('/', api_app_notification);
-app.use('/', api_app_user);
-app.use('/', api_app_tracking);
-app.use('/', api_app_vehicle);
-app.use('/', api_app_monitor);
-app.use('/', api_app_graph);
+*/
 
 
 // If no route is matched by now, it must be a 404

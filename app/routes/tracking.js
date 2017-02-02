@@ -147,8 +147,84 @@ function kcoords(px, py) {
 *     }
 */
 
+/* POST. Se obtiene tracking 1 de una flota */
+/** 
+* @api {post} /trackings/vehicle/:name Request all last tracking from fleet
+* @apiName PostTrackingFleet 
+* @apiGroup Tracking
+* @apiVersion 1.0.1
+* @apiDescription List of last trackings from fleet
+* @apiSampleRequest https://api.kyroslbs.com/tracking1/fleet/HLH-CHILE
+*
+* @apiParam {String} fleetName Name of the fleet
+*
+* @apiSuccess {Number} id tracking unique ID
+* @apiSuccess {Number} deviceId Identification of the element
+* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
+* @apiSuccess {Number} speed Speed value (in Km/h)
+* @apiSuccess {Number} heading Heading value (in degress)
+* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
+* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
+* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccessExample Success-Response:
+*     https/1.1 200 OK
+*     {
+*       "response" :
+*       {
+*         "status" : 0,
+*         "data": {
+*           "record": [
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*           },
+*           }]
+*        }
+*       }
+*     }
+*
+* @apiError fleetNotFound The <code>name</code> of the fleet was not found.
+*
+* @apiUse TokenHeader
+* @apiUse TokenError
+* @apiUse TokenExpiredError
+* @apiUse MissingRegisterError
+* @apiUse IdNumericError
+*/
+
+router.post('/tracking1/fleet/:name', function(req, res)
+{
+  var name = req.params.name;
+  log.info("POST: /tracking1/fleet/"+name);
+
+    TrackingModel.getTracking1FromFleet(name, function(error, data)
+    {
+      if (data == null)
+      {
+        res.status(200).json({"response": {"status":0,"data": {"record": []}}})
+      }
+      else if (typeof data !== 'undefined')
+      {
+        res.status(200).json({"response": {"status":0,"data": { "record": data}}})
+      }
+      //en otro caso se muestra error
+      else
+      {
+        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+      }
+    });
+  
+});
+
+
 /* POST. Obtenemos y mostramos todos los tracking */
-/**
+/*
 * @api {post} /tracking Request all tracking
 * @apiName GetTrackings
 * @apiGroup Tracking
@@ -202,6 +278,7 @@ function kcoords(px, py) {
 * @apiUse TokenError
 * @apiUse TokenExpiredError
 */
+/*
 router.post('/trackings/', function(req, res)
 {
   log.info("POST: /trackings/");
@@ -242,10 +319,10 @@ router.post('/trackings/', function(req, res)
     });
   }
 });
-
+*/
 
 /* POST. Se obtiene trackings de un vehiculo */
-/**
+/*
 * @api {post} /trackings/vehicle/:id Request all tracking from vehicle
 * @apiName PostTracking 
 * @apiGroup Tracking
@@ -300,6 +377,7 @@ router.post('/trackings/', function(req, res)
 * @apiUse MissingRegisterError
 * @apiUse IdNumericError
 */
+/*
 router.post('/trackings/vehicle/:id', function(req, res)
 {
   var id = req.params.id;
@@ -341,9 +419,10 @@ router.post('/trackings/vehicle/:id', function(req, res)
     });
   }
 });
+*/
 
 /* GET. Se obtiene un tracking por su id */
-/**
+/*
 * @api {get} /tracking/:id Request tracking information
 * @apiName GetTracking Request tracking information
 * @apiGroup Tracking
@@ -395,6 +474,7 @@ router.post('/trackings/vehicle/:id', function(req, res)
 * @apiUse MissingRegisterError
 * @apiUse IdNumericError
 */
+/*
 router.get('/tracking/:id', function(req, res)
 {
   var id = req.params.id;
@@ -430,6 +510,7 @@ router.get('/tracking/:id', function(req, res)
     res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
   }
 });
+*/
 
 /* PUT. Actualizamos un tracking existente */
 /*
@@ -476,6 +557,7 @@ router.get('/tracking/:id', function(req, res)
 * @apiUse TokenExpiredError
 * @apiUse MissingParameterError
 */
+/*
 router.put('/tracking/', function(req, res)
 {
   log.info("PUT: /tracking/");
@@ -530,7 +612,7 @@ router.put('/tracking/', function(req, res)
     });
   }
 });
-
+*/
 
 /*
 * @api {post} /tracking/ Create new tracking
@@ -575,6 +657,7 @@ router.put('/tracking/', function(req, res)
 * @apiUse TokenExpiredError
 * @apiUse MissingParameterError
 */
+/*
 router.post("/tracking", function(req,res)
 {
   log.info("POST: /tracking/");
@@ -629,6 +712,7 @@ router.post("/tracking", function(req,res)
 
   }
 });
+*/
 
 /* DELETE. Eliminar un tracking */
 /*
@@ -670,6 +754,7 @@ router.post("/tracking", function(req,res)
 * @apiUse TokenExpiredError
 * @apiUse MissingParameterError
 */
+/*
 router.delete("/tracking/", function(req, res)
 {
   log.info("DELETE: /tracking/");
@@ -708,5 +793,6 @@ router.delete("/tracking/", function(req, res)
     });
   }
 });
+*/
 
 module.exports = router;
