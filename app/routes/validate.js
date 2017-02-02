@@ -28,7 +28,7 @@ var log = require('tracer').console({
 /**
  * @api {post} /validate/ Validate token
  * @apiName PostValidate
- * @apiGroup Validate
+ * @apiGroup Login
  *
  * @apiDescription Validate SUMO token
  * @apiSampleRequest https://api.kyroslbs.com/validate

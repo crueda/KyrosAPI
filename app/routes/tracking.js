@@ -245,11 +245,11 @@ router.post('/trackings/', function(req, res)
 
 /* POST. Se obtiene trackings de un vehiculo */
 /**
-* @api {post} /trackings/vehicle/:id Request tracking information
-* @apiName PostTracking Request tracking information from vehicle
+* @api {post} /trackings/vehicle/:id Request all tracking from vehicle
+* @apiName PostTracking 
 * @apiGroup Tracking
 * @apiVersion 1.0.1
-* @apiDescription Tracking information from vessel
+* @apiDescription List of trackings from vehicle
 * @apiSampleRequest https://api.kyroslbs.com/trackings/vehicle/1231-BCW
 *
 * @apiParam {Number} id vehicle unique ID

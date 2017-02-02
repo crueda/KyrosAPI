@@ -42,8 +42,7 @@ var log = require('tracer').console({
  *         "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MzIyMjE4Njk1NTcsImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9.3lHHWqKgeeEdX7XyvRV2BHA9YXJJ4u9UaeI5eXpTxGY",
  *         "expires": 1432221869557,
  *         "id": 1,
- *         "user": "my_username",
- *         "role": "my_role"
+ *         "user": "my_username"
  *     }
  * @apiErrorExample {json} Error-Response:
  *     https/1.1 202
@@ -87,7 +86,6 @@ var log = require('tracer').console({
 
      // Authorize the user to see if s/he can access our resources
      var passwordDB = '';
-     var roleDB = '';
 
      UserModel.getUserFromUsername(username,function(error, dbUser) {
          if (dbUser==null) {
@@ -185,7 +183,6 @@ function genToken(id, username, password) {
   return {
     id: id,
     user: username,
-    role: role,
     token: token,
     //expires: expires,
     expires: expiresISO
