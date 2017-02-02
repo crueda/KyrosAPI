@@ -20,6 +20,9 @@ var log = require('tracer').console({
     }
 });
 var access_log = require('tracer').console({
+  format : "{{timestamp}} {{message}}",
+  dateformat : "HH:MM:ss.L",
+
     transport : function(data) {
         fs.open(properties.get('main.access_log.file'), 'a', 0666, function(e, id) {
             fs.write(id, data.output+"\n", null, 'utf8', function() {
