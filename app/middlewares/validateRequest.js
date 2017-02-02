@@ -171,7 +171,6 @@ module.exports = function(req, res, next) {
           }
           else {
             // Comprobar permisos
-            log.info("comprobar:"+dbUser[0].permissions);
             if (checkPermission(req, dbUser[0].permissions))
               next();
             else {

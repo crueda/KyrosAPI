@@ -145,13 +145,14 @@ areaModel.insertArea = function(areaData,callback)
     if (connection)
     {
         var sql = "INSERT INTO AREA SET DESCRIPTION = " + connection.escape(areaData.description) + "," +
-        "DATE_INIT = " + "DATE_FORMAT(FROM_UNIXTIME(" + connection.escape(areaData.initDate) + "), '%Y-%m-%d')" + "," +
-        "DATE_END = " + "DATE_FORMAT(FROM_UNIXTIME(" + connection.escape(areaData.endDate) + "), '%Y-%m-%d')" + "," +
+        "DATE_INIT = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.initDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
+        "DATE_END = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.endDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
         "HOUR_INIT = " + connection.escape(areaData.initHour) + "," +
         "HOUR_END = " + connection.escape(areaData.endHour) + "," +
+        "MONDAY=1, tuesday=1, WEDNESDAY=1, THURSDAY=1, FRIDAY=1, SATURDAY=1, SUNDAY=1, MAX_SPEED=0, " + 
         "TYPE_AREA = " + connection.escape(areaData.typeArea) + "," +
         "RADIUS = " + connection.escape(areaData.radius) + "," +
-        "USER_NAME = \'kyrosAPI\'";
+        "USER_NAME = \'kyrosapi\'";
 
         log.debug ("Query: "+sql);
 
@@ -164,7 +165,7 @@ areaModel.insertArea = function(areaData,callback)
             else
             {
                 //devolvemos la última id insertada
-                callback(null,{"insertId" : areaId});
+                callback(null,{"insertId" : result.insertId});
             }
         });
     }
@@ -180,8 +181,8 @@ areaModel.updateArea = function(areaData, callback)
     {
         var sql = "UPDATE AREA SET DESCRIPTION = " + connection.escape(areaData.description) + "," +
         "TYPE_AREA = " + connection.escape(areaData.typeArea) + "," +
-        "DATE_INIT = " + "DATE_FORMAT(FROM_UNIXTIME(" + connection.escape(areaData.initDate) + "), '%Y-%m-%d')" + "," +
-        "DATE_END = " + "DATE_FORMAT(FROM_UNIXTIME(" + connection.escape(areaData.endDate) + "), '%Y-%m-%d')" + "," +
+        "DATE_INIT = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.initDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
+        "DATE_END = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.endDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
         "HOUR_INIT = " + connection.escape(areaData.initHour) + "," +
         "HOUR_END = " + connection.escape(areaData.endHour) + "," +
         "RADIUS = " + connection.escape(areaData.radius) + " " +

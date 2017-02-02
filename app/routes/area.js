@@ -13,7 +13,6 @@ var properties = PropertiesReader('kyrosapi.properties');
 var fs = require('fs');
 var log = require('tracer').console({
     transport : function(data) {
-        //console.log(data.output);
         fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
             fs.write(id, data.output+"\n", null, 'utf8', function() {
                 fs.close(id, function() {
@@ -22,6 +21,10 @@ var log = require('tracer').console({
         });
     }
 });
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 /**
 * @apiDefine LoginError
@@ -162,8 +165,8 @@ var log = require('tracer').console({
  *              [ {
  *                 "id": 895,
  *                 "description": "Zona 1",
- *                 "initDate": "2015-04-01T",
- *                 "endDate": "2015-09-12T",
+ *                 "initDate": "2015-04-01",
+ *                 "endDate": "2015-09-12",
  *                 "initHour": 0945,
  *                 "endHour": 1030,
  *                 "typeArea": "F",
@@ -173,10 +176,8 @@ var log = require('tracer').console({
  *                {
  *                 "id": 896,
  *                 "description": "Zona 2",
- *                 "initDate": "2015-04-01T",
- *                 "endDate": "2015-09-12T",
- *                 "initHour": 0945,
- *                 "endHour": 1030,
+ *                 "initDate": "2015-04-01T00:00:00.00Z",
+ *                 "endDate": "2015-09-12T00:00:00.00Z",
  *                 "typeArea": "F",
  *                 "radius": 12,
  *                 "username": "vimsve"
@@ -236,10 +237,10 @@ router.post('/areas/', function(req, res)
  * @apiParam {Number} id Area unique ID
  *
  * @apiSuccess {String} description Description of the Area
- * @apiSuccess {Number} dateInit Init date for the area in ISO format
- * @apiSuccess {Number} dateEnd End date for the area in ISO format
- * @apiSuccess {Number} hourInit Init hour for the area in ISO formal
- * @apiSuccess {Number} hourEnd End hour for the area in ISO format
+ * @apiSuccess {String} dateInit Init date for the area in ISO format
+ * @apiSuccess {String} dateEnd End date for the area in ISO format
+ * @apiSuccess {String} hourInit Init hour for the area (hour-minutes)
+ * @apiSuccess {String} hourEnd End hour for the area (hour-minutes)
  * @apiSuccess {String} typeArea Type of area (A=Allow, F=Forbidden, G=Generic)
  * @apiSuccess {Number} radius Radius of area (in meters)
  * @apiSuccessExample {json} Success-Response:
@@ -327,20 +328,14 @@ router.get('/area/:id', function(req, res)
  * @apiParam {String} description Description of the Area
  * @apiParam {String} dateInit Init date for the area in ISO format
  * @apiParam {String} dateEnd End date for the area in ISO format
- * @apiParam {String} hourInit Init hour for the area (hour-minutes)
- * @apiParam {String} hourEnd End hour for the area (hour-minutes)
  * @apiParam {String} typeArea Type of area (A=Allow, F=Forbidden, G=Generic)
  * @apiParam {Number} [radius=0] Radius of area (in meters)
  * @apiParamExample {String} description
  * Description of the area
  * @apiParamExample {String} dateInit
- * 2014-11-07
+ * 2017-01-01T00:00:00Z
  * @apiParamExample {String} dateEnd
- * 2014-11-08
- * @apiParamExample {String} hourInit
- * 0000
- * @apiParamExample {String} hourEnd
- * 2359
+ * 2017-01-02T00:00:00Z
  * @apiParamExample {String} typeArea
  * A
  * @apiParamExample {Number} radius
@@ -382,56 +377,46 @@ router.post("/area", function(req,res)
 {
     log.info("POST: /area");
 
-    //creamos un objeto con los datos a insertar del area
-    var description_value = req.body.description || req.query.description || req.params.description;
-    var initDate_value = req.body.initDate || req.query.initDate || req.params.initDate;
-    var endDate_value = req.body.endDate || req.query.endDate || req.params.endDate;
-    var initHour_value = req.body.initHour || req.query.initHour || req.paramsinitHour;
-    var endHour_value = req.body.endHour || req.query.endHour || req.params.endHour;
-    var typeArea_value = req.body.typeArea || req.query.typeArea || req.params.typeArea;
-    var radius_value = req.body.radius || req.query.radius || req.params.radius;
+    var description_value = req.body.description;
+    var initDate_value = req.body.initDate;
+    var endDate_value = req.body.endDate;
+    var typeArea_value = req.body.typeArea;
+    var radius_value = parseInt(req.body.radius);
 
     log.debug("  -> description:  " + description_value);
     log.debug("  -> initDate:     " + initDate_value);
     log.debug("  -> endDate:      " + endDate_value);
-    log.debug("  -> initHour:     " + initHour_value);
-    log.debug("  -> endHour:      " + endHour_value);
     log.debug("  -> typeArea:     " + typeArea_value);
     log.debug("  -> radius:       " + radius_value);
 
     if (radius_value == null)
       radius_value = 0;
 
-    if (description_value == null || initDate_value == null || endDate_value == null || initHour_value == null || endHour_value == null || typeArea_value == null) {
+    if (description_value == null || initDate_value == null || endDate_value == null || typeArea_value == null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
-    else if (!moment(initDate_value,'YYYY-MM-DD', true).isValid()) {
+    else if (!moment(initDate_value,'YYYY-MM-DDTHH:mm:ssZ', true).isValid()) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.DATE_INCORRECT}})
     }
-    else if (!moment(endDate_value,'YYYY-MM-DD', true).isValid()) {
+    else if (!moment(endDate_value,'YYYY-MM-DDTHH:mm:ssZ', true).isValid()) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.DATE_INCORRECT}})
     }
-    else if (!moment(initHour_value,'HH:mm:ss', true).isValid()) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.DATE_INCORRECT}})
-    }
-    else if (!moment(endHour_value,'HH:mm:ss', true).isValid()) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.DATE_INCORRECT}})
+    else if(!isNumber(radius_value)) {
+      res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
     }
     else
     {
-      // ajustar las horas
-      initHour_value2 = initHour_value.charAt(0) + initHour_value.charAt(1) + initHour_value.charAt(3) + initHour_value.charAt(4);
-      endHour_value2 = endHour_value.charAt(0) + endHour_value.charAt(1) + endHour_value.charAt(3) + endHour_value.charAt(4);
+      var initHour_value = moment(initDate_value,'YYYY-MM-DDTHH:mm:ssZ').format("HHmm");
+      var endHour_value = moment(endDate_value,'YYYY-MM-DDTHH:mm:ssZ').format("HHmm");
       var areaData = {
           id : null,
           description : description_value,
           initDate : initDate_value,
           endDate : endDate_value,
-          initHour : initHour_value2,
-          endHour : endHour_value2,
+          initHour : initHour_value,
+          endHour : endHour_value,
           typeArea : typeArea_value,
-          radius : radius_value,
-          username : 'kyrosapi'
+          radius : radius_value
       };
       AreaModel.insertArea(areaData,function(error, data)
       {
@@ -467,22 +452,16 @@ router.post("/area", function(req,res)
  *
  * @apiParam {Number} id Area unique ID
  * @apiParam {String} description Description of the Area
- * @apiParam {Number} dateInit Init date for the area in ISO format
- * @apiParam {Number} dateEnd End date for the area in ISO format
- * @apiParam {String} hourInit Init hour for the area (hour-minutes)
- * @apiParam {String} hourEnd End hour for the area (hour-minutes)
+ * @apiParam {String} dateInit Init date for the area in ISO format
+ * @apiParam {String} dateEnd End date for the area in ISO format
  * @apiParam {String} typeArea Type of area (A=Allow, F=Forbidden, G=Generic)
  * @apiParam {Number} radius Radius of area (in meters)
  * @apiParamExample {String} description
  * Description of the area
  * @apiParamExample {String} dateInit
- * 2014-11-07
+ * 2017-01-01T00:00:00Z
  * @apiParamExample {String} dateEnd
- * 2014-11-08
- * @apiParamExample {String} hourInit
- * 0000
- * @apiParamExample {String} hourEnd
- * 2359
+ * 2017-01-02T00:00:00Z
  * @apiParamExample {String} typeArea
  * A
  * @apiParamExample {Number} radius
@@ -525,29 +504,37 @@ router.put('/area/', function(req, res)
     log.info("PUT: /area");
 
     //almacenamos los datos del formulario en un objeto
-    var id_value = req.body.id || req.query.id || req.params.id;
-    var description_value = req.body.description || req.query.description || req.params.description;
-    var initDate_value = req.body.initDate || req.query.initDate || req.params.initDate;
-    var endDate_value = req.body.endDate || req.query.endDate || req.params.endDate;
-    var initHour_value = req.body.initHour || req.query.initHour || req.paramsinitHour;
-    var endHour_value = req.body.endHour || req.query.endHour || req.params.endHour;
-    var typeArea_value = req.body.typeArea || req.query.typeArea || req.params.typeArea;
-    var radius_value = req.body.radius || req.query.radius || req.params.radius;
+    var id_value = req.body.id;
+    var description_value = req.body.description;
+    var initDate_value = req.body.initDate;
+    var endDate_value = req.body.endDate;
+    var typeArea_value = req.body.typeArea;
+    var radius_value = parseInt(req.body.radius);
 
     log.debug("  -> id:           " + id_value);
     log.debug("  -> description:  " + description_value);
     log.debug("  -> initDate:     " + initDate_value);
     log.debug("  -> endDate:      " + endDate_value);
-    log.debug("  -> initHour:     " + initHour_value);
-    log.debug("  -> endHour:      " + endHour_value);
     log.debug("  -> typeArea:     " + typeArea_value);
     log.debug("  -> radius:       " + radius_value);
 
-    if (id_value == null || description_value == null || initDate_value == null || endDate_value == null || initHour_value == null || endHour_value == null || typeArea_value == null || radius_value == null ) {
+    if (id_value == null || description_value == null || initDate_value == null || endDate_value == null || typeArea_value == null || radius_value == null ) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+    }
+    else if (!moment(initDate_value,'YYYY-MM-DDTHH:mm:ssZ', true).isValid()) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.DATE_INCORRECT}})
+    }
+    else if (!moment(endDate_value,'YYYY-MM-DDTHH:mm:ssZ', true).isValid()) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.DATE_INCORRECT}})
+    }
+    else if(!isNumber(radius_value)) {
+      res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
     }
     else
     {
+      var initHour_value = moment(initDate_value,'YYYY-MM-DDTHH:mm:ssZ').format("HHmm");
+      var endHour_value = moment(endDate_value,'YYYY-MM-DDTHH:mm:ssZ').format("HHmm");
+
       var areaData = {
           id : id_value,
           description : description_value,
@@ -556,8 +543,7 @@ router.put('/area/', function(req, res)
           initHour : initHour_value,
           endHour : endHour_value,
           typeArea : typeArea_value,
-          radius : radius_value,
-          username : 'kyrosapi'
+          radius : radius_value
       };
 
       AreaModel.updateArea(areaData,function(error, data)
@@ -610,6 +596,8 @@ router.put('/area/', function(req, res)
  *                 "endDate": "2015-09-12",
  *                 "initHour": 0945,
  *                 "endHour": 1030,
+ *                 "initHour": 0945,
+ *                 "endHour": 1030,
  *                 "typeArea": "F",
  *                 "radius": null,
  *                 "username": "vimsve"
@@ -630,7 +618,7 @@ router.delete("/area/", function(req, res)
     log.info("DELETE: /area");
 
     //id del area a eliminar
-    var id = req.body.id || req.params.id || req.query.id;
+    var id = req.body.id;
     log.debug("  -> id: " + id);
 
     if (id == null)

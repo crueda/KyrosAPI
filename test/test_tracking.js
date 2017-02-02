@@ -5,8 +5,8 @@ var winston = require('winston');
 
 var areaInserted = 0;
 
-describe('Area', function() {
-  var url = 'http://localhost:3000';
+describe('Tracking', function() {
+  var url = 'http://localhost:3003';
   before(function(done) {
     done();
   });
