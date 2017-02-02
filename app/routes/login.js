@@ -25,6 +25,111 @@ var log = require('tracer').console({
   }
 });
 
+/**
+ * @api {post} /login/ Login to Single-SignOn platform
+ * @apiName PostLogin
+ * @apiGroup Login
+ *
+ * @apiDescription Login to Kyros SSO
+ * @apiSampleRequest https://api.kyroslbs.com/login
+ * @apiParam {String} username Username
+ * @apiParam {String} password Password (SHA256)
+ * @apiSuccess {String} message message with token information
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200
+ *     {
+ *         "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MzIyMjE4Njk1NTcsImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9.3lHHWqKgeeEdX7XyvRV2BHA9YXJJ4u9UaeI5eXpTxGY",
+ *         "expires": 1432221869557,
+ *         "id": 1,
+ *         "user": "my_username",
+ *         "role": "my_role"
+ *     }
+ * @apiErrorExample {json} Error-Response:
+ *     https/1.1 202
+ *     {
+ *     "response": {
+ *        "status": -5,
+ *        "description": "Invalid user or password"
+ *      }
+ *     }
+ * @apiErrorExample {json} Error-Response:
+ *     https/1.1 202
+ *     {
+ *     "response": {
+ *        "status": -4,
+ *        "description": "Missing parameter"
+ *      }
+ *     }
+ */
+  router.post("/login", function(req,res)
+  {
+    log.info("POST: /login");
+
+    var username = req.query.username || req.body.username ||  req.params.username || '';
+    var password = req.query.password || req.body.password ||  req.params.password || '';
+
+    log.debug("  -> username: " + username);
+    log.debug("  -> password: " + password);
+
+    if (username == null || password == null) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+    }
+    else
+    {
+
+      try {
+        if (username == '' || password == '') {
+         log.debug('Invalid credentials');
+         res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
+         return;
+      }
+
+     // Authorize the user to see if s/he can access our resources
+     var passwordDB = '';
+     var roleDB = '';
+
+     UserModel.getUserFromUsername(username,function(error, dbUser) {
+         if (dbUser==null) {
+           res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.SERVER_ERROR}})
+           return;
+         }
+         if (typeof dbUser == 'undefined' || dbUser.length == 0) {
+
+           log.debug('Invalid user');
+           res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
+           return;
+         }
+         else {
+           id = dbUser[0].id;
+           passwordDB = dbUser[0].password;
+           username = dbUser[0].username;
+
+           //var passwordDBsha256 = crypto.createHash('sha256').update(passwordDB).digest("hex");
+           //log.debug('Password:'+passwordDBsha256);
+
+           //if (password!=passwordDBsha256) {
+           if (password!=passwordDB) {
+               log.debug('Invalid credentials');
+               res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
+           }
+           else {
+             log.debug('Login OK - Generando token');
+
+             res.json(genToken(id, username, passwordDB));
+           }
+       }
+
+     });
+   } catch (err) {
+     res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.SERVER_ERROR}})
+   }
+ }
+});
+
+/*
+* LOGIN DE LA APP
+*/
 router.get('/app/login/', function(req, res)
 {
     log.info("GET: /login");
@@ -68,21 +173,34 @@ router.get('/app/login/', function(req, res)
 });
 
 // private method
-function genToken(username) {
-  var expires = expiresIn1Hour();
-  //var expires = expiresInMin(5); // 1 day
-  //var expiresISO = expiresInMinISO(5); // 5 minutes
+function genToken(id, username, password) {
+  var expires = expiresInDays(7); // 7 dias
+  var expiresISO = expiresInDaysISO(7); // 7 dias
   var token = jwt.encode({
     exp: expires,
-    iss: username
+    iss: username,
+    sub: password
   }, require('../config/secret')());
 
-  return token;
+  return {
+    id: id,
+    user: username,
+    role: role,
+    token: token,
+    //expires: expires,
+    expires: expiresISO
+  };
 }
 
-function expiresIn(numDays) {
+function expiresInDays(numDays) {
   var dateObj = new Date();
   return dateObj.setDate(dateObj.getDate() + numDays);
+}
+
+function expiresInDaysISO(numDays) {
+  var utc_date = moment.parseZone(moment.utc()+86400000*numDays).utc().format('YYYY-MM-DDTHH:mm:ss.ssZ');
+  var new_utc_date = utc_date.substring(0,utc_date.indexOf("+")) + "Z";
+  return new_utc_date;
 }
 
 function expiresIn1Hour() {

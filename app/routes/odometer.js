@@ -25,16 +25,16 @@ var log = require('tracer').console({
 });
 
 /**
- * @api {get} /api/odometer/:vehicleLicense Odometro de un dispositivo 
- * @apiName GetOdometerVehicle Obtener información de odometro de un dispositivo
- * @apiGroup Odometer
- * @apiDescription Datos de odometro de un dispositivo
+ * @api {get} /odometer/:vehicleLicense Vehicle odometer
+ * @apiName GetOdometerVehicle 
+ * @apiGroup Vehicle
+ * @apiDescription Vehicle odometer data
  * @apiVersion 1.0.1
- * @apiSampleRequest http://view.kyroslbs.com/api/odometer/1615-FDW
+ * @apiSampleRequest https://api.kyroslbs.com/odometer/1615-FDW
  *
- * @apiParam {String} vehicleLicense Identificador del dispositivo en Kyros
+ * @apiParam {String} vehicleLicense Vehicle identification
  *
- * @apiSuccess {json} odometerData Datos de odometro
+ * @apiSuccess {json} odometerData Odometer data
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK

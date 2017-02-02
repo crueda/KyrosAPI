@@ -25,30 +25,6 @@ var log = require('tracer').console({
   }
 });
 
-/**
- * @api {get} /api/numpositions/:vehicleLicense Número de posiciones de un dispositivo
- * @apiName GetNumPositions Obtener información del número de posiciones de un determinado dispositivo
- * @apiGroup Numpositions
- * @apiDescription Datos del número de posiciones de un determinado dispositivo
- * @apiVersion 1.0.1
- * @apiSampleRequest http://view.kyroslbs.com/api/numpositions/655?initDate=1473915536000&?endDate=1473915736000
- *
- * @apiParam {String} vehicleLicense Identificador del dispositivo en Kyros
- * @apiParam {Number} initDate Fecha inicial de consulta (epoch)
- * @apiParam {Number} [endDate] Fecha final de consulta (epoch)
- * @apiParam {Number} [slots=10] Número de slots
- *
- * @apiSuccess {json} numpositionsData Datos del número de posiciones
- *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *      "dataset": {
- *         "data": [1, 5, 4], 
- *         "xData": [1472725489000, 1472726070000, 1472729044000]
- *      }
- *     }
- */
 router.get('/numpositions/:vehicleLicense', function(req, res)
 {
     if (req.session.user == null){

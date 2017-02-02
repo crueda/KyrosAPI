@@ -25,16 +25,16 @@ var log = require('tracer').console({
 });
 
 /**
- * @api {get} /api/monitor  Árbol de monitorización de un usuario
- * @apiName GetMonitor Obtener el árbol de monitorización de un usuario
+ * @api {get} /monitor  Monitor tree
+ * @apiName GetMonitor 
  * @apiGroup Monitor
- * @apiDescription Obtiene el árbol de monitorización de un usuario
+ * @apiDescription Monitor tree from user
  * @apiVersion 1.0.1
- * @apiSampleRequest http://view.kyroslbs.com/api/monitor/crueda
+ * @apiSampleRequest https://api.kyroslbs.com/monitor/crueda
  *
- * @apiParam {String} username Nombre de usuario en Kyros
+ * @apiParam {String} username Username in Kyros
  *
- * @apiSuccess {json} monitorData Datos de monitorización
+ * @apiSuccess {json} monitorData Monitor data
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK

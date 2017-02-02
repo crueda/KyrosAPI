@@ -25,7 +25,7 @@ var log = require('tracer').console({
 });
 
 /**
- * @api {get} /api/poi/box  Todos los POIs que se encuentren dentro de la caja
+ * @api {get} /poi/box  Todos los POIs que se encuentren dentro de la caja
  * @apiName GetPoiBox Obtener todos los POIs que se encuentren dentro de la caja
  * @apiGroup Poi
  * @apiDescription Obtiene los POIs dentro de la caja indicada por parametro
