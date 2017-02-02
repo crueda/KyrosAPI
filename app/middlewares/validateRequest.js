@@ -19,8 +19,20 @@ var log = require('tracer').console({
         });
     }
 });
+var access_log = require('tracer').console({
+    transport : function(data) {
+        fs.open(properties.get('main.access_log.file'), 'a', 0666, function(e, id) {
+            fs.write(id, data.output+"\n", null, 'utf8', function() {
+                fs.close(id, function() {
+                });
+            });
+        });
+    }
+});
 
-function checkPermission(req, permissionList) {
+function checkPermission(req, username, permissionList) {
+  access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
+
   //return true;
   var arrPermissionList = permissionList.split(",");
 
@@ -171,7 +183,7 @@ module.exports = function(req, res, next) {
           }
           else {
             // Comprobar permisos
-            if (checkPermission(req, dbUser[0].permissions))
+            if (checkPermission(req, dbUser[0].username, dbUser[0].permissions))
               next();
             else {
               log.debug('Not allow');
