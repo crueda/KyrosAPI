@@ -24,7 +24,7 @@ var log = require('tracer').console({
   }
 });
 
-/**
+/*
  * @api {get} /monitor  Monitor tree
  * @apiName GetMonitor 
  * @apiGroup Monitor

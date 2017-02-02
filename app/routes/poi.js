@@ -1,76 +1,273 @@
-var express = require('express');
-var router = express.Router();
-
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
+var express = require('express');
+var router = express.Router();
+var PoiModel = require('../models/poi');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
 
-var PoiModel = require('../models/poi');
-
 // Definición del log
 var fs = require('fs');
 var log = require('tracer').console({
-  transport : function(data) {
-    //console.log(data.output);
-    fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
-      fs.write(id, data.output+"\n", null, 'utf8', function() {
-        fs.close(id, function() {
+    transport : function(data) {
+        //console.log(data.output);
+        fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
+            fs.write(id, data.output+"\n", null, 'utf8', function() {
+                fs.close(id, function() {
+                });
+            });
         });
-      });
+    }
+});
+
+/**
+* @apiDefine LoginError
+*
+* @apiError UserNotFound The id of the User was not found
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -5,
+*        "description": "Invalid user or password"
+*      }
+*     }
+*/
+
+/**
+* @apiDefine PermissionError
+*
+* @apiError NotAllow Access not allow to User
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -4,
+*        "description": "User not authorized"
+*      }
+*     }
+*/
+
+/** @apiDefine TokenError
+*
+* @apiError TokenInvalid The token is invalid
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -5,
+*        "description": "Invalid token"
+*      }
+*     }
+*/
+
+/** @apiDefine TokenExpiredError
+*
+* @apiError TokenExpired The token is expired
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -5,
+*        "description": "Token expired"
+*      }
+*     }
+*/
+
+/** @apiDefine MissingParameterError
+*
+* @apiError MissingParameter Missing parameter
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -4,
+*        "description": "Missing parameter"
+*      }
+*     }
+*/
+
+/** @apiDefine MissingRegisterError
+*
+* @apiError MissingRegister Missing register
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -1000,
+*        "description": "Missing element"
+*      }
+*     }
+*/
+
+/** @apiDefine IdNumericError
+*
+* @apiError IdNumeric Id numeric error
+*
+* @apiErrorExample Error-Response:
+*     https/1.1 202
+*     {
+*     "response": {
+*        "status": -9,
+*        "description": "The id must be numeric"
+*      }
+*     }
+*/
+
+/** @apiDefine TokenHeader
+*
+* @apiHeader {String} x-access-token JSON Web Token (JWT)
+*
+* @apiHeaderExample {json} Header-Example:
+*     {
+*       "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MzIyMTg2ODc1ODksImlzcyI6InN1bW8iLCJyb2xlIjoiYWRtaW5pc3RyYXRvciJ9._tYZLkBrESt9FwOccyvripIsZR5S0m8PLZmEgIDEFaY"
+*     }
+*/
+
+/**
+ * @api {post} /pois Request all POIs
+ * @apiName GetPois
+ * @apiGroup POI
+ * @apiVersion 1.0.1
+ * @apiDescription List of POIs
+ * @apiSampleRequest https://api.kyroslbs.com/pois
+ *
+ * @apiParam {Number} [startRow] Number of first element
+ * @apiParam {Number} [endRow] Number of last element
+ * @apiParam {String="id","description","latitude","longitude"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
+ *
+ * @apiSuccess {Object[]} poi       List of POIs
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
+ *     {
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "startRow" : 0,
+ *         "endRow" : 2,
+ *         "totalRows" : 2,
+ *         "data" : {
+ *         "record" : [
+ *           {
+ *              "id": 123,
+ *              "description": "Gasolinera",
+ *              "latitude": 40.121323,
+ *              "longitude": "1.4667878"
+ *           },
+ *           {
+ *              "id": 124,
+ *              "description": "Compañia",
+ *              "latitude": 39.121323,
+ *              "longitude": "4.4667878"
+ *           }]
+ *        }
+ *       }
+ *     }
+ *
+ * @apiUse TokenHeader
+ * @apiUse PermissionError
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
+ */
+router.post('/pois/', function(req, res)
+{
+    log.info("POST: /pois");
+
+    var startRow = req.body.startRow;
+    var endRow = req.body.endRow;
+    var sortBy = req.body.sortBy;
+    // Limpiar espacios en blanco
+    if (sortBy!=null) {
+      sortBy = sortBy.replace(/\s/g, "");
+    }
+
+    PoiModel.getPois(startRow, endRow, sortBy, function(error, data, totalRows)
+    {
+        if (data == null)
+        {
+          res.status(200).json({"response": {"status":0,"data": {"record": []}}})
+        }
+        else if (typeof data !== 'undefined')
+        {
+          if (startRow == null || endRow == null) {
+            startRow = 0;
+            endRow = totalRows;
+          }
+          else if (totalRows -1 <= endRow) {
+            endRow = totalRows - 1;
+          }
+          res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
+        }
+        //en otro caso se muestra un error
+        else
+        {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+        }
     });
-  }
 });
 
 /**
- * @api {get} /poi/box  Todos los POIs que se encuentren dentro de la caja
- * @apiName GetPoiBox Obtener todos los POIs que se encuentren dentro de la caja
- * @apiGroup Poi
- * @apiDescription Obtiene los POIs dentro de la caja indicada por parametro
+ * @api {get} /poi/:id Request POI information
+ * @apiName GetPoi
+ * @apiGroup POI
  * @apiVersion 1.0.1
- * @apiSampleRequest http://view.kyroslbs.com/api/poi/box?username=crueda&ullon=-6.19&ullat=42.34&drlon=-5.04&drlat=41.75
+ * @apiDescription POI information
+ * @apiSampleRequest https://api.kyroslbs.com/poi
  *
- * @apiParam {String} username Nombre de usuario en Kyros
- * @apiParam {Number} ullon Longitud de la esquina superior izquierda
- * @apiParam {Number} ullat Latitud de la esquina superior izquierda
- * @apiParam {Number} drlon Longitud de la esquina inferior derecha
- * @apiParam {Number} drlat Latitude de la esquina inferior derecha
+ * @apiParam {Number} id POI unique ID
  *
- * @apiSuccess {json} poisData Datos de los POIs
+ * @apiSuccess {Number} id POI unique ID
+ * @apiSuccess {String} description Description of POI
+ * @apiSuccess {Number} longitude Longitude of the POI (WGS84)
+ * @apiSuccess {Number} latitude Latitude of the POI (WGS84)
  *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
  *     {
- *      
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "startRow" : 0,
+ *         "endRow" : 1,
+ *         "totalRows" : 1,
+ *         "data" : {
+ *         "record" : [
+ *           {
+ *              "id": 123,
+ *              "description": "Centro comercial",
+ *              "latitude": 40.121323,
+ *              "longitude": "1.4667878"
+ *           }]
+ *        }
+ *       }
  *     }
+ *
+ * @apiError PoiNotFound The <code>id</code> of the poi was not found.
+ *
+ * @apiUse TokenHeader
+ * @apiUse LoginError
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
+ * @apiUse MissingRegisterError
+ * @apiUse IdNumericError
  */
-router.get('/poi/box/', function(req, res)
+router.get('/poi/:id', function(req, res)
 {
-    if (req.session.user == null){
-      res.redirect('/');
-    } 
-    else {
-      log.info("GET: /poi/box");
-      var username = req.query.username;
-      var ullon = req.query.ullon;
-      var ullat = req.query.ullat;
-      var drlon = req.query.drlon;
-      var drlat = req.query.drlat;
+    var id = req.params.id;
+    log.info("GET: /poi/"+id);
 
-      var boxData = {
-          username : username,
-          ullon : ullon,
-          ullat : ullat,
-          drlon : drlon,
-          drlat : drlat
-        };
-      if (username==null || ullon==null || ullat==null || drlon==null || drlat==null) {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-      } 
-      else {
-        PoiModel.getPoisFromBox(boxData,function(error, data)
+    //se comprueba que la id es un número
+    if(!isNaN(id))
+    {
+        PoiModel.getPoi(id,function(error, data)
         {
           if (data == null)
           {
@@ -78,89 +275,267 @@ router.get('/poi/box/', function(req, res)
           }
           else
           {
-            //si existe enviamos el json
+            //si existe se envia el json
             if (typeof data !== 'undefined' && data.length > 0)
             {
-              res.status(200).json(data)
+                res.status(200).json({"response": {"status":0,"totalRows":1,"startRow":0,"endRow":1,"data": {"record": data}}})
             }
-            else if (typeof data == 'undefined' || data.length == 0)
-            {
-              res.status(200).json([])
-            }
-            //en otro caso mostramos un error
+            //en otro caso se muestra un error
             else
             {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+                res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
             }
           }
-        }); 
-      }  
+        });
+    }
+    //si la id no es numerica mostramos un error de servidor
+    else
+    {
+        res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
     }
 });
 
 /**
- * @api {get} /api/poi/radio  Todos los POIs que se encuentren dentro de un radio
- * @apiName GetPoiRadio Obtener todos los POIs que se encuentren dentro de un radio
- * @apiGroup Poi
- * @apiDescription Obtiene los POIs dentro del círculo pasado por parametro (centro y radio)
+ * @api {put} /poi/ Update POI
+ * @apiName PutNewPoi
+ * @apiGroup POI
  * @apiVersion 1.0.1
- * @apiSampleRequest http://view.kyroslbs.com/api/poi/radio?username=crueda&longitude=-6.19&latitude=42.34&radio=100
+ * @apiDescription Update POI
+ * @apiSampleRequest https://api.kyroslbs.com/poi
  *
- * @apiParam {String} username Nombre de usuario en Kyros
- * @apiParam {Number} longitude Longitud del punto central del círculo
- * @apiParam {Number} latitude Latitud del punto central del círculo
- * @apiParam {Number} radio Radio (en metros) del cículo
+ * @apiParam {Number} id POI unique ID
+ * @apiParam {String} description Description of POI
+ * @apiParam {Number} longitude Longitude of the POI (WGS84)
+ * @apiParam {Number} latitude Latitude of the POI (WGS84)
  *
- * @apiSuccess {json} poisData Datos de los POIs
- *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 200 OK
+ * @apiSuccess {json} message Result message
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
  *     {
- *      
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "data" : {
+ *         "record" : [
+ *           {
+ *              "id": 123,
+ *              "description": "Centro de transportes",
+ *              "latitude": 40.121323,
+ *              "longitude": "1.4667878"
+ *           }]
+ *        }
+ *       }
  *     }
+ *
+ * @apiUse TokenHeader
+ * @apiUse LoginError
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
+ * @apiUse MissingParameterError
  */
-router.get('/poi/radio/', function(req, res)
+router.put('/poi', function(req, res)
 {
-    if (req.session.user == null){
-      res.redirect('/');
-    } 
-    else {
-      log.info("GET: /poi/radio");
-      var username = req.query.username;
-      var longitude = req.query.longitude;
-      var latitude = req.query.latitude;
-      var radio = req.query.radio;
+    log.info("PUT: /poi");
 
-      if (username==null || longitude==null || latitude==null || radio==null) {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-      } 
-      else {
-        PoiModel.getPoisFromRadio(username, latitude, longitude, radio, function(error, data)
-        {
+    var id_value = req.body.id || req.query.id;
+    var description_value = req.body.description || req.query.description || req.params.description;
+    var latitude_value = req.body.latitude || req.query.latitude || req.params.latitude;
+    var longitude_value = req.body.longitude || req.query.longitude || req.params.longitude;
+
+    log.debug("  -> id:          " + id_value);
+    log.debug("  -> weight:      " + weight_value);
+    log.debug("  -> latitude:    " + latitude_value);
+    log.debug("  -> longitude:   " + longitude_value);
+
+    if (id_value == null || description_value == null || latitude_value == null || longitude_value == null) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+    }
+    else
+    {
+      var poiData = {
+          id : id_value,
+          description : description_value,
+          latitude : latitude_value,
+          longitude : longitude_value
+      };
+      PoiModel.updatePoi(poiData,function(error, data)
+      {
           if (data == null)
           {
             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
           }
           else
           {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            //si se ha actualizado correctamente mostramos un mensaje
+            if(data && data.message)
             {
-              res.status(200).json(data)
+              res.status(200).json({"response": {"status":0,"data": {"record": [poiData]}}})
             }
-            else if (typeof data == 'undefined' || data.length == 0)
-            {
-              res.status(200).json([])
-            }
-            //en otro caso mostramos un error
             else
             {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+              res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
             }
           }
-        }); 
-      }  
+      });
     }
 });
+
+/**
+ * @api {post} /poi/ Create new POI
+ * @apiName PostNewPoi
+ * @apiGroup POI
+ * @apiVersion 1.0.1
+ * @apiDescription Create new POI
+ * @apiSampleRequest https://api.kyroslbs.com/poi
+ *
+ * @apiParam {String} description Description of POI
+ * @apiParam {Number} longitude Longitude of the POI (WGS84)
+ * @apiParam {Number} latitude Latitude of the POI (WGS84)
+ *
+ * @apiSuccess {json} message Result message
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 201 OK
+ *     {
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "data" : {
+ *         "record" : [
+ *           {
+ *              "id": 123,
+ *              "description": "Lugar de reparto",
+ *              "latitude": 40.121323,
+ *              "longitude": "1.4667878"
+ *           }]
+ *        }
+ *       }
+ *     }
+ *
+ * @apiUse TokenHeader
+ * @apiUse LoginError
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
+ * @apiUse MissingParameterError
+ */
+router.post("/poi", function(req,res)
+{
+    log.info("POST: /poi");
+
+    // Crear un objeto con los datos a insertar del poi
+    var description_value = req.body.description || req.query.description || req.params.description;
+    var latitude_value = req.body.latitude || req.query.latitude || req.params.latitude;
+    var longitude_value = req.body.longitude || req.query.longitude || req.params.longitude;
+
+    log.debug("  -> description: " + description_value);
+    log.debug("  -> latitude:    " + latitude_value);
+    log.debug("  -> longitude:   " + longitude_value);
+
+    if (description_value == null || latitude_value == null || longitude_value == null) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+    }
+    else
+    {
+      var poiData = {
+          id : null,
+          description : description_value,
+          latitude : latitude_value,
+          longitude : longitude_value
+      };
+
+      PoiModel.insertPoi(poiData,function(error, data)
+      {
+        if (data == null)
+        {
+          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+        }
+        else
+        {
+          // si se ha insertado correctamente mostramos su messaje de exito
+          if(data && data.insertId)
+          {
+              poiData.id = data.insertId;
+              res.status(201).json({"response": {"status":0,"data": {"record": [poiData]}}})
+          }
+          else
+          {
+             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+        }
+      });
+    }
+});
+
+/**
+ * @api {delete} /poi Delete POI
+ * @apiName DeletePoi
+ * @apiGroup POI
+ * @apiVersion 1.0.1
+ * @apiDescription Delete POI
+ * @apiSampleRequest https://api.kyroslbs.com/poi
+ *
+ * @apiParam {Number} id POI unique ID
+ *
+ * @apiSuccess {json} message Result message
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
+ *     {
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "data" : {
+ *         "record" : [
+ *           {
+ *              "id": 123,
+ *              "description": "Centro de reparto",
+ *              "latitude": 40.121323,
+ *              "longitude": "1.4667878"
+ *           }]
+ *        }
+ *       }
+ *     }
+ *
+ * @apiUse TokenHeader
+ * @apiUse LoginError
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
+ * @apiUse MissingParameterError
+ */
+router.delete("/poi/", function(req, res)
+{
+    log.info("DELETE: /poi");
+
+    var id = req.body.id || req.params.id || req.query.id;
+    log.debug("  -> id: " + id);
+
+    if (id == null)
+    {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+    }
+    else if (typeof parseInt(id) != "number")
+    {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.PARAMETER_ERROR_TYPE}})
+    }
+    else
+    {
+      PoiModel.deletePoi(id,function(error, data)
+      {
+        if (data == null)
+        {
+          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+        }
+        else
+        {
+            if(data && data.message != "notExist")
+            {
+              res.status(200).json({"response": {"status":0,"data": {"record": data}}})
+            }
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+            }
+        }
+        });
+      }
+  });
 
 module.exports = router;

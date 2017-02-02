@@ -83,7 +83,7 @@ router.get('/numpositions/:vehicleLicense', function(req, res)
     }
 });
 
-/**
+/*
  * @api {get} /api/numpositionsGroupByHeading/:vehicleLicense Número de posiciones de un dispositivo agrupadas por rango de heading
  * @apiName GetNumPositionsHeading Obtener información del número de posiciones de un determinado dispositivo
  * @apiGroup Numpositions
