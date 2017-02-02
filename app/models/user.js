@@ -150,8 +150,7 @@ userModel.getUserFromUsername = function(username,callback)
   pool.getConnection(function(err, connection) {
     if (connection)
     {
-        // mejorada!
-        var sql = "SELECT USERNAME as username, PASSWORD as password from USER_GUI WHERE USERNAME = " + connection.escape(username);
+        var sql = "SELECT USERNAME as username, PASSWORD as password, IFNULL(API_PERMISSIONS, '') as permissions from USER_GUI WHERE USERNAME = " + connection.escape(username);
         log.debug ("Query:" + sql);
         connection.query(sql, function(error, row)
         {

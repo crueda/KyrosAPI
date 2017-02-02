@@ -20,6 +20,115 @@ var log = require('tracer').console({
     }
 });
 
+function checkPermission(req, permissionList) {
+  //return true;
+  var arrPermissionList = permissionList.split(",");
+
+  // AREA
+  if ( (req.path.lastIndexOf('/areas', 0) === 0) ) {
+    if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/area', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // VERTEX
+  if (req.path.lastIndexOf('/vertexes', 0) === 0) {
+    if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/vertex', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // ROUTE
+  if (req.path.lastIndexOf('/routes', 0) === 0) {
+    if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/route', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // BEACON
+  if (req.path.lastIndexOf('/beacons', 0) === 0) {
+    if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/beacon', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // VEHICLE
+  else if ( (req.path.lastIndexOf('/vehicles', 0) === 0)  ){
+    if ((arrPermissionList.indexOf(properties.get('api.permission.vehicle.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.vehicle.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/vehicle', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.vehicle.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.vehicle.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.vehicle.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // TRACKING
+  else if ( (req.path.lastIndexOf('/tracking', 0) === 0)  ){
+    if ((arrPermissionList.indexOf(properties.get('api.permission.tracking.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.tracking.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/tracking', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.tracking.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.tracking.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.tracking.admin')) > -1 )
+        return true;
+    }
+  }
+
+
+  /*else if (req.path.lastIndexOf('/tracking', 0) === 0) {
+    return true;
+  }*/
+
+  return false;
+}
+
+
 module.exports = function(req, res, next) {
   //var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'] || req.headers['x-access'];
   var token = req.headers['x-access-token'] || req.headers['x-access'];
@@ -50,7 +159,6 @@ module.exports = function(req, res, next) {
         username = decoded.jti;
       }
 
-      //console.log("username:"+username);
       UserModel.getUserFromUsername(username,function(error, dbUser) {
           if (dbUser==null) {
             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
@@ -62,7 +170,16 @@ module.exports = function(req, res, next) {
             return;
           }
           else {
-            next();
+            // Comprobar permisos
+            log.info("comprobar:"+dbUser[0].permissions);
+            if (checkPermission(req, dbUser[0].permissions))
+              next();
+            else {
+              log.debug('Not allow');
+              res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.NOT_ALLOW}})
+            }
+
+
           }
       });
 
