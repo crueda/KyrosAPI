@@ -1,7 +1,6 @@
-var mongoose = require('mongoose');
-
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
+var mongoose = require('mongoose');
 
 // Definición del log
 var fs = require('fs');
