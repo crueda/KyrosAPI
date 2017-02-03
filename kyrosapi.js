@@ -30,6 +30,7 @@ var api_vehicle = require('./app/routes/vehicle');
 var api_share = require('./app/routes/share');
 var api_watch = require('./app/routes/watch');
 var api_login = require('./app/routes/login');
+var api_validate = require('./app/routes/validate');
 var api_push = require('./app/routes/push');
 var api_icon = require('./app/routes/icon');
 
@@ -81,6 +82,7 @@ app.all('/*', function(req, res, next) {
 
 app.use('/', api_status);
 app.use('/', api_login);
+app.use('/', api_validate);
 
 
 /*

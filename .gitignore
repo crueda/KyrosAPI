@@ -1,2 +1,3 @@
 ./kyrosapi.properties
 *.log
+test/*

@@ -1,3 +1,5 @@
+var mongoose = require('mongoose');
+
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
 
@@ -28,8 +30,57 @@ var dbConfig = {
 var mysql = require('mysql');
 var pool = mysql.createPool(dbConfig);
 
+var dbMongoName = properties.get('bbdd.mongo.name');
+var dbMongoHost = properties.get('bbdd.mongo.ip');
+var dbMongoPort = properties.get('bbdd.mongo.port');
+
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+    if (error) {
+        log.info(error);
+    } 
+});
+
 // Crear un objeto para ir almacenando todo lo necesario
 var userModel = {};
+
+//obtenemos un usuario por su username
+userModel.getUserFromUsername_Mysql = function(username,callback)
+{
+  pool.getConnection(function(err, connection) {
+    if (connection)
+    {
+        var sql = "SELECT USERNAME as username, PASSWORD as password, IFNULL(API_PERMISSIONS, '') as permissions from USER_GUI WHERE USERNAME = " + connection.escape(username);
+        log.debug ("Query:" + sql);
+        connection.query(sql, function(error, row)
+        {
+            connection.release();
+            if(error)
+            {
+                callback(error, null);
+            }
+            else
+            {
+                callback(null, row);
+            }
+        });
+    }
+    else {
+      callback(null, null);
+      //throw error;
+    }
+  });
+}
+
+//obtenemos un usuario por su username
+userModel.getUserFromUsername = function(username,callback)
+{
+  mongoose.connection.db.collection('USER', function (err, collection) {
+    collection.find( { 'username': username}).toArray(function(err, docs) {
+        callback(null, docs);
+    });
+  });  
+}
+
 
 // Obtener todos los usuarios
 userModel.getUsers = function(startRow, endRow, sortBy, callback)
@@ -140,34 +191,6 @@ userModel.getUser = function(id,callback)
     }
     else {
       callback(null, null);
-    }
-  });
-}
-
-//obtenemos un usuario por su username
-userModel.getUserFromUsername = function(username,callback)
-{
-  pool.getConnection(function(err, connection) {
-    if (connection)
-    {
-        var sql = "SELECT USERNAME as username, PASSWORD as password, IFNULL(API_PERMISSIONS, '') as permissions from USER_GUI WHERE USERNAME = " + connection.escape(username);
-        log.debug ("Query:" + sql);
-        connection.query(sql, function(error, row)
-        {
-            connection.release();
-            if(error)
-            {
-                callback(error, null);
-            }
-            else
-            {
-                callback(null, row);
-            }
-        });
-    }
-    else {
-      callback(null, null);
-      //throw error;
     }
   });
 }

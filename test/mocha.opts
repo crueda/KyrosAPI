@@ -1,4 +1,4 @@
-./test/test_area.js
+./test/test_login.js
 
 --reporter spec
 --growl

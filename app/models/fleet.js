@@ -45,18 +45,21 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 var fleetModel = {};
 
 // Obtener todos las fleets
-fleetModel.getFleets = function(startRow, endRow, sortBy, callback)
+fleetModel.getFleets = function(startRow, endRow, sortBy, username, callback)
 {
-  pool.getConnection(function(err, connection) {
+  // Obtener las flotas del usuario
+  fleetModel.getFleetsFromUsername(username,function(error, monitor_fleet) {
+  //var monitor_fleet = "595";
+    pool.getConnection(function(err, connection) {
     if (connection)
     {
-      var sqlCount = 'SELECT count(*) as nrows FROM FLEET';
+      var sqlCount = 'SELECT count(*) as nrows FROM FLEET where FLEET_ID IN(' + monitor_fleet + ')';
       log.debug ("Query: "+sqlCount);
       connection.query(sqlCount, function(err, row)
       {
         if(row)
         {
-          var consulta = 'SELECT FLEET_ID as id, DESCRIPTION_FLEET as description, CONSIGNOR_ID as companyId FROM FLEET';
+          var consulta = 'SELECT FLEET_ID as id, DESCRIPTION_FLEET as description, CONSIGNOR_ID as companyId FROM FLEET where FLEET_ID IN(' + monitor_fleet + ')';
 
           var totalRows = row[0].nrows;
 
@@ -126,6 +129,7 @@ fleetModel.getFleets = function(startRow, endRow, sortBy, callback)
     else {
       callback(null, null);
     }
+  }); // pool mysql conection
   });
 }
 
@@ -155,6 +159,7 @@ fleetModel.getFleet = function(id,callback)
       callback(null, null);
     }
   });
+  
 }
 
 // Actualizar una flota

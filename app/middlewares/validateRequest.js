@@ -33,13 +33,15 @@ var access_log = require('tracer').console({
     }
 });
 
-function checkPermission(req, username, permissionList) {
+function checkPermission(req, username, arrPermissionList) {
   //access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl + " | x-access-token: " + req.headers['x-access-token']);
   access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
 
-  //return true;
-  var arrPermissionList = permissionList.split(",");
+log.info(arrPermissionList);
 
+  //return true;
+  //var arrPermissionList = permissionList.split(",");
+  
   // AREA
   if ( (req.path.lastIndexOf('/areas', 0) === 0) ) {
     if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
@@ -100,6 +102,22 @@ function checkPermission(req, username, permissionList) {
     }
     else {
       if (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 )
+        return true;
+    }
+  }
+
+  // FLEET
+  else if ( (req.path.lastIndexOf('/fleets', 0) === 0)  ){
+    if ((arrPermissionList.indexOf(properties.get('api.permission.fleet.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.fleet.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/fleet', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.fleet.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.fleet.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.fleet.admin')) > -1 )
         return true;
     }
   }
@@ -187,7 +205,7 @@ module.exports = function(req, res, next) {
           }
           else {
             // Comprobar permisos
-            if (checkPermission(req, dbUser[0].username, dbUser[0].permissions))
+            if (checkPermission(req, dbUser[0].username, dbUser[0].api_permission))
               next();
             else {
               log.debug('Not allow');

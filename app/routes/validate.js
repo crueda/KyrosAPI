@@ -6,6 +6,7 @@ var jwt = require('jwt-simple');
 var bodyParser = require('body-parser');
 var UserModel = require('../models/user');
 var crypto = require('crypto');
+var moment 		= require('moment');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -39,8 +40,8 @@ var log = require('tracer').console({
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *         "id": "1"
  *         "user": "my_username"
+ *         "expires": "2017-02-10T16:09:19.19"
  *     }
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 400 Bad request
@@ -57,9 +58,7 @@ var log = require('tracer').console({
   {
     log.info("POST: /validate");
 
-    //var token = req.query.token || '';
-    var token = req.body.token || req.query.token || req.params.token;
-
+    var token = req.body.token;
     log.debug("  -> token:   " + token);
 
     if (token == null) {
@@ -109,8 +108,8 @@ var log = require('tracer').console({
 
                 res.status(200);
                 res.json({
-                  id: dbUser[0].id,
-                  user: decoded.iss
+                  user: decoded.iss,
+                  expires: expiresInDaysISO(decoded.exp)
                 });
                 return;
               }
@@ -129,5 +128,12 @@ var log = require('tracer').console({
       }
     }
   });
+
+function expiresInDaysISO(timestamp) {
+  var utc_date = moment.parseZone(timestamp).utc().format('YYYY-MM-DDTHH:mm:ss.ssZ');
+  var new_utc_date = utc_date.substring(0,utc_date.indexOf("+")) + "Z";
+  return new_utc_date;
+}
+
 
 module.exports = router;

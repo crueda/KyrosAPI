@@ -3,6 +3,7 @@ var messages = require("../utils/statusMessages.js");
 var express = require('express');
 var router = express.Router();
 var fleetModel = require('../models/fleet');
+var utils = require("../utils/utils.js");
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -200,7 +201,8 @@ router.post('/fleets/', function(req, res)
       sortBy = sortBy.replace(/\s/g, "");
     }
 
-    fleetModel.getFleets(startRow, endRow, sortBy, function(error, data, totalRows)
+    var username = utils.getUsernameFromToken(req);
+    fleetModel.getFleets(startRow, endRow, sortBy, username, function(error, data, totalRows)
     {
         if (data == null)
         {
