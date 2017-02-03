@@ -21,6 +21,17 @@ var log = require('tracer').console({
         });
     }
 });
+var access_log = require('tracer').console({
+  format : "              {{message}}",
+    transport : function(data) {
+        fs.open(properties.get('main.access_log.file'), 'a', 0666, function(e, id) {
+            fs.write(id, data.output+"\n", null, 'utf8', function() {
+                fs.close(id, function() {
+                });
+            });
+        });
+    }
+});
 
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
@@ -283,7 +294,9 @@ router.post('/areas/', function(req, res)
 router.get('/area/:id', function(req, res)
 {
     var id = req.params.id;
+
     log.info("GET: /area/"+id);
+    access_log.info("PARAMS >>> " + "id: " + id);
 
     //se comprueba que la id es un número
     if(!isNaN(id))
@@ -388,6 +401,8 @@ router.post("/area", function(req,res)
     log.debug("  -> endDate:      " + endDate_value);
     log.debug("  -> typeArea:     " + typeArea_value);
     log.debug("  -> radius:       " + radius_value);
+
+    access_log.info("BODY >>> " + "description: "+ description_value + " | initDate: "+ initDate_value + " | endDate: " + endDate_value + " | typeArea: " + typeArea_value + " | radius: " + radius_value);
 
     if (radius_value == null)
       radius_value = 0;
@@ -518,6 +533,8 @@ router.put('/area/', function(req, res)
     log.debug("  -> typeArea:     " + typeArea_value);
     log.debug("  -> radius:       " + radius_value);
 
+    access_log.info("BODY >>> " + "id: " + id_value + " | description: "+ description_value + " | initDate: "+ initDate_value + " | endDate: " + endDate_value + " | typeArea: " + typeArea_value + " | radius: " + radius_value);
+
     if (id_value == null || description_value == null || initDate_value == null || endDate_value == null || typeArea_value == null || radius_value == null ) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
@@ -570,12 +587,12 @@ router.put('/area/', function(req, res)
 
 /* DELETE. Eliminamos un area */
 /**
- * @api {delete} /area Delete area
+ * @api {delete} /area:id Delete area
  * @apiName DeleteArea
  * @apiGroup Area
  * @apiVersion 1.0.1
  * @apiDescription Delete area
- * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/area
+ * @apiSampleRequest https://api.kyroslbs.com/kyrosapi/area/132
  *
  * @apiParam {Number} id Area unique ID
  *
@@ -613,13 +630,13 @@ router.put('/area/', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
-router.delete("/area/", function(req, res)
+router.delete("/area/:id", function(req, res)
 {
-    log.info("DELETE: /area");
-
     //id del area a eliminar
-    var id = req.body.id;
-    log.debug("  -> id: " + id);
+    var id = req.params.id;
+    
+    log.info("DELETE: /area/"+id);
+    access_log.info("PARAMS >>> " + "id: " + id);
 
     if (id == null)
     {

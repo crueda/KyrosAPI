@@ -21,6 +21,17 @@ var log = require('tracer').console({
     });
   }
 });
+var access_log = require('tracer').console({
+  format : "              {{message}}",
+    transport : function(data) {
+        fs.open(properties.get('main.access_log.file'), 'a', 0666, function(e, id) {
+            fs.write(id, data.output+"\n", null, 'utf8', function() {
+                fs.close(id, function() {
+                });
+            });
+        });
+    }
+});
 
 function kcoords(px, py) {
   var x  = Math.abs(x);
@@ -149,14 +160,14 @@ function kcoords(px, py) {
 
 /* POST. Se obtiene tracking 1 de una flota */
 /** 
-* @api {post} /trackings/vehicle/:name Request all last tracking from fleet
-* @apiName PostTrackingFleet 
+* @api {post} /tracking1/fleet/:id Request all last tracking position from fleet
+* @apiName PostTracking1Fleet 
 * @apiGroup Tracking
 * @apiVersion 1.0.1
 * @apiDescription List of last trackings from fleet
-* @apiSampleRequest https://api.kyroslbs.com/tracking1/fleet/HLH-CHILE
+* @apiSampleRequest https://api.kyroslbs.com/tracking1/fleet/143
 *
-* @apiParam {String} fleetName Name of the fleet
+* @apiParam {String} id Identification of the fleet
 *
 * @apiSuccess {Number} id tracking unique ID
 * @apiSuccess {Number} deviceId Identification of the element
@@ -198,12 +209,14 @@ function kcoords(px, py) {
 * @apiUse IdNumericError
 */
 
-router.post('/tracking1/fleet/:name', function(req, res)
+router.post('/tracking1/fleet/:id', function(req, res)
 {
-  var name = req.params.name;
-  log.info("POST: /tracking1/fleet/"+name);
+  var id = req.params.id;
+  
+  log.info("POST: /tracking1/fleet/"+id);
+  access_log.info("PARAM >>> " + "id: " + id);
 
-    TrackingModel.getTracking1FromFleet(name, function(error, data)
+    TrackingModel.getTracking1FromFleet(id, function(error, data)
     {
       if (data == null)
       {

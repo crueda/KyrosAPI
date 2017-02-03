@@ -24,7 +24,8 @@ var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
 var dbMongoPort = properties.get('bbdd.mongo.port');
 
-mongoose.createConnection('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+//mongoose.createConnection('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
     if (error) {
         log.info(error);
     }

@@ -16,6 +16,7 @@ var api_vertex = require('./app/routes/vertex');
 var api_route = require('./app/routes/route');
 var api_beacon = require('./app/routes/beacon');
 var api_driver = require('./app/routes/driver');
+var api_fleet = require('./app/routes/fleet');
 
 var api_tracking = require('./app/routes/tracking');
 var api_odometer = require('./app/routes/odometer');
@@ -81,7 +82,9 @@ app.all('/*', function(req, res, next) {
 app.use('/', api_status);
 app.use('/', api_login);
 
+
 /*
+app.use('/', api_app_user);
 app.use('/', api_app_notification);
 app.use('/', api_app_user);
 app.use('/', api_app_tracking);
@@ -92,9 +95,11 @@ app.use('/', api_app_graph);
 
 // AUTENTICACION TOKEN
 app.all('/*', [require('./app/middlewares/validateRequest')]);
+app.all('/tracking*/fleet/*', [require('./app/middlewares/validateFleet')]);
 
 app.use('/', api_area);
 app.use('/', api_tracking);
+app.use('/', api_fleet);
 
 /*
 app.use('/', api_vertex);

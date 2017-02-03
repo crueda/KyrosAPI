@@ -34,6 +34,7 @@ var access_log = require('tracer').console({
 });
 
 function checkPermission(req, username, permissionList) {
+  //access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl + " | x-access-token: " + req.headers['x-access-token']);
   access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
 
   //return true;

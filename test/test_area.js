@@ -91,11 +91,9 @@ describe('Area', function() {
 
 
   it('[DELETE]  Remove area', function(done) {
-    var body = {
-      id: parseInt(areaInserted)
-  	};
+  var body = {};
 	request(url)
-	.delete('/area')
+	.delete('/area/'+areaInserted)
   .set('X-Access-Token','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwOTA4MjY4NjU5MzMsImlzcyI6ImNydWVkYSIsInN1YiI6IlFjem1xaXFqc0JvMDIifQ.Vf1O_oIt-_pCqOP0yroA61ydJAMu2cZsMWdBHxu-GMk')
 	.send(body)
 	// end handles the response

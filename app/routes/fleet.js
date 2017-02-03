@@ -21,6 +21,17 @@ var log = require('tracer').console({
         });
     }
 });
+var access_log = require('tracer').console({
+  format : "              {{message}}",
+    transport : function(data) {
+        fs.open(properties.get('main.access_log.file'), 'a', 0666, function(e, id) {
+            fs.write(id, data.output+"\n", null, 'utf8', function() {
+                fs.close(id, function() {
+                });
+            });
+        });
+    }
+});
 
 /**
 * @apiDefine LoginError
@@ -346,6 +357,8 @@ router.put('/fleet', function(req, res)
     log.debug("  -> description: " + description_value);
     log.debug("  -> companyId:   " + companyId_value);
 
+    access_log.info("BODY >>> " + "id: " + id_value + " | name: "+ name_value + " | description: "+ description_value + " | companyId: " + companyId_value);
+
     if (id_value == null || description_value == null || name_value == null || companyId_value == null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
@@ -429,6 +442,8 @@ router.post("/fleet", function(req,res)
     log.debug("  -> description: " + description_value);
     log.debug("  -> companyId:   " + companyId_value);
 
+    access_log.info("BODY >>> " + "name: "+ name_value + " | description: "+ description_value + " | companyId: " + companyId_value);
+
     if (description_value == null || name_value == null || companyId_value == null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
@@ -503,12 +518,12 @@ router.post("/fleet", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
-router.delete("/fleet/", function(req, res)
+router.delete("/fleet/:id", function(req, res)
 {
-    log.info("DELETE: /fleet");
-
-    var id = req.body.id || req.params.id || req.query.id;
-    log.debug("  -> id: " + id);
+    var id = req.params.id;
+    
+    log.info("DELETE: /fleet/"+id);
+    access_log.info("PARAMS >>> " + "id: " + id);
 
     if (id == null)
     {

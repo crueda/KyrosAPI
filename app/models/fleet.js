@@ -1,5 +1,7 @@
+var mongoose = require('mongoose');
+
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('./api.properties');
+var properties = PropertiesReader('kyrosapi.properties');
 
 // Definición del log
 var fs = require('fs');
@@ -29,22 +31,32 @@ var dbConfig = {
 var mysql = require('mysql');
 var pool = mysql.createPool(dbConfig);
 
-// Crear un objeto para ir almacenando todo lo necesario
-var uxoModel = {};
+var dbMongoName = properties.get('bbdd.mongo.name');
+var dbMongoHost = properties.get('bbdd.mongo.ip');
+var dbMongoPort = properties.get('bbdd.mongo.port');
 
-// Obtener todos las uxos
-uxoModel.getUxos = function(startRow, endRow, sortBy, callback)
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+    if (error) {
+        log.info(error);
+    } 
+});
+
+// Crear un objeto para ir almacenando todo lo necesario
+var fleetModel = {};
+
+// Obtener todos las fleets
+fleetModel.getFleets = function(startRow, endRow, sortBy, callback)
 {
   pool.getConnection(function(err, connection) {
     if (connection)
     {
-      var sqlCount = 'SELECT count(*) as nrows FROM POI where CATEGORY_ID=' + properties.get('kyros.uxo.category.id');
+      var sqlCount = 'SELECT count(*) as nrows FROM FLEET';
       log.debug ("Query: "+sqlCount);
       connection.query(sqlCount, function(err, row)
       {
         if(row)
         {
-          var consulta = 'SELECT POI_ID as id, DESCRIPTION as description, WEIGHT as weight, LATITUDE as latitude, LONGITUDE as longitude, ELEVATION as height FROM POI where CATEGORY_ID=' + properties.get('kyros.uxo.category.id');
+          var consulta = 'SELECT FLEET_ID as id, DESCRIPTION_FLEET as description, CONSIGNOR_ID as companyId FROM FLEET';
 
           var totalRows = row[0].nrows;
 
@@ -117,13 +129,13 @@ uxoModel.getUxos = function(startRow, endRow, sortBy, callback)
   });
 }
 
-// Obtener un uxo por su id
-uxoModel.getUxo = function(id,callback)
+// Obtener un fleet por su id
+fleetModel.getFleet = function(id,callback)
 {
   pool.getConnection(function(err, connection) {
     if (connection)
     {
-        var sql = 'SELECT POI_ID as id, DESCRIPTION as description, WEIGHT as weight, LATITUDE as latitude, LONGITUDE as longitude, ELEVATION as height FROM POI WHERE POI_ID = ' + connection.escape(id);
+        var sql = 'SELECT FLEET_ID as id, DESCRIPTION_FLEET as description, CONSIGNOR_ID as companyId FROM FLEET WHERE FLEET_ID = ' + connection.escape(id);
         log.debug ("Query: "+sql);
         connection.query(sql, function(error, row)
         {
@@ -145,18 +157,16 @@ uxoModel.getUxo = function(id,callback)
   });
 }
 
-// Actualizar un uxo
-uxoModel.updateUxo = function(uxoData, callback)
+// Actualizar una flota
+fleetModel.updateFleet = function(fleetData, callback)
 {
   pool.getConnection(function(err, connection) {
     if(connection)
     {
-        var sql = 'UPDATE POI SET DESCRIPTION = ' + connection.escape(uxoData.description) + ',' +
-        'WEIGHT = ' + connection.escape(uxoData.weight) + ',' +
-        'LATITUDE = ' + connection.escape(uxoData.latitude) + ',' +
-        'LONGITUDE = ' + connection.escape(uxoData.longitude) + ',' +
-        'ELEVATION = ' + connection.escape(uxoData.height) + ' ' +
-        'WHERE POI_ID = ' + uxoData.id;
+        var sql = 'UPDATE FLEET SET ' +
+        'DESCRIPTION_FLEET = ' + connection.escape(fleetData.name) + ',' +
+        'CONSIGNOR_ID = ' + connection.escape(fleetData.companyId) + ' ' +
+        'WHERE FLEET_ID = ' + fleetData.id;
 
         log.debug ("Query: "+sql);
         connection.query(sql, function(error, result)
@@ -179,19 +189,15 @@ uxoModel.updateUxo = function(uxoData, callback)
   });
 }
 
-//añadir una nuevo uxo
-uxoModel.insertUxo = function(uxoData,callback)
+//añadir una nueva flota
+fleetModel.insertFleet = function(fleetData,callback)
 {
   pool.getConnection(function(err, connection) {
     if (connection)
     {
-        var sql = 'INSERT INTO POI SET DESCRIPTION = ' + connection.escape(uxoData.description) + ',' +
-        'CATEGORY_ID = ' + properties.get('kyros.uxo.category.id') + ',' +
-        'DATE = ' + new Date().valueOf() + ',' +
-        'WEIGHT = ' + connection.escape(uxoData.weight) + ',' +
-        'ELEVATION = ' + connection.escape(uxoData.height) + ',' +
-        'LATITUDE = ' + connection.escape(uxoData.latitude) + ',' +
-        'LONGITUDE = ' + connection.escape(uxoData.longitude);
+        var sql = 'INSERT INTO FLEET SET ' +
+        'DESCRIPTION_FLEET = ' + connection.escape(fleetData.name) + ',' +
+        'CONSIGNOR_ID = ' + connection.escape(fleetData.companyId);
 
         log.debug ("Query: "+sql);
         connection.query(sql, function(error, result)
@@ -202,40 +208,7 @@ uxoModel.insertUxo = function(uxoData,callback)
             }
             else
             {
-                var uxoId = result.insertId;
-
-                // Se Crea una zona de exclusion centrada en el UXO
-
-                //Fecha inicial el momento actual
-                var milliseconds_init = (new Date).getTime();
-
-                //Fecha inicial final: inicial + 1 año
-                var milliseconds_end = (new Date).getTime() + 31556900000;
-
-                var sql = 'INSERT INTO AREA SET DESCRIPTION = \'' + 'uxo_' + uxoId + '\',' +
-                'DATE_INIT = ' + milliseconds_init + ',' +
-                'DATE_END = ' + milliseconds_end + ',' +
-                'HOUR_INIT = ' + '0' + ',' +
-                'HOUR_END = ' + '86400' + ',' +
-                'TYPE_AREA = ' + '\'F\'' + ',' +
-                'RADIUS = ' + properties.get('kyros.uxo.radius') + ',' +
-                'USER_NAME = \'sumoAPI_uxo\'';
-
-                log.debug ("Query: "+sql);
-
-                connection.query(sql, function(error, result)
-                {
-                  connection.release();
-                  if(error)
-                  {
-                     callback(error, null);
-                  }
-                  else
-                  {
-                    //devolvemos el id del uxo insertada
-                    callback(null,{"insertId" : uxoId});
-                  }
-                });
+                callback(null,{"insertId" : result.insertId});                
             }
         });
     }
@@ -246,22 +219,19 @@ uxoModel.insertUxo = function(uxoData,callback)
   });
 }
 
-// Eliminar un uxo pasando la id a eliminar
-uxoModel.deleteUxo = function(id, callback)
+// Eliminar una flota
+fleetModel.deleteFleet = function(id, callback)
 {
   pool.getConnection(function(err, connection) {
     if(connection) {
-        var sqlExists = 'SELECT POI_ID as id, DESCRIPTION as description, WEIGHT as weight, LATITUDE as latitude, LONGITUDE as longitude, ELEVATION as height FROM POI WHERE POI_ID = ' + connection.escape(id);
-
+        var sqlExists = 'SELECT FLEET_ID as id, DESCRIPTION_FLEET as description, CONSIGNOR_ID as companyId FROM FLEET WHERE FLEET_ID = ' + connection.escape(id);
         log.debug ("Query: "+sqlExists);
         connection.query(sqlExists, function(err, row)
         {
-            //si existe la id del uxo a eliminar
+            //si existe la id del fleet a eliminar
             if(row) {
-                var sqlPoi = 'DELETE FROM POI WHERE POI_ID = ' + connection.escape(id);
-
+                var sqlPoi = 'DELETE FROM FLEET WHERE FLEET_ID = ' + connection.escape(id);
                 log.debug ("Query: "+sqlPoi);
-
                 connection.query(sqlPoi, function(error, result)
                 {
                     if(error)
@@ -270,23 +240,8 @@ uxoModel.deleteUxo = function(id, callback)
                     }
                     else
                     {
-                        // Borrar la zona de exclusion asociada
-                        var area_description = "uxo_" + id;
-                        var sqlArea = "DELETE FROM AREA WHERE DESCRIPTION = '" + area_description + "'";
-                        log.debug ("Query: "+sqlArea);
-                        connection.query(sqlArea, function(error, result)
-                        {
-                            connection.release();
-                            if(error)
-                            {
-                              callback(error, null);
-                            }
-                            else
-                            {
-                              // se devuelven los datos del elemento eliminado
-                              callback(null,row);
-                            }
-                        });
+                       // se devuelven los datos del elemento eliminado
+                       callback(null,row);                            
                     }
                 });
             }
@@ -304,5 +259,18 @@ uxoModel.deleteUxo = function(id, callback)
   });
 }
 
+fleetModel.getFleetsFromUsername = function(username, callback)
+{
+  mongoose.connection.db.collection('USER', function (err, collection) {
+    collection.find( { 'username': username}).toArray(function(err, docs) {
+        if (docs[0]==undefined || docs[0].monitor_fleet==undefined) {
+            callback(null, []);
+        } else {
+            callback(null, docs[0].monitor_fleet);
+        }
+      });
+  });
+}
+
 //exportamos el objeto para tenerlo disponible en la zona de rutas
-module.exports = uxoModel;
+module.exports = fleetModel;
