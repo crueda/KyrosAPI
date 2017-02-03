@@ -1,4 +1,4 @@
-./test/test_login.js
+./test/test_tracking.js
 
 --reporter spec
 --growl

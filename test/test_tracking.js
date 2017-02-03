@@ -29,6 +29,21 @@ describe('Tracking', function() {
         });
     });
 
-  });
+    it('[POST]    Get all areas', function(done) {
+    request(url)
+	  .post('/tracking1/vehicle/460')
+    .set('X-Access-Token','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwOTA4MjY4NjU5MzMsImlzcyI6ImNydWVkYSIsInN1YiI6IlFjem1xaXFqc0JvMDIifQ.Vf1O_oIt-_pCqOP0yroA61ydJAMu2cZsMWdBHxu-GMk')
 
+    // end handles the response
+	  .end(function(err, res) {
+          if (err) {
+            throw err;
+          }
+					res.status.should.be.equal(200);
+          done();
+        });
+    });
+
+
+  });
 });

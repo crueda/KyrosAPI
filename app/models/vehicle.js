@@ -1,5 +1,6 @@
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
+var mongoose = require('mongoose');
 var moment = require("moment");
 
 // Definición del log
@@ -30,17 +31,26 @@ var dbConfig = {
 var mysql = require('mysql');
 var pool = mysql.createPool(dbConfig);
 
+var dbMongoName = properties.get('bbdd.mongo.name');
+var dbMongoHost = properties.get('bbdd.mongo.ip');
+var dbMongoPort = properties.get('bbdd.mongo.port');
+
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+    if (error) {
+        log.info(error);
+    } 
+});
+
 //crear un objeto para ir almacenando todo lo que necesitemos
-var vesselModel = {};
+var vehicleModel = {};
 
 //obtener todos
-vesselModel.getVessels = function(startRow, endRow, sortBy, callback)
+vehicleModel.getVehicles = function(startRow, endRow, sortBy, callback)
 {
   pool.getConnection(function(err, connection) {
     if (connection)
     {
       var sqlCount = "SELECT count (*) as nrows FROM VEHICLE V, HAS H, FLEET F where V.DEVICE_ID=H.DEVICE_ID and H.FLEET_ID=F.FLEET_ID and (F.FLEET_ID="+properties.get('kyros.fleet.safety.id')+" || F.FLEET_ID="+properties.get('kyros.fleet.ctv.id')+" || F.FLEET_ID="+properties.get('kyros.fleet.others.id')+")" ;
-      //var sqlCount = "SELECT count(*) FROM VEHICLE v inner join OBT o on v.DEVICE_ID=o.DEVICE_ID and o.TYPE_SPECIAL_OBT=" + properties.get('kyros.device.vessel');
 
       log.debug ("Query: "+sqlCount);
       connection.query(sqlCount, function(err, row)
@@ -129,62 +139,8 @@ vesselModel.getVessels = function(startRow, endRow, sortBy, callback)
   });
 }
 
-//obtener lista
-vesselModel.getVesselList = function(vesselIds, callback)
-{
-  pool.getConnection(function(err, connection) {
-    if (connection)
-    {
-      var sqlCount = "SELECT count (*) as nrows FROM VEHICLE V, HAS H, FLEET F where V.DEVICE_ID=H.DEVICE_ID and H.FLEET_ID=F.FLEET_ID and (F.FLEET_ID="+properties.get('kyros.fleet.safety.id')+" || F.FLEET_ID="+properties.get('kyros.fleet.ctv.id')+" || F.FLEET_ID="+properties.get('kyros.fleet.others.id')+") and V.DEVICE_ID IN (" + vesselIds + ")" ;
-      log.debug ("Query: "+sqlCount);
-      connection.query(sqlCount, function(err, row)
-      {
-        if(row)
-        {
-          var totalRows = row[0].nrows;
-
-          var sql = "SELECT 'VESSEL' as type, V.DEVICE_ID as id, DOCK_NUMBER as dockNumber, AUDIT_STATE as auditState, AUTHORIZED as authorized, POSITION as position, IMO as imo, email as email, PROJECT_VESSEL as projectVessel, DATE_FORMAT(FROM_UNIXTIME(FLOOR(V.INITIALISED_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as creationTime, V.ALIAS as alias, V.BASTIDOR as name, V.VEHICLE_LICENSE as mmsi, V.CALLSIGN as callsign, V.FLAG as flag, DATE_FORMAT(FROM_UNIXTIME(FLOOR(V.AUDIT_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as expirationAuditDate, F.DESCRIPTION_FLEET as vesselType, V.BUILT as built, AIS_TYPE as aisType, EXCLUSION_ZONE as exclusionZone, MAX_PERSONS as maxPersons, MOB as mob, STATE as state FROM VEHICLE V, HAS H, FLEET F where V.DEVICE_ID=H.DEVICE_ID and H.FLEET_ID=F.FLEET_ID and (F.FLEET_ID="+properties.get('kyros.fleet.safety.id')+" || F.FLEET_ID="+properties.get('kyros.fleet.ctv.id')+" || F.FLEET_ID="+properties.get('kyros.fleet.others.id')+") and V.DEVICE_ID IN (" + vesselIds + ") ORDER BY V.DEVICE_ID";
-          log.debug ("Query: "+sql);
-          connection.query(sql, function(error, rows)
-          {
-            if (rows!=undefined) {
-              for (i=0; i<rows.length; i++) {
-                if (rows[i].name==null || rows[i].name=='') {
-                  rows[i].name = rows[0].alias;
-                }
-              }
-            }
-              connection.release();
-              if(error)
-              {
-                  callback(error, null);
-              }
-              else
-              {
-                if (rows!=undefined) {
-                  console.log("rows:"+rows);
-                  callback(null, rows, totalRows);
-                } else {
-                  callback(null, "[]", totalRows);
-                }
-              }
-          });
-        }
-        else
-        {
-          connection.release();
-          callback(null,[]);
-        }
-      });
-    }
-    else {
-      callback(null, null);
-    }
-  });
-}
-
 //obtenemos 1
-vesselModel.getVessel = function(id,callback)
+vehicleModel.getVehicle = function(id,callback)
 {
   pool.getConnection(function(err, connection) {
     if (connection)
@@ -243,7 +199,7 @@ vesselModel.getVessel = function(id,callback)
 }
 
 //añadir 1 nuevo
-vesselModel.insertVessel = function(vesselData,callback)
+vehicleModel.insertVehicle = function(vesselData,callback)
 {
   pool.getConnection(function(err, connection) {
     if (connection)
@@ -350,7 +306,7 @@ vesselModel.insertVessel = function(vesselData,callback)
 }
 
 //actualizar
-vesselModel.updateVessel = function(vesselData, callback)
+vehicleModel.updateVehicle = function(vesselData, callback)
 {
   pool.getConnection(function(err, connection) {
     if(connection)
@@ -361,19 +317,9 @@ vesselModel.updateVessel = function(vesselData, callback)
         "FLAG = " + connection.escape(vesselData.flag) + "," +
         "AUDIT_DATE = UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(vesselData.expirationAuditDate) + ", '%Y-%m-%dT%H:%m:%s.%SZ'))*1000," +
         "BUILT = " + connection.escape(vesselData.built) + "," +
-        "AIS_TYPE = " + connection.escape(vesselData.aisType) + "," +
         "IMO = " + connection.escape(vesselData.imo) + "," +
         "PROJECT_VESSEL = " + connection.escape(vesselData.projectVessel) + "," +
         "EMAIL = " + connection.escape(vesselData.email) + "," +
-        //'MMSI = ' + connection.escape(vesselData.mmsi) + "," +
-        "EXCLUSION_ZONE = " + connection.escape(vesselData.exclusionZone) + "," +
-        "MAX_PERSONS = " + connection.escape(vesselData.maxPersons) + "," +
-        "STATE = " + connection.escape(vesselData.state) + "," +
-        "POSITION = " + connection.escape(vesselData.position) + "," +
-        "DOCK_NUMBER = " + connection.escape(vesselData.dockNumber) + "," +
-        "AUDIT_STATE = " + connection.escape(vesselData.auditState) + "," +
-        "AUTHORIZED = " + connection.escape(vesselData.authorized) + "," +
-        "MOB = " + connection.escape(vesselData.mob) + " " +
         "WHERE DEVICE_ID = " + vesselData.id;
 
         //console.log(sql);
@@ -404,7 +350,7 @@ vesselModel.updateVessel = function(vesselData, callback)
 }
 
 //eliminar 1
-vesselModel.deleteVessel = function(id, callback)
+vehicleModel.deleteVessel = function(id, callback)
 {
   pool.getConnection(function(err, connection) {
     if(connection)
@@ -459,7 +405,7 @@ vesselModel.deleteVessel = function(id, callback)
 }
 
 //provisionar
-vesselModel.AISVessel = function(mmsi, typeVessel, callsign, shipname, aistype, callback)
+vehicleModel.AISVessel = function(mmsi, typeVessel, callsign, shipname, aistype, callback)
 {
   pool.getConnection(function(err, connection) {
 
@@ -600,6 +546,18 @@ vesselModel.AISVessel = function(mmsi, typeVessel, callsign, shipname, aistype, 
   });
 }
 
+vehicleModel.getVehiclesFromUsername = function(username, callback)
+{
+  mongoose.connection.db.collection('USER', function (err, collection) {
+    collection.find( { 'username': username}).toArray(function(err, docs) {
+        if (docs[0]==undefined || docs[0].monitor_vehicle==undefined) {
+            callback(null, []);
+        } else {
+            callback(null, docs[0].monitor_vehicle);
+        }
+      });
+  });
+}
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas
-module.exports = vesselModel;
+module.exports = vehicleModel;

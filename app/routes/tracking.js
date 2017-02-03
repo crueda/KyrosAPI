@@ -200,7 +200,7 @@ function kcoords(px, py) {
 *       }
 *     }
 *
-* @apiError fleetNotFound The <code>name</code> of the fleet was not found.
+* @apiError fleetNotFound The <code>id</code> of the fleet was not found.
 *
 * @apiUse TokenHeader
 * @apiUse TokenError
@@ -235,6 +235,82 @@ router.post('/tracking1/fleet/:id', function(req, res)
   
 });
 
+/* POST. Se obtiene tracking 1 de un vehiculo */
+/** 
+* @api {post} /tracking1/vehicle/:id Request all last tracking position from vehicle
+* @apiName PostTracking1Vehicle 
+* @apiGroup Tracking
+* @apiVersion 1.0.1
+* @apiDescription List of last trackings from vehicle
+* @apiSampleRequest https://api.kyroslbs.com/tracking1/vehicle/460
+*
+* @apiParam {String} id Identification of the vehicle
+*
+* @apiSuccess {Number} id tracking unique ID
+* @apiSuccess {Number} deviceId Identification of the element
+* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
+* @apiSuccess {Number} speed Speed value (in Km/h)
+* @apiSuccess {Number} heading Heading value (in degress)
+* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
+* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
+* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccessExample Success-Response:
+*     https/1.1 200 OK
+*     {
+*       "response" :
+*       {
+*         "status" : 0,
+*         "data": {
+*           "record": [
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*           },
+*           }]
+*        }
+*       }
+*     }
+*
+* @apiError vehicleNotFound The <code>id</code> of the vehicle was not found.
+*
+* @apiUse TokenHeader
+* @apiUse TokenError
+* @apiUse TokenExpiredError
+* @apiUse MissingRegisterError
+* @apiUse IdNumericError
+*/
+
+router.post('/tracking1/vehicle/:id', function(req, res)
+{
+  var id = req.params.id;
+  
+  log.info("POST: /tracking1/vehicle/"+id);
+  access_log.info("PARAM >>> " + "id: " + id);
+
+    TrackingModel.getTracking1FromVehicle(id, function(error, data)
+    {
+      if (data == null)
+      {
+        res.status(200).json({"response": {"status":0,"data": {"record": []}}})
+      }
+      else if (typeof data !== 'undefined')
+      {
+        res.status(200).json({"response": {"status":0,"data": { "record": data}}})
+      }
+      //en otro caso se muestra error
+      else
+      {
+        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+      }
+    });
+  
+});
 
 /* POST. Obtenemos y mostramos todos los tracking */
 /*
