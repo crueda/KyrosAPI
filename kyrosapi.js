@@ -101,6 +101,7 @@ app.use('/', api_app_graph);
 // AUTENTICACION TOKEN
 app.all('/*', [require('./app/middlewares/validateRequest')]);
 app.all('/tracking*/fleet/*', [require('./app/middlewares/validateFleet')]);
+app.all('/tracking*/fleets', [require('./app/middlewares/validateFleets')]);
 app.all('/tracking*/vehicle/*', [require('./app/middlewares/validateVehicle')]);
 
 app.use('/', api_area);

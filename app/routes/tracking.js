@@ -374,14 +374,7 @@ router.post('/tracking1/fleets', function(req, res)
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
     }
 
-    try {
-      var fleetIds = "";
-      if (myJson.fleets != undefined) {
-        fleetIds = myJson.fleets.toString();
-
-        log.debug("  -> fleets:     " + fleetIds);
-
-        TrackingModel.getTracking1FromFleets(fleetIds, function(error, data)
+        TrackingModel.getTracking1FromFleets(req.body.fleets.toString(), function(error, data)
         {
           if (data == null)
           {
@@ -397,15 +390,6 @@ router.post('/tracking1/fleets', function(req, res)
             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
           }
         });
-
-      }
-      else {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
-      }
-
-    } catch (err) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
-    }
 
 });
 
