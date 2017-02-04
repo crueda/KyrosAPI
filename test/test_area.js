@@ -51,7 +51,7 @@ describe('Area', function() {
 				done();
 			});
 	});
-
+/*
   it('[GET]    Get area', function(done) {
     request(url)
     .get('/area/'+areaInserted)
@@ -105,7 +105,7 @@ describe('Area', function() {
 				done();
 			});
 	});
-
+*/
   });
 
 });

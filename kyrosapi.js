@@ -53,7 +53,10 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.locals.pretty = true;
 app.set('port', process.env.PORT || 3003);
-app.use(cookieParser());
+
+
+
+//app.use(cookieParser());
 app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
 app.use(express.static(__dirname + '/app/public'));
 

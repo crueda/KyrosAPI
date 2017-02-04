@@ -160,7 +160,7 @@ function kcoords(px, py) {
 
 /* POST. Se obtiene tracking 1 de una flota */
 /** 
-* @api {post} /tracking1/fleet/:id Request all last tracking position from fleet
+* @api {post} /tracking1/fleet/:id Last tracking position of a fleet
 * @apiName PostTracking1Fleet 
 * @apiGroup Tracking
 * @apiVersion 1.0.1
@@ -237,11 +237,11 @@ router.post('/tracking1/fleet/:id', function(req, res)
 
 /* POST. Se obtiene tracking 1 de un vehiculo */
 /** 
-* @api {post} /tracking1/vehicle/:id Request all last tracking position from vehicle
+* @api {post} /tracking1/vehicle/:id Last position of a vehicle
 * @apiName PostTracking1Vehicle 
 * @apiGroup Tracking
 * @apiVersion 1.0.1
-* @apiDescription List of last trackings from vehicle
+* @apiDescription List of last trackings of a vehicle
 * @apiSampleRequest https://api.kyroslbs.com/tracking1/vehicle/460
 *
 * @apiParam {String} id Identification of the vehicle
@@ -311,6 +311,110 @@ router.post('/tracking1/vehicle/:id', function(req, res)
     });
   
 });
+
+/* POST. Se obtiene tracking 1 de una lista de flotas */
+/** 
+* @api {post} /tracking1/fleets Last position of a group of fleets
+* @apiName PostTracking1Fleets 
+* @apiGroup Tracking
+* @apiVersion 1.0.1
+* @apiDescription List of last trackings of a group of fleet
+* @apiSampleRequest https://api.kyroslbs.com/tracking1/fleets
+*
+* @apiParam {json} data Group of fleets
+* @apiParamExample {json} data
+* {"fleets":[1,2]}
+*
+* @apiSuccess {Number} id tracking unique ID
+* @apiSuccess {Number} deviceId Identification of the element
+* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
+* @apiSuccess {Number} speed Speed value (in Km/h)
+* @apiSuccess {Number} heading Heading value (in degress)
+* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
+* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
+* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccessExample Success-Response:
+*     https/1.1 200 OK
+*     {
+*       "response" :
+*       {
+*         "status" : 0,
+*         "data": {
+*           "record": [
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*           },
+*           }]
+*        }
+*       }
+*     }
+*
+*
+* @apiUse TokenHeader
+* @apiUse TokenError
+* @apiUse TokenExpiredError
+* @apiUse MissingRegisterError
+* @apiUse IdNumericError
+*/
+
+router.post('/tracking1/fleets', function(req, res)
+{  
+  log.info("POST: /tracking1/fleets");
+  access_log.info("BODY >>> " + req.body);
+
+    var myJson = req.body;
+    if (myJson == undefined) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
+    }
+
+    try {
+      var fleetIds = "";
+      if (myJson.fleets != undefined) {
+        fleetIds = myJson.fleets.toString();
+
+        log.debug("  -> fleets:     " + fleetIds);
+
+        TrackingModel.getTracking1FromFleets(fleetIds, function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(200).json({"response": {"status":0,"data": {"record": []}}})
+          }
+          else if (typeof data !== 'undefined')
+          {
+            res.status(200).json({"response": {"status":0,"data": { "record": data}}})
+          }
+          //en otro caso se muestra error
+          else
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+        });
+
+      }
+      else {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
+      }
+
+    } catch (err) {
+      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
+    }
+
+});
+
+
+
+
+
+
+
 
 /* POST. Obtenemos y mostramos todos los tracking */
 /*

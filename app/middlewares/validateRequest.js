@@ -37,7 +37,7 @@ function checkPermission(req, username, arrPermissionList) {
   //access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl + " | x-access-token: " + req.headers['x-access-token']);
   access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
 
-log.info(arrPermissionList);
+//log.info(arrPermissionList);
 
   //return true;
   //var arrPermissionList = permissionList.split(",");

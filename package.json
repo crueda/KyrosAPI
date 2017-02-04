@@ -11,7 +11,7 @@
     "url": "git@github.com:crueda/kyrosAPI.git"
   },
   "dependencies": {
-    "body-parser": "1.14.1",
+    "body-parser": "^1.14.1",
     "connect-mongo": "0.8.2",
     "cookie-parser": "1.4.0",
     "ejs": "^1.0.0",
