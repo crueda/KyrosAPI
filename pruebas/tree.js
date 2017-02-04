@@ -22,7 +22,7 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 });
 */
 console.log("start");
-var username = "crueda2";
+var username = "bbb";
 
 db.open(function(err, db) {
  if(err) {
@@ -79,8 +79,8 @@ db.open(function(err, db) {
             var jsondocsuser = jsonfy(JSON.stringify(docsUser));
             //console.log(docsUser);
             delete jsondocsuser[0]['_id'];
-jsondocsuser[0]["monitor_fleet"] = monitor_fleet;
-jsondocsuser[0]["monitor_vehicle"] = monitor_vehicle;
+            jsondocsuser[0]["monitor_fleet"] = monitor_fleet;
+            jsondocsuser[0]["monitor_vehicle"] = monitor_vehicle;
             //var u = unflatten(flat_monitor);
             //collectionUser.save(jsondocsuser[0]);                
             
