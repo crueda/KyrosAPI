@@ -22,13 +22,18 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 });
 */
 console.log("start");
-var username = "crueda";
+var username = "crueda2";
 
- db.open(function(err, db) {
-    if(err) {
+db.open(function(err, db) {
+ if(err) {
         console.log("Error al conectar");
-    }
-    else {
+ }
+ else {
+
+    var collectionUser = db.collection('USER');
+    collectionUser.find({'username': username}).toArray(function(err, docsUser) {
+
+    
         var collection = db.collection('MONITOR');
         collection.find({'username': username}).toArray(function(err, docs) {
 
@@ -67,25 +72,33 @@ var username = "crueda";
 
             }
 
-            console.log("-->" + monitor_fleet);
-            console.log("-->" + monitor_vehicle);
+            console.log(username + "-fleets->" + monitor_fleet);
+            console.log(username + "-vehicles->" + monitor_vehicle);
 
             
-            var u = unflatten(flat_monitor);
-            collection.remove({"username": username}, function(err, result) {
+            var jsondocsuser = jsonfy(JSON.stringify(docsUser));
+            //console.log(docsUser);
+            delete jsondocsuser[0]['_id'];
+jsondocsuser[0]["monitor_fleet"] = monitor_fleet;
+jsondocsuser[0]["monitor_vehicle"] = monitor_vehicle;
+            //var u = unflatten(flat_monitor);
+            //collectionUser.save(jsondocsuser[0]);                
+            
+            collectionUser.remove({"username": username}, function(err, result) {
             if (err) {
                 console.log("Error al guardar");
                 callback(null, null);
             } else {
-                console.log("**>" + u['0']);
-                collection.save(u['0']);                
+                collectionUser.save(jsondocsuser[0]);                
                 db.close();
                 console.log("guardar ok");
             }
-
             });
+            
             
 
         });
-     }
-  });
+    
+    });
+}
+});
