@@ -4,6 +4,7 @@ var express = require('express');
 var router = express.Router();
 var VehicleModel = require('../models/vehicle');
 var moment = require('moment');
+var utils = require("../utils/utils.js");
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -165,7 +166,8 @@ router.post('/vehicles/', function(req, res)
       sortBy = sortBy.replace(/\s/g, "");
     }
 
-    VehicleModel.getVehicles(startRow, endRow, sortBy, function(error, data, totalRows)
+    var username = utils.getUsernameFromToken(req);
+    VehicleModel.getVehicles(startRow, endRow, sortBy, username, function(error, data, totalRows)
     {
         if (data == null)
         {
