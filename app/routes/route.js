@@ -292,7 +292,7 @@ router.get('/route/:id', function(req, res)
     }
 });
 
-  /**
+  /*
    * @api {put} /route/ Update route
    * @apiName PutUpdateRoute
    * @apiGroup Route
@@ -330,6 +330,7 @@ router.get('/route/:id', function(req, res)
    * @apiUse TokenExpiredError
    * @apiUse MissingParameterError
  */
+/*
 router.put('/route/', function(req, res)
 {
     log.info("PUT: /routes");
@@ -383,8 +384,8 @@ router.put('/route/', function(req, res)
     });
   }
 });
-
-/**
+*/
+/*
  * @apiName PostNewRoute
  * @apiGroup Route
  * @apiVersion 1.0.1
@@ -421,6 +422,7 @@ router.put('/route/', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
 */
+/*
 router.post("/route", function(req,res)
 {
     log.info("POST: /route");
@@ -473,8 +475,8 @@ router.post("/route", function(req,res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {delete} /route Delete route
  * @apiName DeleteRoute
  * @apiGroup Route
@@ -508,6 +510,7 @@ router.post("/route", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/route/", function(req, res)
 {
    log.info("DELETE: /route");
@@ -542,5 +545,5 @@ router.delete("/route/", function(req, res)
       });
     }
   });
-
+*/
 module.exports = router;

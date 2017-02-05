@@ -315,7 +315,7 @@ router.get('/driver/:id', function(req, res)
     }
 });
 
-/**
+/*
  * @api {put} /driver/ Update driver
  * @apiName PutNewDriver
  * @apiGroup Driver
@@ -363,6 +363,7 @@ router.get('/driver/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/driver/', function(req, res)
 {
     log.info("PUT: /driver");
@@ -422,8 +423,8 @@ router.put('/driver/', function(req, res)
       });
     }
   });
-
-/**
+*/
+/*
  * @api {post} /driver/ Create new driver
  * @apiName PostNewDriver
  * @apiGroup Driver
@@ -466,6 +467,7 @@ router.put('/driver/', function(req, res)
  * @apiUse MissingParameterError
  *
 */
+/*
 router.post("/driver", function(req,res)
 {
     log.info("POST: /driver");
@@ -521,8 +523,8 @@ router.post("/driver", function(req,res)
       });
   }
 });
-
-/**
+*/
+/*
  * @api {delete} /driver Delete driver
  * @apiName DeleteDriver
  * @apiGroup Driver
@@ -562,6 +564,7 @@ router.post("/driver", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/driver/", function(req, res)
 {
     log.info("DELETE: /driver");
@@ -596,5 +599,5 @@ router.delete("/driver/", function(req, res)
         });
     }
   });
-
+*/
 module.exports = router;

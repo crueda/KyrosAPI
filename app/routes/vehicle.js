@@ -272,7 +272,7 @@ router.get('/vehicle/:id', function(req, res)
 });
 
 
-/**
+/*
  * @api {put} /vehicle/ Update vehicle
  * @apiName PutNewVehicle
  * @apiGroup Vehicle
@@ -310,6 +310,7 @@ router.get('/vehicle/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/vehicle/', function(req, res)
 {
     log.info("PUT: /vehicle");
@@ -359,8 +360,8 @@ router.put('/vehicle/', function(req, res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {post} /vehicle/ Create new vehicle
  * @apiName PostNewVehicle
  * @apiGroup Vehicle
@@ -398,6 +399,7 @@ router.put('/vehicle/', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
 */
+/*
 router.post("/vehicle", function(req,res)
 {
     log.info("POST: /vehicle");
@@ -449,8 +451,8 @@ router.post("/vehicle", function(req,res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {delete} /vehicle Delete vehicle
  * @apiName DeleteVwehicle
  * @apiGroup Vehicle
@@ -485,6 +487,7 @@ router.post("/vehicle", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/vehicle/", function(req, res)
 {
      log.info("DELETE: /vehicle");
@@ -523,7 +526,7 @@ router.delete("/vehicle/", function(req, res)
       }
 
     });
-
+*/
     
 
 module.exports = router;

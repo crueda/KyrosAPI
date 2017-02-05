@@ -295,7 +295,7 @@ router.get('/poi/:id', function(req, res)
     }
 });
 
-/**
+/*
  * @api {put} /poi/ Update POI
  * @apiName PutNewPoi
  * @apiGroup POI
@@ -333,6 +333,7 @@ router.get('/poi/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/poi', function(req, res)
 {
     log.info("PUT: /poi");
@@ -379,8 +380,8 @@ router.put('/poi', function(req, res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {post} /poi/ Create new POI
  * @apiName PostNewPoi
  * @apiGroup POI
@@ -417,6 +418,7 @@ router.put('/poi', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.post("/poi", function(req,res)
 {
     log.info("POST: /poi");
@@ -464,8 +466,8 @@ router.post("/poi", function(req,res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {delete} /poi Delete POI
  * @apiName DeletePoi
  * @apiGroup POI
@@ -500,6 +502,7 @@ router.post("/poi", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/poi/", function(req, res)
 {
     log.info("DELETE: /poi");
@@ -537,5 +540,5 @@ router.delete("/poi/", function(req, res)
         });
       }
   });
-
+*/
 module.exports = router;

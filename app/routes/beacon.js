@@ -305,7 +305,7 @@ router.get('/beacon/:id', function(req, res)
 
 
 /* PUT. Actualizamos un beacon existente */
-/**
+/*
  * @api {put} /beacon/ Update beacon
  * @apiName PutNewBeacon
  * @apiGroup Route
@@ -348,6 +348,7 @@ router.get('/beacon/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/beacon/', function(req, res)
 {
     log.info("PUT: /beacon");
@@ -404,8 +405,8 @@ router.put('/beacon/', function(req, res)
     });
   }
 });
-
-/**
+*/
+/*
  * @api {post} /beacon/ Create new beacon
  * @apiName PostNewBeacon
  * @apiGroup Route
@@ -462,6 +463,7 @@ router.put('/beacon/', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
 */
+/*
 router.post("/beacon", function(req,res)
 {
     log.info("POST: /beacon");
@@ -518,9 +520,9 @@ router.post("/beacon", function(req,res)
       });
     }
 });
-
+*/
 /* DELETE. Eliminamos un beacon */
-/**
+/*
  * @api {delete} /beacon Delete beacon
  * @apiName DeleteBeacon
  * @apiGroup Route
@@ -558,6 +560,7 @@ router.post("/beacon", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/beacon/", function(req, res)
 {
     log.info("DELETE: /beacon");
@@ -592,5 +595,5 @@ router.delete("/beacon/", function(req, res)
         });
       }
   });
-
+*/
 module.exports = router;

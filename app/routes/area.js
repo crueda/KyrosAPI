@@ -330,7 +330,7 @@ router.get('/area/:id', function(req, res)
 });
 
 /* Creamos un nuevo area */
-/**
+/*
  * @api {post} /area/ Create new area
  * @apiName PostNewArea
  * @apiGroup Area
@@ -386,6 +386,7 @@ router.get('/area/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.post("/area", function(req,res)
 {
     log.info("POST: /area");
@@ -455,9 +456,10 @@ router.post("/area", function(req,res)
       });
     }
 });
+*/
 
 /* PUT. Actualizamos un area existente */
-/**
+/*
  * @api {put} /kyrosapi/area/ Update area
  * @apiName PutNewArea
  * @apiGroup Area
@@ -514,6 +516,7 @@ router.post("/area", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/area/', function(req, res)
 {
     log.info("PUT: /area");
@@ -584,9 +587,10 @@ router.put('/area/', function(req, res)
     });
   }
 });
+*/
 
 /* DELETE. Eliminamos un area */
-/**
+/*
  * @api {delete} /area:id Delete area
  * @apiName DeleteArea
  * @apiGroup Area
@@ -630,6 +634,7 @@ router.put('/area/', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/area/:id", function(req, res)
 {
     //id del area a eliminar
@@ -664,5 +669,6 @@ router.delete("/area/:id", function(req, res)
         });
       }
   });
+*/
 
 module.exports = router;

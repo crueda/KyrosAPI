@@ -402,7 +402,7 @@ router.get('/vertex/:id', function(req, res)
 });
 
 /* PUT. Actualizamos un vertice existente */
-/**
+/*
  * @api {put} /vertex/ Update vertex
  * @apiName PutNewVertex
  * @apiGroup Area
@@ -444,6 +444,7 @@ router.get('/vertex/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/vertex/', function(req, res)
 {
     log.info("PUT: /vertex/");
@@ -497,9 +498,9 @@ router.put('/vertex/', function(req, res)
       });
     }
 });
+*/
 
-
-/**
+/*
  * @api {post} /vertex/ Create new vertex
  * @apiName PostNewVertex
  * @apiGroup Area
@@ -540,6 +541,7 @@ router.put('/vertex/', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
 */
+/*
 router.post("/vertex", function(req,res)
 {
     log.info("POST: /vertex/");
@@ -593,9 +595,9 @@ router.post("/vertex", function(req,res)
       });
     }
 });
-
+*/
 /* DELETE. Eliminar un vertice */
-/**
+/*
  * @api {delete} /vertex Delete vertex
  * @apiName DeleteVertex
  * @apiGroup Area
@@ -633,6 +635,7 @@ router.post("/vertex", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/vertex/", function(req, res)
 {
    log.info("DELETE: /vertex/");
@@ -667,5 +670,5 @@ router.delete("/vertex/", function(req, res)
         });
       }
   });
-
+*/
 module.exports = router;

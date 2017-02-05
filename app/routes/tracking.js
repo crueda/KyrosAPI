@@ -11,37 +11,37 @@ var properties = PropertiesReader('kyrosapi.properties');
 // Definición del log
 var fs = require('fs');
 var log = require('tracer').console({
-  transtracking : function(data) {
+  transtracking: function (data) {
     //console.log(data.output);
-    fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
-      fs.write(id, data.output+"\n", null, 'utf8', function() {
-        fs.close(id, function() {
+    fs.open(properties.get('main.log.file'), 'a', 0666, function (e, id) {
+      fs.write(id, data.output + "\n", null, 'utf8', function () {
+        fs.close(id, function () {
         });
       });
     });
   }
 });
 var access_log = require('tracer').console({
-  format : "              {{message}}",
-    transport : function(data) {
-        fs.open(properties.get('main.access_log.file'), 'a', 0666, function(e, id) {
-            fs.write(id, data.output+"\n", null, 'utf8', function() {
-                fs.close(id, function() {
-                });
-            });
+  format: "              {{message}}",
+  transport: function (data) {
+    fs.open(properties.get('main.access_log.file'), 'a', 0666, function (e, id) {
+      fs.write(id, data.output + "\n", null, 'utf8', function () {
+        fs.close(id, function () {
         });
-    }
+      });
+    });
+  }
 });
 
 function kcoords(px, py) {
-  var x  = Math.abs(x);
+  var x = Math.abs(x);
   var dx = Math.floor(x);
-  var mx = Math.floor((x - dx)*60);
+  var mx = Math.floor((x - dx) * 60);
   //var sx = Math.floor(((x - dx) - (mx/60))*3600);
   if (px < 0) dx = -dx;
-  var y  = Math.abs(py);
+  var y = Math.abs(py);
   var dy = Math.floor(y);
-  var my = Math.floor((y - dy)*60);
+  var my = Math.floor((y - dy) * 60);
   //var sy = Math.floor(((y - dy) - (my/60))*3600);
   if (py < 0) dy = -dy;
   //return (dx + '°' + mx + 'min ' + sx + 'seg ' + dy + '°' + my + 'min ' + sy + 'seg');
@@ -209,30 +209,25 @@ function kcoords(px, py) {
 * @apiUse IdNumericError
 */
 
-router.post('/tracking1/fleet/:id', function(req, res)
-{
+router.post('/tracking1/fleet/:id', function (req, res) {
   var id = req.params.id;
-  
-  log.info("POST: /tracking1/fleet/"+id);
+
+  log.info("POST: /tracking1/fleet/" + id);
   access_log.info("PARAM >>> " + "id: " + id);
 
-    TrackingModel.getTracking1FromFleet(id, function(error, data)
-    {
-      if (data == null)
-      {
-        res.status(200).json({"response": {"status":0,"data": {"record": []}}})
-      }
-      else if (typeof data !== 'undefined')
-      {
-        res.status(200).json({"response": {"status":0,"data": { "record": data}}})
-      }
-      //en otro caso se muestra error
-      else
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      }
-    });
-  
+  TrackingModel.getTracking1FromFleet(id, function (error, data) {
+    if (data == null) {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+    }
+    else if (typeof data !== 'undefined') {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+    }
+    //en otro caso se muestra error
+    else {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+    }
+  });
+
 });
 
 /* POST. Se obtiene tracking 1 de un vehiculo */
@@ -286,30 +281,25 @@ router.post('/tracking1/fleet/:id', function(req, res)
 * @apiUse IdNumericError
 */
 
-router.post('/tracking1/vehicle/:id', function(req, res)
-{
+router.post('/tracking1/vehicle/:id', function (req, res) {
   var id = req.params.id;
-  
-  log.info("POST: /tracking1/vehicle/"+id);
+
+  log.info("POST: /tracking1/vehicle/" + id);
   access_log.info("PARAM >>> " + "id: " + id);
 
-    TrackingModel.getTracking1FromVehicle(id, function(error, data)
-    {
-      if (data == null)
-      {
-        res.status(200).json({"response": {"status":0,"data": {"record": []}}})
-      }
-      else if (typeof data !== 'undefined')
-      {
-        res.status(200).json({"response": {"status":0,"data": { "record": data}}})
-      }
-      //en otro caso se muestra error
-      else
-      {
-        res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      }
-    });
-  
+  TrackingModel.getTracking1FromVehicle(id, function (error, data) {
+    if (data == null) {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+    }
+    else if (typeof data !== 'undefined') {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+    }
+    //en otro caso se muestra error
+    else {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+    }
+  });
+
 });
 
 /* POST. Se obtiene tracking 1 de una lista de flotas */
@@ -364,33 +354,91 @@ router.post('/tracking1/vehicle/:id', function(req, res)
 * @apiUse IdNumericError
 */
 
-router.post('/tracking1/fleets', function(req, res)
-{  
+router.post('/tracking1/fleets', function (req, res) {
   log.info("POST: /tracking1/fleets");
   access_log.info("BODY >>> " + req.body);
 
-    var myJson = req.body;
-    if (myJson == undefined) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}});
+  TrackingModel.getTracking1FromFleets(req.body.fleets.toString(), function (error, data) {
+    if (data == null) {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
     }
+    else if (typeof data !== 'undefined') {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+    }
+    else {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+    }
+  });
+});
 
-        TrackingModel.getTracking1FromFleets(req.body.fleets.toString(), function(error, data)
-        {
-          if (data == null)
-          {
-            res.status(200).json({"response": {"status":0,"data": {"record": []}}})
-          }
-          else if (typeof data !== 'undefined')
-          {
-            res.status(200).json({"response": {"status":0,"data": { "record": data}}})
-          }
-          //en otro caso se muestra error
-          else
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-        });
+/* POST. Se obtiene tracking 1 de una lista de vehiculos */
+/** 
+* @api {post} /tracking1/vehicles Last position of a group of vehicles
+* @apiName PostTracking1Vehicles 
+* @apiGroup Tracking
+* @apiVersion 1.0.1
+* @apiDescription List of last trackings of a group of vehicles
+* @apiSampleRequest https://api.kyroslbs.com/tracking1/vehicles
+*
+* @apiParam {json} data Group of vehicles
+* @apiParamExample {json} data
+* {"vehicles":[1,2]}
+*
+* @apiSuccess {Number} id tracking unique ID
+* @apiSuccess {Number} deviceId Identification of the element
+* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
+* @apiSuccess {Number} speed Speed value (in Km/h)
+* @apiSuccess {Number} heading Heading value (in degress)
+* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
+* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
+* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccessExample Success-Response:
+*     https/1.1 200 OK
+*     {
+*       "response" :
+*       {
+*         "status" : 0,
+*         "data": {
+*           "record": [
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*           },
+*           }]
+*        }
+*       }
+*     }
+*
+*
+* @apiUse TokenHeader
+* @apiUse TokenError
+* @apiUse TokenExpiredError
+* @apiUse MissingRegisterError
+* @apiUse IdNumericError
+*/
 
+router.post('/tracking1/vehicles', function (req, res) {
+  log.info("POST: /tracking1/vehicles");
+  access_log.info("BODY >>> " + req.body);
+
+
+  TrackingModel.getTracking1FromVehicles(req.body.vehicles.toString(), function (error, data) {
+    if (data == null) {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+    }
+    else if (typeof data !== 'undefined') {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+    }
+    else {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+    }
+  });
 });
 
 

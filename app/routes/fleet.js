@@ -307,7 +307,7 @@ router.get('/fleet/:id', function(req, res)
     }
 });
 
-/**
+/*
  * @api {put} /fleet/ Update fleet
  * @apiName PutNewFleet
  * @apiGroup Fleet
@@ -345,6 +345,7 @@ router.get('/fleet/:id', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.put('/fleet', function(req, res)
 {
     log.info("PUT: /fleet");
@@ -393,8 +394,8 @@ router.put('/fleet', function(req, res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {post} /fleet/ Create new fleet
  * @apiName PostNewFleet
  * @apiGroup Fleet
@@ -431,6 +432,7 @@ router.put('/fleet', function(req, res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.post("/fleet", function(req,res)
 {
     log.info("POST: /fleet");
@@ -484,8 +486,8 @@ router.post("/fleet", function(req,res)
       });
     }
 });
-
-/**
+*/
+/*
  * @api {delete} /fleet Delete fleet
  * @apiName Deletefleet
  * @apiGroup Fleet
@@ -520,6 +522,7 @@ router.post("/fleet", function(req,res)
  * @apiUse TokenExpiredError
  * @apiUse MissingParameterError
  */
+/*
 router.delete("/fleet/:id", function(req, res)
 {
     var id = req.params.id;
@@ -557,5 +560,5 @@ router.delete("/fleet/:id", function(req, res)
         });
       }
   });
-
+*/
 module.exports = router;

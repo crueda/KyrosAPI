@@ -111,6 +111,33 @@ trackingModel.getTracking1FromVehicle = function(deviceId, callback)
   }
 }
 
+// Obtener todos las trackings1 de una lista de vehiculos
+trackingModel.getTracking1FromVehicles = function(vehicleIds, callback)
+{  
+  if (connection) {
+    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE TRACKING_1.DEVICE_ID IN("+ vehicleIds + ")";
+    log.debug ("Query: "+sql);
+    connection.query(sql, function(error, rows)
+    {
+      if(error)
+      {
+        callback(error, null);
+      }
+      else
+      {
+        callback(null, rows);
+      }
+    });
+  } else {
+    callback(null, null);
+  }
+}
+
+
+
+
+
+
 // Obtener todos las trackings
 trackingModel.getTrackings = function(startRow, endRow, sortBy, callback)
 {  if (connection)
