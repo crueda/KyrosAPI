@@ -13,7 +13,7 @@ describe('Tracking', function() {
 
   describe('API REST test', function()
 	{
-    it('[POST]    Get all tracking1 from 1 fleet', function(done) {
+    it('[POST]    Get tracking1 from 1 fleet', function(done) {
     request(url)
 	  .post('/tracking1/fleet/595')
     .set('X-Access-Token','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwOTA4MjY4NjU5MzMsImlzcyI6ImNydWVkYSIsInN1YiI6IlFjem1xaXFqc0JvMDIifQ.Vf1O_oIt-_pCqOP0yroA61ydJAMu2cZsMWdBHxu-GMk')
@@ -27,7 +27,7 @@ describe('Tracking', function() {
         });
     });
 
-    it('[POST]    Get all tracking1 from fleets', function(done) {
+    it('[POST]    Get tracking1 from fleets', function(done) {
       var body = {
         'fleets': [15,89,126,345]
       };
@@ -45,7 +45,7 @@ describe('Tracking', function() {
         });
     });
 
-    it('[POST]    Get all tracking1 from 1 vehicle', function(done) {
+    it('[POST]    Get tracking1 from 1 vehicle', function(done) {
     request(url)
 	  .post('/tracking1/vehicle/460')
     .set('X-Access-Token','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwOTA4MjY4NjU5MzMsImlzcyI6ImNydWVkYSIsInN1YiI6IlFjem1xaXFqc0JvMDIifQ.Vf1O_oIt-_pCqOP0yroA61ydJAMu2cZsMWdBHxu-GMk')
@@ -60,7 +60,7 @@ describe('Tracking', function() {
         });
     });
 
-    it('[POST]    Get all tracking1 from vehicles', function(done) {
+    it('[POST]    Get tracking1 from vehicles', function(done) {
       var body = {
         'vehicles': [ 197, 119, 73]
       };

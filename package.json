@@ -40,6 +40,7 @@
     "test-html": "mocha --reporter mocha-html-reporter |  cat node_modules/mocha-html-reporter/docs/head.html - node_modules/mocha-html-reporter/docs/tail.html > /Applications/MAMP/htdocs/dockyrosapi/test/test.html"
   },
   "devDependencies": {
+    "gulp-util": "^3.0.8",
     "mocha-junit-reporter": "^1.13.0"
   }
 }

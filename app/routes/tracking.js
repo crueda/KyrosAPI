@@ -265,7 +265,7 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -339,7 +339,7 @@ router.post('/tracking1/vehicle/:id', function (req, res) {
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -408,7 +408,7 @@ router.post('/tracking1/fleets', function (req, res) {
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -480,7 +480,7 @@ router.post('/tracking1/vehicles', function (req, res) {
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           {
 *            "id": 124,
@@ -490,7 +490,7 @@ router.post('/tracking1/vehicles', function (req, res) {
 *            "altitude": 0,
 *            "speed": 12,
 *            "heading": 45,
-*            "trackingDate": "2013-09-04T00:00:00.00Z"
+*            "trackingDate": "2013-09-04T00:00:00Z"
 *           }
 *           }]
 *        }
@@ -587,7 +587,7 @@ router.post('/trackings/', function(req, res)
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -684,7 +684,7 @@ router.post('/trackings/vehicle/:id', function(req, res)
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -770,7 +770,7 @@ router.get('/tracking/:id', function(req, res)
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -870,7 +870,7 @@ router.put('/tracking/', function(req, res)
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }
@@ -967,7 +967,7 @@ router.post("/tracking", function(req,res)
 *            "altitude": 0,
 *            "speed": 34,
 *            "heading": 120,
-*            "trackingDate": "2015-10-04T00:00:00.00Z"
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
 *           }]
 *        }

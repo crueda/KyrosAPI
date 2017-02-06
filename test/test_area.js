@@ -3,7 +3,7 @@ var assert = require('assert');
 var request = require('supertest');
 var winston = require('winston');
 
-var areaInserted = 0;
+var areaInserted = 895;
 
 describe('Area', function() {
   var url = 'http://localhost:3003';
@@ -29,6 +29,7 @@ describe('Area', function() {
         });
     });
 
+/*
 	it('[POST]    Add area', function(done) {
     var body = {
       description: 'DELETE_area description',
@@ -50,8 +51,8 @@ describe('Area', function() {
         areaInserted = res.body.response.data.record[0].id;
 				done();
 			});
-	});
-/*
+	});*/
+
   it('[GET]    Get area', function(done) {
     request(url)
     .get('/area/'+areaInserted)
@@ -65,7 +66,7 @@ describe('Area', function() {
           done();
         });
     });
-
+/*
   it('[PUT]     Update area', function(done){
     var body = {
       id: areaInserted,
@@ -89,7 +90,7 @@ describe('Area', function() {
   });
   });
 
-
+/*
   it('[DELETE]  Remove area', function(done) {
   var body = {};
 	request(url)

@@ -49,7 +49,7 @@ var trackingModel = {};
 trackingModel.getTracking1FromFleet = function(fleetId, callback)
 {  
   if (connection) {
-    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE FLEET.FLEET_ID="+ fleetId;
+    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE FLEET.FLEET_ID="+ fleetId;
     log.debug ("Query: "+sql);
     connection.query(sql, function(error, rows)
     {
@@ -71,7 +71,7 @@ trackingModel.getTracking1FromFleet = function(fleetId, callback)
 trackingModel.getTracking1FromFleets = function(fleetIds, callback)
 {  
   if (connection) {
-    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE FLEET.FLEET_ID IN("+ fleetIds + ")";
+    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE FLEET.FLEET_ID IN("+ fleetIds + ")";
     log.debug ("Query: "+sql);
     connection.query(sql, function(error, rows)
     {
@@ -93,7 +93,7 @@ trackingModel.getTracking1FromFleets = function(fleetIds, callback)
 trackingModel.getTracking1FromVehicle = function(deviceId, callback)
 {  
   if (connection) {
-    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING_1 WHERE DEVICE_ID='"+ deviceId + "'";
+    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 WHERE DEVICE_ID='"+ deviceId + "'";
     log.debug ("Query: "+sql);
     connection.query(sql, function(error, rows)
     {
@@ -115,7 +115,7 @@ trackingModel.getTracking1FromVehicle = function(deviceId, callback)
 trackingModel.getTracking1FromVehicles = function(vehicleIds, callback)
 {  
   if (connection) {
-    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE TRACKING_1.DEVICE_ID IN("+ vehicleIds + ")";
+    var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(TRACKING_1.GPS_SPEED, 0) as speed, IFNULL(TRACKING_1.ALTITUDE, 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE TRACKING_1.DEVICE_ID IN("+ vehicleIds + ")";
     log.debug ("Query: "+sql);
     connection.query(sql, function(error, rows)
     {
@@ -148,7 +148,7 @@ trackingModel.getTrackings = function(startRow, endRow, sortBy, callback)
     {
       if(row)
       {
-        var consulta = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING"
+        var consulta = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING"
         var totalRows = row[0].nrows;
 
         var sql = '';
@@ -229,7 +229,7 @@ trackingModel.getTrackingsFromVessel = function(deviceId, startRow, endRow, sort
     {
       if(row)
       {
-        var consulta = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING where DEVICE_ID="+deviceId
+        var consulta = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING where DEVICE_ID="+deviceId
         var totalRows = row[0].nrows;
 
         var sql = '';
@@ -303,7 +303,7 @@ trackingModel.getTrackingsFromVessel = function(deviceId, startRow, endRow, sort
 trackingModel.getTracking = function(id,callback)
 {
   if (connection) {
-    var sql = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING WHERE TRACKING.TRACKING_ID = "  + connection.escape(id);
+    var sql = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING WHERE TRACKING.TRACKING_ID = "  + connection.escape(id);
 
     log.debug ("Query: "+sql);
     connection.query(sql, function(error, row)
