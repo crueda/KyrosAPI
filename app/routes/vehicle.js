@@ -245,7 +245,7 @@ router.get('/vehicle/:id', function(req, res)
     //solo actualizamos si la id es un número
     if(!isNaN(id))
     {
-        VehileModel.getVehicle(id,function(error, data)
+        VehicleModel.getVehicle(id,function(error, data)
         {
           if (data == null)
           {

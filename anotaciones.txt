@@ -15,7 +15,7 @@ http://api.kyroslbs.com
 
 ----------------------
 MOVER CODIGO:
-rsync -r /Users/Carlos/Workspace/Kyros/KyrosAPI/* root@192.168.28.251:/opt/KyrosAPI
+rsync -r --exclude 'test' /Users/Carlos/Workspace/Kyros/KyrosAPI/* root@192.168.28.251:/opt/KyrosAPI
 
 ----------------------
 MOVER TESTS:
@@ -23,6 +23,19 @@ rsync -r /Users/Carlos/Workspace/Kyros/KyrosAPI/test/*.js root@172.26.7.3:/opt/t
 
 
 --
+
+TOKENS:
+crueda:
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwOTA4MjY4NjU5MzMsImlzcyI6ImNydWVkYSIsInN1YiI6IlFjem1xaXFqc0JvMDIifQ.Vf1O_oIt-_pCqOP0yroA61ydJAMu2cZsMWdBHxu-GMk
+
+aflorencio:
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0ODY4OTU1MTg0NzcsImlzcyI6ImFmbG9yZW5jaW8iLCJzdWIiOiJGeGFkU2xJVGFUSjFBIn0.AAAWlMMod8sxcfyzm9GUnnM2B1TB_BMFrVrtnLNhhi0
+
+
+
+--
+
+
 mocha --reporter mocha-html-reporter |  cat /opt/KyrosAPI/node_modules/mocha-html-reporter/docs/head.html - /opt/KyrosAPI/node_modules/mocha-html-reporter/docs/tail.html > /var/www/html/testkyrosapi/index.html
 
 

@@ -29,7 +29,7 @@ var log = require('tracer').console({
 });
 
 /**
- * @api {post} /login/ Login to Single-SignOn platform
+ * @api {post} /login/ Login to Kyros API
  * @apiName PostLogin
  * @apiGroup Login
  *
