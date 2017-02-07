@@ -75,6 +75,16 @@ gulp.task('upload-appjs-pro', function () {
         }));
 });
 
+gulp.task('upload-tests', function () {
+    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/test/*.js')
+        .pipe(scp({
+            host: '172.26.7.3',
+            user: 'root',
+            port: 22,
+            path: '/opt/testKyrosApi/test'
+        }));
+});
+
 
 
 // --------------------------------------------------------------------------------

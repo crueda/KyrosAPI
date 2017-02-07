@@ -2,7 +2,9 @@ var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 var express = require('express');
 var router = express.Router();
+var jwt = require('jwt-simple');
 var TrackingModel = require('../models/tracking');
+var VehicleModel = require('../models/vehicle');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -176,7 +178,7 @@ function kcoords(px, py) {
 * @apiSuccess {Number} heading Heading value (in degress)
 * @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
 * @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
-* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccess {String} trackingDate GMT Date of the tracking (in ISO format)
 * @apiSuccessExample Success-Response:
 *     https/1.1 200 OK
 *     {
@@ -248,7 +250,7 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 * @apiSuccess {Number} heading Heading value (in degress)
 * @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
 * @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
-* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccess {String} trackingDate GMT Date of the tracking (in ISO format)
 * @apiSuccessExample Success-Response:
 *     https/1.1 200 OK
 *     {
@@ -322,7 +324,7 @@ router.post('/tracking1/vehicle/:id', function (req, res) {
 * @apiSuccess {Number} heading Heading value (in degress)
 * @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
 * @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
-* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccess {String} trackingDate GMT Date of the tracking (in ISO format)
 * @apiSuccessExample Success-Response:
 *     https/1.1 200 OK
 *     {
@@ -391,7 +393,7 @@ router.post('/tracking1/fleets', function (req, res) {
 * @apiSuccess {Number} heading Heading value (in degress)
 * @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
 * @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
-* @apiSuccess {String} trackingDate Date of the tracking (in ISO format)
+* @apiSuccess {String} trackingDate GMT Date of the tracking (in ISO format)
 * @apiSuccessExample Success-Response:
 *     https/1.1 200 OK
 *     {
@@ -440,6 +442,182 @@ router.post('/tracking1/vehicles', function (req, res) {
     }
   });
 });
+
+/* POST. Se obtiene tracking 1 de todos los vehiculos */
+/** 
+* @api {post} /tracking1 Last position of all vehicles
+* @apiName PostTracking1AllVehicles 
+* @apiGroup Tracking
+* @apiVersion 1.0.1
+* @apiDescription List of last trackings of all vehicles
+* @apiSampleRequest https://api.kyroslbs.com/tracking1
+*
+*
+* @apiSuccess {Number} id tracking unique ID
+* @apiSuccess {Number} deviceId Identification of the element
+* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
+* @apiSuccess {Number} speed Speed value (in Km/h)
+* @apiSuccess {Number} heading Heading value (in degress)
+* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
+* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
+* @apiSuccess {String} trackingDate GMT Date of the tracking (in ISO format)
+* @apiSuccessExample Success-Response:
+*     https/1.1 200 OK
+*     {
+*       "response" :
+*       {
+*         "status" : 0,
+*         "data": {
+*           "record": [
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2015-10-04T00:00:00Z"
+*           },
+*           }]
+*        }
+*       }
+*     }
+*
+*
+* @apiUse TokenHeader
+* @apiUse TokenError
+* @apiUse TokenExpiredError
+* @apiUse MissingRegisterError
+* @apiUse IdNumericError
+*/
+
+router.post('/tracking1', function (req, res) {
+  log.info("POST: /tracking1");
+
+  var token = req.headers['x-access-token'] || req.headers['x-access'];
+  var decoded = jwt.decode(token, require('../config/secret.js')());
+  var username = decoded.iss;
+  if (username == '') {
+    username = decoded.jti;
+  }
+  access_log.info("USERNAME >>> " + username);
+
+  VehicleModel.getVehiclesFromUsername(username, function (error, data) {
+    if (data != undefined && data.length > 0) {
+      TrackingModel.getTracking1FromVehicles(data.toString(), function (error, data) {
+        if (data == null) {
+          res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+        }
+        else if (typeof data !== 'undefined') {
+          res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+        }
+        else {
+          res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+        }
+      });
+
+    }
+    else {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+    }
+  });
+});
+
+/* POST. Se obtiene tracking de un vehiculo */
+/** 
+* @api {post} /tracking1/vehicle/:id Historic positions of a vehicle
+* @apiName PostTrackingVehicle 
+* @apiGroup Tracking
+* @apiVersion 1.0.1
+* @apiDescription List of trackings of a vehicle
+* @apiSampleRequest https://api.kyroslbs.com/tracking/vehicle/460
+*
+* @apiParam {json} data Group of vehicles
+* @apiParamExample {json} data with range GMT dates in ISO format
+* {"initDate":"2017-02-01T06:02:06Z", "endDate": "2017-02-02T06:02:06Z"}
+*
+* @apiSuccess {Number} id tracking unique ID
+* @apiSuccess {Number} deviceId Identification of the element
+* @apiSuccess {Number} altitude Altitude over the sea level (in meters)
+* @apiSuccess {Number} speed Speed value (in Km/h)
+* @apiSuccess {Number} heading Heading value (in degress)
+* @apiSuccess {Number} longitude Longitude of the tracking (WGS84)
+* @apiSuccess {Number} latitude Latitude of the tracking (WGS84)
+* @apiSuccess {String} trackingDate GMT Date of the tracking (in ISO format)
+* @apiSuccessExample Success-Response:
+*     https/1.1 200 OK
+*     {
+*       "response" :
+*       {
+*         "status" : 0,
+*         "data": {
+*           "record": [
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2017-02-02T00:00:00Z"
+*           },
+*           }]
+*        }
+*       }
+*     }
+*
+* @apiError vehicleNotFound The <code>id</code> of the vehicle was not found.
+*
+* @apiUse TokenHeader
+* @apiUse TokenError
+* @apiUse TokenExpiredError
+* @apiUse MissingRegisterError
+* @apiUse IdNumericError
+*/
+
+router.post('/tracking/vehicle/:id', function (req, res) {
+  var id = req.params.id;
+
+  log.info("POST: /tracking/vehicle/" + id);
+  access_log.info("PARAM >>> " + "id: " + id);
+  access_log.info("BODY >>> " + req.body);
+
+  TrackingModel.getTrackingFromVehicle(id, req.body.initDate.toString(), req.body.endDate.toString(), function (error, data) {
+    if (data == null) {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+    }
+    else if (typeof data !== 'undefined') {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+    }
+    //en otro caso se muestra error
+    else {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+    }
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

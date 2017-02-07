@@ -136,7 +136,7 @@ var log = require('tracer').console({
 *     }
 */
 
-/**
+/*
  * @api {get} /activity/:vehicleLicense Vehicle activity
  * @apiName GetActivity
  * @apiGroup Vehicle

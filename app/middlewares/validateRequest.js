@@ -34,13 +34,7 @@ var access_log = require('tracer').console({
 });
 
 function checkPermission(req, username, arrPermissionList) {
-  //access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl + " | x-access-token: " + req.headers['x-access-token']);
   access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
-
-//log.info(arrPermissionList);
-
-  //return true;
-  //var arrPermissionList = permissionList.split(",");
   
   // AREA
   if ( (req.path.lastIndexOf('/areas', 0) === 0) ) {

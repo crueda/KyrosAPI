@@ -6,6 +6,7 @@ var winston = require('winston');
 var areaInserted = 895;
 
 describe('Area', function() {
+  //var url = 'https://api.kyroslbs.com';
   var url = 'http://localhost:3003';
   before(function(done) {
     done();

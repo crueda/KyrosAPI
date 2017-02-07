@@ -100,10 +100,12 @@ app.use('/', api_app_graph);
 
 // AUTENTICACION TOKEN
 app.all('/*', [require('./app/middlewares/validateRequest')]);
-app.all('/tracking*/fleet/*', [require('./app/middlewares/validateParamFleet')]);
-app.all('/tracking*/fleets', [require('./app/middlewares/validateBodyFleets')]);
-app.all('/tracking*/vehicle/*', [require('./app/middlewares/validateParamVehicle')]);
-app.all('/tracking*/vehicles', [require('./app/middlewares/validateBodyVehicles')]);
+app.all('/tracking1/fleet/*', [require('./app/middlewares/validateParamFleet')]);
+app.all('/tracking1/fleets', [require('./app/middlewares/validateBodyFleets')]);
+app.all('/tracking1/vehicle/*', [require('./app/middlewares/validateParamVehicle')]);
+app.all('/tracking1/vehicles', [require('./app/middlewares/validateBodyVehicles')]);
+app.all('/tracking/vehicle/*', [require('./app/middlewares/validateParamVehicle')]);
+app.all('/tracking/vehicle/*', [require('./app/middlewares/validateBodyDates')]);
 app.all('/vehicle/*', [require('./app/middlewares/validateParamVehicle')]);
 
 app.use('/', api_area);

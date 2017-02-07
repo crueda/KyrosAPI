@@ -24,7 +24,7 @@ var log = require('tracer').console({
   }
 });
 
-/**
+/*
  * @api {get} /odometer/:vehicleLicense Vehicle odometer
  * @apiName GetOdometerVehicle 
  * @apiGroup Vehicle
