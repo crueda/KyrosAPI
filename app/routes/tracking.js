@@ -524,6 +524,38 @@ router.post('/tracking1', function (req, res) {
   });
 });
 
+router.post('/tracking1vehicles', function (req, res) {
+  log.info("POST: /tracking1vehicles");
+
+  var token = req.headers['x-access-token'] || req.headers['x-access'];
+  var decoded = jwt.decode(token, require('../config/secret.js')());
+  var username = decoded.iss;
+  if (username == '') {
+    username = decoded.jti;
+  }
+  access_log.info("USERNAME >>> " + username);
+
+  VehicleModel.getVehiclesFromUsername(username, function (error, data) {
+    if (data != undefined && data.length > 0) {
+      TrackingModel.getTracking1FromVehiclesGrouped(data.toString(), function (error, data) {
+        if (data == null) {
+          res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+        }
+        else if (typeof data !== 'undefined') {
+          res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+        }
+        else {
+          res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+        }
+      });
+
+    }
+    else {
+      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+    }
+  });
+});
+
 /* POST. Se obtiene tracking de un vehiculo */
 /** 
 * @api {post} /tracking1/vehicle/:id Historic positions of a vehicle

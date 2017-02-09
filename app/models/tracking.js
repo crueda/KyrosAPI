@@ -171,6 +171,8 @@ trackingModel.getTrackingFromVehicle = function(deviceId, initDate, endDate, cal
 
 
 
+
+
 // Obtener todos las trackings
 trackingModel.getTrackings = function(startRow, endRow, sortBy, callback)
 {  if (connection)
@@ -205,87 +207,6 @@ trackingModel.getTrackings = function(startRow, endRow, sortBy, callback)
             } else {
               var element = vsortBy[i];
               if (element == 'id' || element == 'altitude' || element == 'elementId' || element == 'speed' || element == 'heading' || element == 'latitude' || element == 'logitude' || element == 'trackingDate')
-              {
-                if (orderBy == '')
-                orderBy = element;
-                else
-                orderBy = orderBy + ',' + element;
-              }
-            }
-          }
-        }
-
-        if (orderBy == '') {
-          orderBy = 'id';
-        }
-
-        if (startRow == null || endRow == null) {
-          sql = consulta + " ORDER BY " + orderBy;
-        }
-        else {
-          sql = consulta + " ORDER BY " + orderBy + " LIMIT " + (endRow - startRow + 1) + " OFFSET " + startRow;
-        }
-
-        log.debug ("Query: "+sql);
-
-        connection.query(sql, function(error, rows)
-        {
-          if(error)
-          {
-            callback(error, null);
-          }
-          else
-          {
-            callback(null, rows, totalRows);
-          }
-        });
-      }
-      else
-      {
-        callback(null,[]);
-      }
-    });
-  }
-  else {
-    callback(null, null);
-  }
-}
-
-// Obtener todos las trackings de un barco
-trackingModel.getTrackingsFromVessel = function(deviceId, startRow, endRow, sortBy, callback)
-{
-  if (connection)
-  {
-    var sqlCount = 'SELECT count(*) as nrows FROM TRACKING where DEVICE_ID='+deviceId;
-    log.debug ("Query: "+sqlCount);
-    connection.query(sqlCount, function(err, row)
-    {
-      if(row)
-      {
-        var consulta = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING where DEVICE_ID="+deviceId
-        var totalRows = row[0].nrows;
-
-        var sql = '';
-        var orderBy = '';
-
-        if (sortBy == null) {
-          orderBy = 'trackingDate desc';
-        }
-        else {
-          vsortBy = sortBy.split(',');
-          for (var i=0; i<vsortBy.length; i++ ) {
-            if (vsortBy[i].charAt(0) == '-') {
-              var element = vsortBy[i].substring(1, vsortBy[i].length);
-              if (element == 'id' || element == 'altitude' || element == 'speed' || element == 'heading' || element == 'latitude' || element == 'logitude' || element == 'trackingDate')
-              {
-                if (orderBy == '')
-                orderBy = element + ' desc';
-                else
-                orderBy = orderBy + ',' + element + ' desc';
-              }
-            } else {
-              var element = vsortBy[i];
-              if (element == 'id' || element == 'altitude' || element == 'speed' || element == 'heading' || element == 'latitude' || element == 'logitude' || element == 'trackingDate')
               {
                 if (orderBy == '')
                 orderBy = element;
