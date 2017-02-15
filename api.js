@@ -48,7 +48,7 @@ var i18n = require("i18n");
 var methodOverride = require('method-override');
 
 var app = express();
-var ddos = new Ddos({burst:3,limit:4,checkinterval:1,testmode:true,whitelist:['83.47.50.214']});
+var ddos = new Ddos({burst:3,limit:4,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
 app.use(ddos.express);
 
 app.use(bodyParser.json({limit: '50mb'}));
@@ -85,6 +85,8 @@ app.all('/*', function(req, res, next) {
     next();
   }
 });
+
+app.all('/*', [require('./app/middlewares/registerOperation')]);
 
 app.use('/', api_status);
 app.use('/', api_login);

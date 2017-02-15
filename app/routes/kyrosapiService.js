@@ -2,6 +2,7 @@ var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 var express = require('express');
 var router = express.Router();
+var ApiModel = require('../models/api');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -50,7 +51,7 @@ router.post("/Status", function(req,res)
  */
 router.get("/status", function(req,res)
 {
-  log.info("GET: /Status");
+  log.info("GET: /status");
 
   var time = process.uptime();
   res.status(200).json({"status":"ON", "upTime":time})
@@ -59,10 +60,25 @@ router.get("/status", function(req,res)
 
 router.post("/status", function(req,res)
 {
-  log.info("POST: /Status");
+  log.info("POST: /status");
 
   var time = process.uptime();
   res.status(200).json({"status":"ON", "upTime":time})
+
+});
+
+router.get("/_stats", function(req,res)
+{
+  log.info("GET: /_status");
+
+  ApiModel.getCounters(function (error, data) {
+    if (data == null || data[0] == undefined) {
+      res.status(200).json({"GET":0, "POST":0});
+    }
+    else {
+      res.status(200).json({"GET": data[0]["GET"], "POST": data[0]["POST"]});
+    }
+  });
 
 });
 
