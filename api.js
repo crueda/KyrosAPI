@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var errorHandler = require('errorhandler');
 var cookieParser = require('cookie-parser');
 var MongoDBStore = require('connect-mongodb-session')(session);
+var Ddos = require('ddos');
 
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('./kyrosapi.properties');
@@ -47,6 +48,8 @@ var i18n = require("i18n");
 var methodOverride = require('method-override');
 
 var app = express();
+var ddos = new Ddos({burst:3,limit:4,checkinterval:1,testmode:true,whitelist:['83.47.50.214']});
+app.use(ddos.express);
 
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));

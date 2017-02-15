@@ -26,12 +26,11 @@ var log = require('tracer').console({
 
 var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
-//var dbMongoHost = "172.26.30.169";
 var dbMongoPort = properties.get('bbdd.mongo.port');
 
 var db = new Db(dbMongoName, new server(dbMongoHost, dbMongoPort));
 
-mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName,  { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
     if (error) {
         log.info(error);
     }

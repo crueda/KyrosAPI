@@ -22,7 +22,7 @@ var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
 var dbMongoPort = properties.get('bbdd.mongo.port');
 
-mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName,  { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
     if (error) {
         log.info(error);
     }
@@ -33,7 +33,7 @@ var poiModel = {};
 
 poiModel.getPoisFromBox = function(boxData,callback)
 {
-    mongoose.connection.db.collection('POIS', function (err, collection) {
+    mongoose.connection.db.collection('POI', function (err, collection) {
         log.info(boxData.ullon);
         log.info(boxData.ullat);
         log.info(boxData.drlon);

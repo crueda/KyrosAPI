@@ -49,6 +49,7 @@ imageModel.getImageVehicle = function(vehicleLicense,callback)
                 }
             });            
         }
+        db.close();
     });
 }
 
@@ -71,6 +72,7 @@ imageModel.getIconVehicle = function(vehicleLicense,callback)
                 }
             });            
         }
+        db.close();
     });
 }
 
@@ -103,6 +105,7 @@ imageModel.getIconVehicles = function(vehicleLicenseList,callback)
             }
             callback(null, result);          
         }
+        db.close();
     });
 }
 
@@ -113,6 +116,7 @@ imageModel.uploadImageVehicle = function(vehicleLicense,req,callback)
         if (err) 
              callback(null, null);
         gfs = Grid(db, mongo);
+        db.close();
     });
 
     var busboy = new Busboy({ headers : req.headers });
@@ -141,6 +145,7 @@ imageModel.uploadIconVehicle = function(vehicleLicense,req,callback)
         if (err) 
              callback(null, null);
         gfs = Grid(db, mongo);
+        db.close();
     });
 
     var busboy = new Busboy({ headers : req.headers });
