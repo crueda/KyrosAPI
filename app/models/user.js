@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var crypt     = require('crypt3');
 
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
@@ -255,6 +256,27 @@ userModel.getServicesFromUsername = function(username,callback)
       //throw error;
     }
   });
+}
+
+userModel.login = function(username, password, callback)
+{
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find( { 'username': username}).toArray(function(err, docs) {
+            if (docs!=undefined && docs.length>=0) {
+                if (docs[0]== undefined) {
+                    callback(null, {"status": "nok"});
+                } else {
+                    if( crypt(password, docs[0]['password']) !== docs[0]['password']) {
+                        callback(null, {"status": "nok"});
+                    } else {
+                        callback(null, {"status": "ok", "result": docs});
+                    }
+                }
+            } else {
+                callback(null, {"status": "nok"});
+            }
+        });
+    });
 }
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas

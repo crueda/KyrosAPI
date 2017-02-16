@@ -13,9 +13,7 @@ var properties = PropertiesReader('./kyrosapi.properties');
 
 var api_status = require('./app/routes/kyrosapiService');
 var api_area = require('./app/routes/area');
-var api_vertex = require('./app/routes/vertex');
 var api_route = require('./app/routes/route');
-var api_beacon = require('./app/routes/beacon');
 var api_driver = require('./app/routes/driver');
 var api_fleet = require('./app/routes/fleet');
 
@@ -37,6 +35,7 @@ var api_icon = require('./app/routes/icon');
 
 var api_app_notification = require('./app/routes/app_notification');
 var api_app_tracking = require('./app/routes/app_tracking');
+var api_app_login = require('./app/routes/app_login');
 var api_app_user = require('./app/routes/app_user');
 var api_app_vehicle = require('./app/routes/app_vehicle');
 var api_app_monitor = require('./app/routes/app_monitor');
@@ -48,7 +47,7 @@ var i18n = require("i18n");
 var methodOverride = require('method-override');
 
 var app = express();
-var ddos = new Ddos({burst:3,limit:4,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
+var ddos = new Ddos({burst:3,limit:6,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
 app.use(ddos.express);
 
 app.use(bodyParser.json({limit: '50mb'}));
@@ -86,22 +85,23 @@ app.all('/*', function(req, res, next) {
   }
 });
 
-app.all('/*', [require('./app/middlewares/registerOperation')]);
+//app.all('/*', [require('./app/middlewares/registerOperation')]);
 
 app.use('/', api_status);
 app.use('/', api_login);
 app.use('/', api_validate);
 
 
-/*
-app.use('/', api_app_user);
-app.use('/', api_app_notification);
-app.use('/', api_app_user);
-app.use('/', api_app_tracking);
-app.use('/', api_app_vehicle);
-app.use('/', api_app_monitor);
-app.use('/', api_app_graph);
-*/
+
+app.use('/api', api_app_login);
+app.use('/api', api_app_user);
+app.use('/api', api_app_notification);
+app.use('/api', api_app_user);
+app.use('/api', api_app_tracking);
+app.use('/api', api_app_vehicle);
+app.use('/api', api_app_monitor);
+app.use('/api', api_app_graph);
+
 
 // AUTENTICACION TOKEN
 app.all('/*', [require('./app/middlewares/validateRequest')]);
@@ -119,9 +119,7 @@ app.use('/', api_fleet);
 app.use('/', api_vehicle);
 
 /*
-app.use('/', api_vertex);
 app.use('/', api_route);
-app.use('/', api_beacon);
 app.use('/', api_driver);
 
 app.use('/', api_push);

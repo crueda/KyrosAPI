@@ -35,7 +35,7 @@ var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
 var dbMongoPort = properties.get('bbdd.mongo.port');
 
-mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, function (error) {
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
     if (error) {
         log.info(error);
     } 
@@ -162,336 +162,62 @@ trackingModel.getTrackingFromVehicle = function(deviceId, initDate, endDate, cal
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-// Obtener todos las trackings
-trackingModel.getTrackings = function(startRow, endRow, sortBy, callback)
-{  if (connection)
-  {
-    var sqlCount = 'SELECT count(*) as nrows FROM TRACKING';
-    log.debug ("Query: "+sqlCount);
-    connection.query(sqlCount, function(err, row)
-    {
-      if(row)
-      {
-        var consulta = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING"
-        var totalRows = row[0].nrows;
-
-        var sql = '';
-        var orderBy = '';
-
-        if (sortBy == null) {
-          orderBy = 'trackingDate desc';
-        }
-        else {
-          vsortBy = sortBy.split(',');
-          for (var i=0; i<vsortBy.length; i++ ) {
-            if (vsortBy[i].charAt(0) == '-') {
-              var element = vsortBy[i].substring(1, vsortBy[i].length);
-              if (element == 'id' || element == 'altitude' || element == 'elementId' || element == 'speed' || element == 'heading' || element == 'latitude' || element == 'logitude' || element == 'trackingDate')
-              {
-                if (orderBy == '')
-                orderBy = element + ' desc';
-                else
-                orderBy = orderBy + ',' + element + ' desc';
-              }
-            } else {
-              var element = vsortBy[i];
-              if (element == 'id' || element == 'altitude' || element == 'elementId' || element == 'speed' || element == 'heading' || element == 'latitude' || element == 'logitude' || element == 'trackingDate')
-              {
-                if (orderBy == '')
-                orderBy = element;
-                else
-                orderBy = orderBy + ',' + element;
-              }
-            }
-          }
-        }
-
-        if (orderBy == '') {
-          orderBy = 'id';
-        }
-
-        if (startRow == null || endRow == null) {
-          sql = consulta + " ORDER BY " + orderBy;
-        }
-        else {
-          sql = consulta + " ORDER BY " + orderBy + " LIMIT " + (endRow - startRow + 1) + " OFFSET " + startRow;
-        }
-
-        log.debug ("Query: "+sql);
-
-        connection.query(sql, function(error, rows)
-        {
-          if(error)
-          {
-            callback(error, null);
-          }
-          else
-          {
-            callback(null, rows, totalRows);
-          }
+trackingModel.getTracking1 = function(callback)
+{
+    mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+        collection.find().sort({'pos_date': -1}).toArray(function(err, docs) {
+            callback(null, docs);
         });
-      }
-      else
-      {
-        callback(null,[]);
-      }
     });
-  }
-  else {
-    callback(null, null);
-  }
 }
 
-// Obtener un tracking por su id
-trackingModel.getTracking = function(id,callback)
+trackingModel.getTracking1Radio = function(lat, lon, radio, callback)
 {
-  if (connection) {
-    var sql = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING WHERE TRACKING.TRACKING_ID = "  + connection.escape(id);
-
-    log.debug ("Query: "+sql);
-    connection.query(sql, function(error, row)
-    {
-      if(error)
-      {
-        callback(error, null);
-      }
-      else
-      {
-        callback(null, row);
-      }
-    });
-  } else {
-    callback(null, null);
-  }
-}
-
-//añadir una nuevo tracking
-trackingModel.insertTracking = function(trackingData,callback)
-{
-  var coordenadas = kcoords(beaconData.latitude, beaconData.longitude);
-  var lat = coordenadas.substring(0, coordenadas.indexOf(','));
-  var lon = coordenadas.substring(coordenadas.indexOf(',')+1, coordenadas.length);
-  var latdeg = lat.substring(0, lat.indexOf('|'));
-  var latmin = lat.substring(lat.indexOf('|')+1, lat.length);
-  var londeg = lon.substring(0, lon.indexOf('|'));
-  var lonmin = lon.substring(lon.indexOf('|')+1, lon.length);
-
-  //Fecha de la posicion: el momento actual
-  var milliseconds_now = (new Date).getTime();
-
-  if (connection)
-  {
-    var sql = "INSERT INTO TRACKING SET GPS_SPEED = " + connection.escape(trackingData.speed) + "," +
-    'ALTITUDE = ' + connection.escape(trackingData.altitude) + ',' +
-    'HEADING = ' + connection.escape(trackingData.heading) + ',' +
-    'POS_DATE = ' + milliseconds_now + ',' +
-    "POS_LATITUDE_DEGREE = " + latdeg + "," +
-    "POS_LATITUDE_MIN = " + latmin + "," +
-    "POS_LONGITUDE_DEGREE = " + londeg + "," +
-    "POS_LONGITUDE_MIN = " + lonmin;
-
-    log.debug ("Query: "+sql);
-    connection.query(sql, function(error, result)
-    {
-      if(error)
-      {
-        callback(error, null);
-      }
-      else
-      {
-        var trackingInsertId = result.insertId;
-
-        // Insertar en tracking_1
-        var sqlTracking1 = "UPDATE TRACKING_1 SET GPS_SPEED = " + connection.escape(trackingData.speed) + "," +
-        'ALTITUDE = ' + connection.escape(trackingData.altitude) + ',' +
-        'HEADING = ' + connection.escape(trackingData.heading) + ',' +
-        'POS_DATE = ' + milliseconds_now + ',' +
-        "POS_LATITUDE_DEGREE = " + latdeg + "," +
-        "POS_LATITUDE_MIN = " + latmin + "," +
-        "POS_LONGITUDE_DEGREE = " + londeg + "," +
-        "POS_LONGITUDE_MIN = " + lonmin + " " +
-        "where TRACKING_ID = " + trackingInsertId;
-
-        connection.query(sqlTracking1, function(error, result)
-        {
-          if(error)
-          {
-            callback(error, null);
-          }
-          else
-          {
-            // Insertar en tracking_5
-            var sqlTracking5 = "UPDATE TRACKING_5 SET GPS_SPEED = " + connection.escape(trackingData.speed) + "," +
-            'ALTITUDE = ' + connection.escape(trackingData.altitude) + ',' +
-            'HEADING = ' + connection.escape(trackingData.heading) + ',' +
-            'POS_DATE = ' + milliseconds_now + ',' +
-            "POS_LATITUDE_DEGREE = " + latdeg + "," +
-            "POS_LATITUDE_MIN = " + latmin + "," +
-            "POS_LONGITUDE_DEGREE = " + londeg + "," +
-            "POS_LONGITUDE_MIN = " + lonmin + " " +
-            "where TRACKING_ID = " + trackingInsertId;
-
-            connection.query(sqlTracking5, function(error, result)
-            {
-              if(error)
-              {
-                callback(error, null);
-              }
-              else {
-                //devolvemos la última id insertada
-                callback(null,{"insertId" : connection.escape(trackingInsertId)});
-              }
-            });
-          }
+    mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+        collection.find({'location': {$near: { $geometry: { type: "Point" , coordinates: [ parseFloat(lon) , parseFloat(lat) ]}, $maxDistance: parseInt(radio)}}}).toArray(function(err, docs) {
+            callback(null, docs);
         });
-      }
     });
-  }
-  else
-  {
-    callback(null, null);
-  }
 }
 
-// Actualizar un tracking
-trackingModel.updateTracking = function(trackingData, callback)
+trackingModel.getTracking1FromVehicle = function(vehicleLicense,callback)
 {
-  var coordenadas = kcoords(beaconData.latitude, beaconData.longitude);
-  var lat = coordenadas.substring(0, coordenadas.indexOf(','));
-  var lon = coordenadas.substring(coordenadas.indexOf(',')+1, coordenadas.length);
-  var latdeg = lat.substring(0, lat.indexOf('|'));
-  var latmin = lat.substring(lat.indexOf('|')+1, lat.length);
-  var londeg = lon.substring(0, lon.indexOf('|'));
-  var lonmin = lon.substring(lon.indexOf('|')+1, lon.length);
-
-  if (connection)
-  {
-    var sql = "UPDATE TRACKING SET GPS_SPEED = " + connection.escape(trackingData.speed) + "," +
-    'ALTITUDE = ' + connection.escape(trackingData.altitude) + ',' +
-    'HEADING = ' + connection.escape(trackingData.heading) + ',' +
-    "POS_LATITUDE_DEGREE = " + latdeg + "," +
-    "POS_LATITUDE_MIN = " + latmin + "," +
-    "POS_LONGITUDE_DEGREE = " + londeg + "," +
-    "POS_LONGITUDE_MIN = " + lonmin + " " +
-    "where TRACKING_ID = " + trackingData.id;
-
-    log.debug ("Query: "+sql);
-    connection.query(sql, function(error, result)
-    {
-      if(error)
-      {
-        callback(error, null);
-      }
-      else
-      {
-        // actualizar en tracking_1
-        var sqlTracking1 = "UPDATE TRACKING_1 SET GPS_SPEED = " + connection.escape(trackingData.speed) + "," +
-        'ALTITUDE = ' + connection.escape(trackingData.altitude) + ',' +
-        'HEADING = ' + connection.escape(trackingData.heading) + ',' +
-        'POS_DATE = ' + milliseconds_now + ',' +
-        "POS_LATITUDE_DEGREE = " + latdeg + "," +
-        "POS_LATITUDE_MIN = " + latmin + "," +
-        "POS_LONGITUDE_DEGREE = " + londeg + "," +
-        "POS_LONGITUDE_MIN = " + lonmin + " " +
-        "where TRACKING_ID = " + trackingData.id;
-
-        connection.query(sqlTracking1, function(error, result)
-        {
-          if(error)
-          {
-            callback(error, null);
-          }
-          else
-          {
-            // actualizar en tracking_5
-            var sqlTracking5 = "UPDATE TRACKING_5 SET GPS_SPEED = " + connection.escape(trackingData.speed) + "," +
-            'ALTITUDE = ' + connection.escape(trackingData.altitude) + ',' +
-            'HEADING = ' + connection.escape(trackingData.heading) + ',' +
-            'POS_DATE = ' + milliseconds_now + ',' +
-            "POS_LATITUDE_DEGREE = " + latdeg + "," +
-            "POS_LATITUDE_MIN = " + latmin + "," +
-            "POS_LONGITUDE_DEGREE = " + londeg + "," +
-            "POS_LONGITUDE_MIN = " + lonmin + " " +
-            "where TRACKING_ID = " + trackingData.id;
-
-            connection.query(sqlTracking5, function(error, result)
-            {
-              if(error)
-              {
-                callback(error, null);
-              }
-              else {
-                callback(null,{"message":"success"});
-              }
-            });
-            }
+    mongoose.connection.db.collection('TRACKING_'+vehicleLicense, function (err, collection) {
+        collection.find().sort({'pos_date': -1}).limit(1).toArray(function(err, docs) {
+            callback(null, docs);
         });
-      }
     });
-  }
-  else
-  {
-    callback(null, null);
-  }
 }
 
-
-// Eliminar un tracking pasando la id a eliminar
-trackingModel.deleteTracking = function(id, callback)
+trackingModel.getTracking1AndIconFromVehicle = function(vehicleLicense,callback)
 {
-  if(connection)
-  {
-    var sqlExists = "select TRACKING.TRACKING_ID as id, DEVICE_ID as elementId, TRACKING.GPS_SPEED as speed, TRACKING.ALTITUDE as altitude, TRACKING.HEADING as heading, (POS_LATITUDE_DEGREE + POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(POS_DATE/1000)), '%Y-%m-%dT%H:%m:%s.%SZ') as trackingDate from TRACKING WHERE TRACKING.TRACKING_ID = "  + connection.escape(id);
-
-    log.debug ("Query: "+sqlExists);
-    connection.query(sqlExists, function(err, row)
-    {
-      //si existe la id del tracking a eliminar
-      if(row)
-      {
-        var sql = "DELETE FROM TRACKING WHERE TRACKING_ID = " + connection.escape(id);
-        connection.query(sql, function(error, result)
-        {
-          if(error)
-          {
-            callback(error, null);
-          }
-          else
-          {
-            // Eliminar de tracking_!
-            var sqltracking1 = "DELETE FROM TRACKING_1 WHERE TRACKING_ID = " + connection.escape(id);
-            connection.query(sqltracking1, function(error, result)
-            {
-              var sqltracking5 = "DELETE FROM TRACKING_5 WHERE TRACKING_ID = " + connection.escape(id);
-              connection.query(sqltracking1, function(error, result)
-              {
-                // se devuelven los datos del elemento eliminado
-                callback(null,row);
+    mongoose.connection.db.collection('TRACKING_'+vehicleLicense, function (err, collection) {
+        collection.find().sort({'pos_date': -1}).limit(1).toArray(function(err, docs) {
+          mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+              collection.find({"vehicle_license": vehicleLicense}).toArray(function(err, docs2) {
+                if (docs[0]!=undefined) {
+                  if (docs2[0]!=undefined) {
+                    docs[0].icon = docs2[0].icon_real_time.substring(0, docs2[0].icon_real_time.indexOf('.')) + '.svg';;
+                    docs[0].alias = docs2[0].alias;
+                  } else {
+                    docs[0].icon = "car.svg";
+                    docs[0].alias = vehicleLicense;
+                  }
+                }
+                callback(null, docs);
               });
             });
-          }
-        });
-      }
-      else
-      {
-        callback(null,{"message":"notExist"});
-      }
+          });
     });
-  }
-  else {
-    callback(null, null);
-  }
+}
+
+trackingModel.getTrackingFromVehicleAndDate = function(requestData,callback)
+{
+    mongoose.connection.db.collection('TRACKING_'+requestData.vehicleLicense, function (err, collection) {
+        collection.find({'pos_date': {$gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate)}}).sort({'pos_date': 1}).limit(7000).toArray(function(err, docs) {
+            callback(null, docs);
+        });
+    });
 }
 
 //extrackingamos el objeto para tenerlo disponible en la zona de rutas

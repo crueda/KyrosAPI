@@ -67,7 +67,7 @@ router.post("/status", function(req,res)
 
 });
 
-router.get("/_stats", function(req,res)
+/*router.get("/_stats", function(req,res)
 {
   log.info("GET: /_status");
 
@@ -81,5 +81,6 @@ router.get("/_stats", function(req,res)
   });
 
 });
+*/
 
 module.exports = router;

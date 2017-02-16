@@ -120,50 +120,6 @@ var log = require('tracer').console({
  }
 });
 
-/*
-* LOGIN DE LA APP
-*/
-router.get('/app/login/', function(req, res)
-{
-    log.info("GET: /login");
-    var version = req.query.version;
-    var username = req.query.username;
-    var password = req.query.password;
-
-    if (version==undefined) {
-      version = 3;
-    }
-      if (username==null || password==null) {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-      }
-      else if (version < 3) {
-        res.status(202).json({"status": "msg", "title": "Versión incorrecta", "message": "Por favor, consulte con logistica@kyroslbs.com para actualizar su aplicación"});
-      }
-      else {
-        LoginModel.login(username, password, function(error, data)
-        {
-          if (data == null)
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-          else
-          {
-            //Autenticación correcta
-            if (typeof data.result !== 'undefined')
-            {
-              var token_api = genToken(username);
-              data.result[0].token_api = token_api;
-              res.status(200).json(data);
-            }
-            //en otro caso mostramos un error
-            else
-            {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-            }
-          }
-        });
-      }
-});
 
 // private method
 function genToken(username, password) {
