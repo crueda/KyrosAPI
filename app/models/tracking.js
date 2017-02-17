@@ -35,7 +35,7 @@ var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
 var dbMongoPort = properties.get('bbdd.mongo.port');
 
-mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
+var db = mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
     if (error) {
         log.info(error);
     } 
@@ -111,10 +111,9 @@ trackingModel.getTracking1FromVehicle = function(deviceId, callback)
   }
 }
 
-// Obtener todos las trackings1 de una lista de vehiculos
 trackingModel.getTracking1FromVehicles = function(vehicleIds, callback)
 {  
-  if (connection) {
+if (connection) {
     var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(ROUND(TRACKING_1.GPS_SPEED,1), 0) as speed, IFNULL(ROUND(TRACKING_1.ALTITUDE), 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE TRACKING_1.DEVICE_ID IN("+ vehicleIds + ")";
     log.debug ("Query: "+sql);
     connection.query(sql, function(error, rows)
@@ -131,6 +130,37 @@ trackingModel.getTracking1FromVehicles = function(vehicleIds, callback)
   } else {
     callback(null, null);
   }
+}
+
+trackingModel.getTracking1FromVehicles0 = function(vehicleIds, callback)
+{  
+  log.info(mongoose.version);
+
+var db2 = mongoose.createConnection('mongodb://192.168.28.248:27017/demos2');
+
+var Account = new mongoose.Schema({
+    vehicle_license: { type: String, required: true },
+    pos_date: { type: Number, required: true }
+});
+var AccountModel = db2.model('aaa', Account);
+
+AccountModel.aggregate(  
+    { $group: {_id: '$typeId'}}, // 'group' goes first!
+    { $project: { _id: 1}}, // you can only project fields from 'group'
+    function(err, summary) {
+        console.log(summary);
+    }
+);
+
+    mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+      collection.find({"device_id": {$in: vehicleIds}}, { _id: 0, "events": 0, "alarm_activated": 0}).toArray(function (err, docs) {
+      //collection.aggregrate([{$match:{}},{$project:{ 'pos_date':"$pos_date", 'device_id':"$device_id" }}]).toArray(function (err, docs) {
+        
+
+          callback(null, docs);
+      });
+    });
+
 }
 
 // Obtener tracking historico de un vehiculo

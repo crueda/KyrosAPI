@@ -44,7 +44,86 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 // Crear un objeto para ir almacenando todo lo necesario
 var userModel = {};
 
-//obtenemos un usuario por su username
+userModel.login = function(username, password, callback)
+{
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find( { 'username': username}).toArray(function(err, docs) {
+            if (docs!=undefined && docs.length>=0) {
+                if (docs[0]== undefined) {
+                    callback(null, {"status": "nok"});
+                } else {
+                    if( crypt(password, docs[0]['password']) !== docs[0]['password']) {
+                        callback(null, {"status": "nok"});
+                    } else {
+                        callback(null, {"status": "ok", "result": docs});
+                    }
+                }
+            } else {
+                callback(null, {"status": "nok"});
+            }
+        });
+    });
+}
+
+userModel.setUserPreferences = function(username, push_mode, group_mode, max_show_notifications, callback)
+{
+  mongoose.connection.db.collection('USER', function (err, collection) {
+      collection.find({'username': username}).toArray(function(err, docs) {
+          if (docs[0]!=undefined) {
+            docs[0].push_enabled = parseInt(push_mode);
+            docs[0].group_notifications = parseInt(group_mode);
+            if (max_show_notifications!=undefined) {
+              docs[0].max_show_notifications = parseInt(max_show_notifications);
+            }
+            collection.save(docs[0]);
+            callback(null, docs);
+          } else {
+            callback(null, []);
+          }
+      });
+  });
+}
+
+userModel.getUserFromUsername = function(username, callback)
+{
+  mongoose.connection.db.collection('USER', function (err, collection) {
+      collection.find({'username': username}).toArray(function(err, docs) {
+          callback(null, docs);
+      });
+  });
+}
+
+userModel.saveDeviceInfo = function(username, token, device_model,
+  device_platform, device_version, device_manufacturer,device_serial, device_uuid,
+  device_height, device_width, device_language,  callback)
+{
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find({'username': username}).toArray(function(err, docs) {
+            if (docs[0]!=undefined) {
+                docs[0].token = token;
+                device_info = {
+                  'device_model': device_model,
+                  'device_platform': device_platform,
+                  'device_version': device_version,
+                  'device_manufacturer': device_manufacturer,
+                  'device_serial': device_serial,
+                  'device_uuid': device_uuid,
+                  'device_height': device_height,
+                  'device_width': device_width,
+                  'device_language': device_language,
+                  'last_login': new Date().toISOString()
+                }
+                docs[0].device_info = device_info;
+
+                collection.save(docs[0]);
+                callback(null, docs);
+            } else {
+                callback(null, []);
+            }
+        });
+    });
+}
+
 userModel.getUserFromUsername_Mysql = function(username,callback)
 {
   pool.getConnection(function(err, connection) {
@@ -258,26 +337,7 @@ userModel.getServicesFromUsername = function(username,callback)
   });
 }
 
-userModel.login = function(username, password, callback)
-{
-    mongoose.connection.db.collection('USER', function (err, collection) {
-        collection.find( { 'username': username}).toArray(function(err, docs) {
-            if (docs!=undefined && docs.length>=0) {
-                if (docs[0]== undefined) {
-                    callback(null, {"status": "nok"});
-                } else {
-                    if( crypt(password, docs[0]['password']) !== docs[0]['password']) {
-                        callback(null, {"status": "nok"});
-                    } else {
-                        callback(null, {"status": "ok", "result": docs});
-                    }
-                }
-            } else {
-                callback(null, {"status": "nok"});
-            }
-        });
-    });
-}
+
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas
 module.exports = userModel;

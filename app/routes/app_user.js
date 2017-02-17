@@ -8,7 +8,7 @@ var messages = require("../utils/statusMessages.js");
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
 
-var UserModel = require('../others_models/userMongo');
+var UserModel = require('../models/user');
 
 // Definición del log
 var fs = require('fs');

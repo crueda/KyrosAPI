@@ -7,6 +7,7 @@ var errorHandler = require('errorhandler');
 var cookieParser = require('cookie-parser');
 var MongoDBStore = require('connect-mongodb-session')(session);
 var Ddos = require('ddos');
+var tickle = require('tickle');
 
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('./kyrosapi.properties');
@@ -22,17 +23,13 @@ var api_odometer = require('./app/routes/odometer');
 var api_activity = require('./app/routes/activity');
 var api_poi = require('./app/routes/poi');
 var api_monitor = require('./app/routes/monitor');
-var api_numpositions = require('./app/routes/numpositions');
-var api_image = require('./app/routes/image');
 var api_heatmap = require('./app/routes/heatmap');
 var api_vehicle = require('./app/routes/vehicle');
-var api_share = require('./app/routes/share');
-var api_watch = require('./app/routes/watch');
 var api_login = require('./app/routes/login');
 var api_validate = require('./app/routes/validate');
 var api_push = require('./app/routes/push');
-var api_icon = require('./app/routes/icon');
 
+var api_app_icon = require('./app/routes/app_icon');
 var api_app_notification = require('./app/routes/app_notification');
 var api_app_tracking = require('./app/routes/app_tracking');
 var api_app_login = require('./app/routes/app_login');
@@ -47,8 +44,10 @@ var i18n = require("i18n");
 var methodOverride = require('method-override');
 
 var app = express();
-var ddos = new Ddos({burst:3,limit:6,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
+var ddos = new Ddos({burst:4,limit:16,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
 app.use(ddos.express);
+
+app.use(tickle);
 
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
@@ -85,7 +84,6 @@ app.all('/*', function(req, res, next) {
   }
 });
 
-//app.all('/*', [require('./app/middlewares/registerOperation')]);
 
 app.use('/', api_status);
 app.use('/', api_login);
@@ -101,6 +99,7 @@ app.use('/api', api_app_tracking);
 app.use('/api', api_app_vehicle);
 app.use('/api', api_app_monitor);
 app.use('/api', api_app_graph);
+app.use('/api', api_app_icon);
 
 
 // AUTENTICACION TOKEN
@@ -127,12 +126,7 @@ app.use('/', api_odometer);
 app.use('/', api_activity);
 app.use('/', api_poi);
 app.use('/', api_monitor);
-app.use('/', api_numpositions);
-app.use('/', api_image);
 app.use('/', api_heatmap);
-app.use('/', api_share);
-app.use('/', api_watch);
-app.use('/', api_icon);
 */
 
 

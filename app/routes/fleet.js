@@ -148,7 +148,7 @@ var access_log = require('tracer').console({
  * @api {post} /fleets Request all fleets
  * @apiName GetFleets
  * @apiGroup Fleet
- * @apiVersion 1.0.1
+ * @apiVersion 1.0.2
  * @apiDescription List of fleets
  * @apiSampleRequest https://api.kyroslbs.com/fleets
  *
@@ -159,6 +159,7 @@ var access_log = require('tracer').console({
  *       "response" :
  *       {
  *         "status" : 0,
+ *         "count" : 2,
  *         "data" : [
  *           {
  *              "id": 123,
@@ -185,11 +186,11 @@ router.post('/fleets/', function(req, res)
     {
         if (data == null)
         {
-          res.status(200).json({"response": {"status":0,"data": []}})
+          res.status(200).json({"response": {"status":0,"count":0, "data": []}})
         }
         else if (typeof data !== 'undefined')
         {
-          res.status(200).json({"response": {"status":0, "data": data}})
+          res.status(200).json({"response": {"status":0, "count": data.length, "data": data}})
         }
         else
         {
@@ -202,7 +203,7 @@ router.post('/fleets/', function(req, res)
  * @api {get} /fleet/:id Request fleet information
  * @apiName GetFleet
  * @apiGroup Fleet
- * @apiVersion 1.0.1
+ * @apiVersion 1.0.2
  * @apiDescription Fleet information
  * @apiSampleRequest https://api.kyroslbs.com/fleet
  *
@@ -219,6 +220,7 @@ router.post('/fleets/', function(req, res)
  *       "response" :
  *       {
  *         "status" : 0,
+ *         "count" : 1,
  *         "data" : [
  *           {
  *              "id": 123,
@@ -255,7 +257,7 @@ router.get('/fleet/:id', function(req, res)
             //si existe se envia el json
             if (typeof data !== 'undefined' && data.length > 0)
             {
-                res.status(200).json({"response": {"status":0, "data": data}});
+                res.status(200).json({"response": {"status":0, "count":1, "data": data}});
             }
             //en otro caso se muestra un error
             else

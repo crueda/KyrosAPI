@@ -152,7 +152,7 @@ function isNumber(n) {
  * @api {post} /areas Request all areas
  * @apiName PostAreas
  * @apiGroup Area
- * @apiVersion 1.0.1
+ * @apiVersion 1.0.2
  * @apiDescription List all areas
  * @apiSampleRequest https://api.kyroslbs.com/areas
  *
@@ -213,12 +213,12 @@ router.post('/areas/', function(req, res)
     if (sortBy!=null) {
       sortBy = sortBy.replace(/\s/g, "");
     }
-
+    
     AreaModel.getAreas(startRow, endRow, sortBy, function(error, data, totalRows)
     {
         if (data == null)
         {
-          res.status(200).json({"response": {"status":0,"data": {"record": []}}})
+          res.status(200).json({"response": {"status": 0, "count": 0, "data":  []}})
         }
         else if (typeof data !== 'undefined')
         {
@@ -226,7 +226,7 @@ router.post('/areas/', function(req, res)
             startRow = 0;
             endRow = totalRows;
           }
-          res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
+          res.status(200).json({"response": {"status": 0, "count": data.length, "data": data}})
         }
         //en otro caso se muestra error
         else
@@ -241,7 +241,7 @@ router.post('/areas/', function(req, res)
  * @api {get} /area/:id Request area information
  * @apiName GetArea Request area information
  * @apiGroup Area
- * @apiVersion 1.0.1
+ * @apiVersion 1.0.2
  * @apiDescription Get area information
  * @apiSampleRequest https://api.kyroslbs.com/area
  *
@@ -260,12 +260,8 @@ router.post('/areas/', function(req, res)
  *        "response" :
  *        {
  *            "status" : 0,
- *            "startRow" : 0,
- *            "endRow" : 1,
- *            "totalRows" : 1,
+ *            "count" : 1,
  *            "data" :
- *            {
- *              "record" :
  *              [ {
  *                 "id": 895,
  *                 "description": "Zona 1",
@@ -312,7 +308,7 @@ router.get('/area/:id', function(req, res)
             //si existe enviamos el json
             if (typeof data !== 'undefined' && data.length > 0)
             {
-                res.status(200).json({"response": {"status":0,"totalRows":1,"startRow":0,"endRow":1,"data": {"record": [data]}}})
+                res.status(200).json({"response": {"status":0,"count":1,"data": [data]}})
             }
             //en otro caso mostramos un error
             else
@@ -361,9 +357,8 @@ router.get('/area/:id', function(req, res)
  *        "response" :
  *        {
  *            "status" : 0,
+ *            "count" : 1,
  *            "data" :
- *            {
- *              "record" :
  *              [ {
  *                 "id": 895,
  *                 "description": "Zona 1",
@@ -376,7 +371,6 @@ router.get('/area/:id', function(req, res)
  *                 "username": "vimsve"
  *                }
  *              ]
- *            }
  *         }
  *     }
  *

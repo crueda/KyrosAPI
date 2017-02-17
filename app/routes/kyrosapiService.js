@@ -67,20 +67,32 @@ router.post("/status", function(req,res)
 
 });
 
-/*router.get("/_stats", function(req,res)
+router.get("/stats", function(req,res)
 {
-  log.info("GET: /_status");
+  //log.info("GET: /stats");
+      /*var keys = Object.keys( global.tickle.route );
+      for( var i = 0,length = keys.length; i < length; i++ ) {
+      }*/
 
-  ApiModel.getCounters(function (error, data) {
-    if (data == null || data[0] == undefined) {
-      res.status(200).json({"GET":0, "POST":0});
-    }
-    else {
-      res.status(200).json({"GET": data[0]["GET"], "POST": data[0]["POST"]});
-    }
-  });
-
+   res.status(200).json(
+        {
+          "counter":global.tickle.all,
+          "requests":global.tickle.route,
+          "request_time":global.tickle.tpr()
+        }
+        );
 });
-*/
+
+router.post("/stats", function(req,res)
+{
+  //log.info("POST: /stats");
+   res.status(200).json(
+        {
+          "counter":global.tickle.all,
+          "requests":global.tickle.route,
+          "request_time":global.tickle.tpr()
+        }
+    );
+});
 
 module.exports = router;

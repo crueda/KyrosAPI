@@ -52,60 +52,12 @@ function checkPermission(req, username, arrPermissionList) {
     }
   }
 
-  // COMPANY
-  if ( (req.path.lastIndexOf('/companies', 0) === 0) ) {
-    if ((arrPermissionList.indexOf(properties.get('api.permission.company.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.company.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/company', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrPermissionList.indexOf(properties.get('api.permission.company.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.company.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrPermissionList.indexOf(properties.get('api.permission.company.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // VERTEX
-  if (req.path.lastIndexOf('/vertexes', 0) === 0) {
-    if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/vertex', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 )
-        return true;
-    }
-  }
-
   // ROUTE
   if (req.path.lastIndexOf('/routes', 0) === 0) {
     if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
       return true;
   }
   else if (req.path.lastIndexOf('/route', 0) === 0) {
-    if (req.method == 'GET'){
-      if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
-        return true;
-    }
-    else {
-      if (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 )
-        return true;
-    }
-  }
-
-  // BEACON
-  if (req.path.lastIndexOf('/beacons', 0) === 0) {
-    if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
-      return true;
-  }
-  else if (req.path.lastIndexOf('/beacon', 0) === 0) {
     if (req.method == 'GET'){
       if ((arrPermissionList.indexOf(properties.get('api.permission.route.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.route.admin')) > -1 ))
         return true;

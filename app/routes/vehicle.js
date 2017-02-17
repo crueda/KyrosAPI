@@ -138,17 +138,33 @@ var log = require('tracer').console({
  * @api {post} /vehicles Request all vehicles
  * @apiName GetVehicles
  * @apiGroup Vehicle
- * @apiVersion 1.0.1
+ * @apiVersion 1.0.2
  * @apiDescription List of vehicles
  * @apiSampleRequest https://api.kyroslbs.com/vehicles
  *
- * @apiParam {Number} [startRow] Number of first element
- * @apiParam {Number} [endRow] Number of last element
- * @apiParam {String} [sortBy] Sort order on elements (comma separated)
- * @apiParam {String="id","license","alias","bastidor"}  [sortBy]     Results sorting by this param. You may indicate various parameters separated by commas. To indicate descending order you can use the - sign before the parameter
- *
  * @apiSuccess {Object[]} vehicle       List of vehicles
  *
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
+ *     {
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "count" : 2,
+ *         "data" : [
+ *           {
+ *              "id": 123,
+ *              "license": "1387-FWD",
+ *              "alias": "Coche de reparto"
+ *           },
+ *           {
+ *              "id": 124,
+ *              "license": "2341-ERD",
+ *              "alias": "Coche auxiliar"
+ *           }]
+ *       }
+ *     }
+ * 
  * @apiUse TokenHeader
  * @apiUse PermissionError
  * @apiUse TokenError
@@ -158,36 +174,21 @@ router.post('/vehicles/', function(req, res)
 {
     log.info("POST: /vehicles"); 
 
-    var startRow = req.body.startRow;
-    var endRow = req.body.endRow;
-    var sortBy = req.body.sortBy;
-    // Limpiar espacios en blanco
-    if (sortBy!=null) {
-      sortBy = sortBy.replace(/\s/g, "");
-    }
-
     var username = utils.getUsernameFromToken(req);
-    VehicleModel.getVehicles(startRow, endRow, sortBy, username, function(error, data, totalRows)
+    VehicleModel.getVehicles(username, function(error, data, totalRows)
     {
         if (data == null)
         {
-          res.status(200).json({"response": {"status":0,"data": {"record": []}}})
+          res.status(200).json({"response": {"status":0,"count":0, "data": []}});
         }
         else if (typeof data !== 'undefined')
         {
-          if (startRow == null || endRow == null) {
-            startRow = 0;
-            endRow = totalRows;
-          }
-          else if (totalRows -1 <= endRow) {
-            endRow = totalRows - 1;
-          }
-          res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
+          res.status(200).json({"response": {"status":0, "count": data.length, "data": data}});
         }
         //en otro caso se muestra error
         else
         {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}});
         }
     });
 });
@@ -196,7 +197,7 @@ router.post('/vehicles/', function(req, res)
  * @api {get} /vehicle/:id Request vehicle information
  * @apiName GetVehicle Request vehicle information
  * @apiGroup Vehicle
- * @apiVersion 1.0.1
+ * @apiVersion 1.0.2
  * @apiDescription Vehicle information
  * @apiSampleRequest https://api.kyroslbs.com/vehicle
  *
@@ -213,19 +214,13 @@ router.post('/vehicles/', function(req, res)
  *       "response" :
  *       {
  *         "status" : 0,
- *         "startRow" : 0,
- *         "endRow" : 1,
- *         "totalRows" : 1,
- *         "data" : {
- *         "record" : [
+ *         "count" : 1,
+ *         "data" : [
  *           {
  *              "id": 123,
- *              "creationTime": "2011-11-04T00:00:00Z,
  *              "license": "1387-FWD",
- *              "alias": "Coche de reparto",
- *              "creationTime": "2011-11-04T00:00:00.00Z",
+ *              "alias": "Coche de reparto"
  *           }]
- *        }
  *       }
  *     }
  *
@@ -242,7 +237,6 @@ router.get('/vehicle/:id', function(req, res)
     var id = req.params.id;
     log.info("GET: /vehicle/"+id);
 
-    //solo actualizamos si la id es un número
     if(!isNaN(id))
     {
         VehicleModel.getVehicle(id,function(error, data)
@@ -256,7 +250,7 @@ router.get('/vehicle/:id', function(req, res)
             //si existe enviamos el json
             if (typeof data !== 'undefined' && data.length > 0)
             {
-                res.status(200).json({"response": {"status":0,"totalRows":1,"startRow":0,"endRow":1,"data": {"record": data}}})
+                res.status(200).json({"response": {"status":0, "count": 1, "data": data}})
             }
             //en otro caso mostramos un error
             else

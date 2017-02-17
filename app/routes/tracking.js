@@ -165,7 +165,7 @@ function kcoords(px, py) {
 * @api {post} /tracking1/fleet/:id Last tracking position of a fleet
 * @apiName PostTracking1Fleet 
 * @apiGroup Tracking
-* @apiVersion 1.0.1
+* @apiVersion 1.0.2
 * @apiDescription List of last trackings from fleet
 * @apiSampleRequest https://api.kyroslbs.com/tracking1/fleet/143
 *
@@ -185,8 +185,8 @@ function kcoords(px, py) {
 *       "response" :
 *       {
 *         "status" : 0,
-*         "data": {
-*           "record": [
+*         "count" : 1,
+*         "record": [
 *           {
 *            "id": 123,
 *            "deviceId": 13432,
@@ -196,9 +196,7 @@ function kcoords(px, py) {
 *            "speed": 34,
 *            "heading": 120,
 *            "trackingDate": "2015-10-04T00:00:00.00Z"
-*           },
 *           }]
-*        }
 *       }
 *     }
 *
@@ -219,14 +217,14 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 
   TrackingModel.getTracking1FromFleet(id, function (error, data) {
     if (data == null) {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+      res.status(200).json({ "response": { "status": 0,  "count": 0, "data": [] } } );
     }
     else if (typeof data !== 'undefined') {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+      res.status(200).json({ "response": { "status": 0,  "count": data.length, "data": data } } );
     }
     //en otro caso se muestra error
     else {
-      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } });
     }
   });
 
@@ -237,7 +235,7 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 * @api {post} /tracking1/vehicle/:id Last position of a vehicle
 * @apiName PostTracking1Vehicle 
 * @apiGroup Tracking
-* @apiVersion 1.0.1
+* @apiVersion 1.0.2
 * @apiDescription List of last trackings of a vehicle
 * @apiSampleRequest https://api.kyroslbs.com/tracking1/vehicle/460
 *
@@ -257,8 +255,8 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 *       "response" :
 *       {
 *         "status" : 0,
-*         "data": {
-*           "record": [
+*         "count" : 1,
+*         "data": [
 *           {
 *            "id": 123,
 *            "deviceId": 13432,
@@ -268,9 +266,7 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 *            "speed": 34,
 *            "heading": 120,
 *            "trackingDate": "2015-10-04T00:00:00Z"
-*           },
 *           }]
-*        }
 *       }
 *     }
 *
@@ -291,10 +287,10 @@ router.post('/tracking1/vehicle/:id', function (req, res) {
 
   TrackingModel.getTracking1FromVehicle(id, function (error, data) {
     if (data == null) {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+      res.status(200).json({ "response": { "status": 0, "count": 0, "data": [] } } );
     }
     else if (typeof data !== 'undefined') {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+      res.status(200).json({ "response": { "status": 0,  "count": data.length, "data": data } } );
     }
     //en otro caso se muestra error
     else {
@@ -309,7 +305,7 @@ router.post('/tracking1/vehicle/:id', function (req, res) {
 * @api {post} /tracking1/fleets Last position of a group of fleets
 * @apiName PostTracking1Fleets 
 * @apiGroup Tracking
-* @apiVersion 1.0.1
+* @apiVersion 1.0.2
 * @apiDescription List of last trackings of a group of fleet
 * @apiSampleRequest https://api.kyroslbs.com/tracking1/fleets
 *
@@ -331,8 +327,8 @@ router.post('/tracking1/vehicle/:id', function (req, res) {
 *       "response" :
 *       {
 *         "status" : 0,
-*         "data": {
-*           "record": [
+*         "count" : 1,
+*         "data": [
 *           {
 *            "id": 123,
 *            "deviceId": 13432,
@@ -342,9 +338,7 @@ router.post('/tracking1/vehicle/:id', function (req, res) {
 *            "speed": 34,
 *            "heading": 120,
 *            "trackingDate": "2015-10-04T00:00:00Z"
-*           },
 *           }]
-*        }
 *       }
 *     }
 *
@@ -362,10 +356,10 @@ router.post('/tracking1/fleets', function (req, res) {
 
   TrackingModel.getTracking1FromFleets(req.body.fleets.toString(), function (error, data) {
     if (data == null) {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+      res.status(200).json({ "response": { "status": 0,  "count": 0, "data": [] } } );
     }
     else if (typeof data !== 'undefined') {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+      res.status(200).json({ "response": { "status": 0,  "count": data.length, "data": data } } );
     }
     else {
       res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
@@ -378,7 +372,7 @@ router.post('/tracking1/fleets', function (req, res) {
 * @api {post} /tracking1/vehicles Last position of a group of vehicles
 * @apiName PostTracking1Vehicles 
 * @apiGroup Tracking
-* @apiVersion 1.0.1
+* @apiVersion 1.0.2
 * @apiDescription List of last trackings of a group of vehicles
 * @apiSampleRequest https://api.kyroslbs.com/tracking1/vehicles
 *
@@ -400,8 +394,8 @@ router.post('/tracking1/fleets', function (req, res) {
 *       "response" :
 *       {
 *         "status" : 0,
-*         "data": {
-*           "record": [
+*         "count" : 1,
+*         "data": [
 *           {
 *            "id": 123,
 *            "deviceId": 13432,
@@ -411,9 +405,7 @@ router.post('/tracking1/fleets', function (req, res) {
 *            "speed": 34,
 *            "heading": 120,
 *            "trackingDate": "2015-10-04T00:00:00Z"
-*           },
 *           }]
-*        }
 *       }
 *     }
 *
@@ -432,10 +424,10 @@ router.post('/tracking1/vehicles', function (req, res) {
 
   TrackingModel.getTracking1FromVehicles(req.body.vehicles.toString(), function (error, data) {
     if (data == null) {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+      res.status(200).json({ "response": { "status": 0, "count": 0,  "data": [] } } )
     }
     else if (typeof data !== 'undefined') {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+      res.status(200).json({ "response": { "status": 0, "count": data.length, "data": data } } )
     }
     else {
       res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
@@ -448,7 +440,7 @@ router.post('/tracking1/vehicles', function (req, res) {
 * @api {post} /tracking1 Last position of all vehicles
 * @apiName PostTracking1AllVehicles 
 * @apiGroup Tracking
-* @apiVersion 1.0.1
+* @apiVersion 1.0.2
 * @apiDescription List of last trackings of all vehicles
 * @apiSampleRequest https://api.kyroslbs.com/tracking1
 *
@@ -467,8 +459,8 @@ router.post('/tracking1/vehicles', function (req, res) {
 *       "response" :
 *       {
 *         "status" : 0,
-*         "data": {
-*           "record": [
+*         "count" : 2,
+*         "data": [
 *           {
 *            "id": 123,
 *            "deviceId": 13432,
@@ -479,8 +471,16 @@ router.post('/tracking1/vehicles', function (req, res) {
 *            "heading": 120,
 *            "trackingDate": "2015-10-04T00:00:00Z"
 *           },
+*           {
+*            "id": 123,
+*            "deviceId": 13432,
+*            "latitude": 43.314166666666665,
+*            "longitude": -2.033333333333333,
+*            "altitude": 0,
+*            "speed": 34,
+*            "heading": 120,
+*            "trackingDate": "2015-10-04T00:00:00Z"
 *           }]
-*        }
 *       }
 *     }
 *
@@ -505,12 +505,12 @@ router.post('/tracking1', function (req, res) {
 
   VehicleModel.getVehiclesFromUsername(username, function (error, data) {
     if (data != undefined && data.length > 0) {
-      TrackingModel.getTracking1FromVehicles(data.toString(), function (error, data) {
+      TrackingModel.getTracking1FromVehicles(data, function (error, data) {
         if (data == null) {
-          res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+          res.status(200).json({ "response": { "status": 0, "count":0, "data": [] } } )
         }
         else if (typeof data !== 'undefined') {
-          res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+          res.status(200).json({ "response": { "status": 0, "count": data.length, "data": data } } )
         }
         else {
           res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
@@ -519,7 +519,7 @@ router.post('/tracking1', function (req, res) {
 
     }
     else {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+      res.status(200).json({ "response": { "status": 0, "count":0, "data": [] } } )
     }
   });
 });
@@ -561,7 +561,7 @@ router.post('/tracking1vehicles', function (req, res) {
 * @api {post} /tracking1/vehicle/:id Historic positions of a vehicle
 * @apiName PostTrackingVehicle 
 * @apiGroup Tracking
-* @apiVersion 1.0.1
+* @apiVersion 1.0.2
 * @apiDescription List of trackings of a vehicle
 * @apiSampleRequest https://api.kyroslbs.com/tracking/vehicle/460
 *
@@ -583,8 +583,8 @@ router.post('/tracking1vehicles', function (req, res) {
 *       "response" :
 *       {
 *         "status" : 0,
-*         "data": {
-*           "record": [
+*         "count" : 1,
+*         "data": [
 *           {
 *            "id": 123,
 *            "deviceId": 13432,
@@ -594,9 +594,7 @@ router.post('/tracking1vehicles', function (req, res) {
 *            "speed": 34,
 *            "heading": 120,
 *            "trackingDate": "2017-02-02T00:00:00Z"
-*           },
 *           }]
-*        }
 *       }
 *     }
 *
@@ -618,10 +616,10 @@ router.post('/tracking/vehicle/:id', function (req, res) {
 
   TrackingModel.getTrackingFromVehicle(id, req.body.initDate.toString(), req.body.endDate.toString(), function (error, data) {
     if (data == null) {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
+      res.status(200).json({ "response": { "status": 0,  "count": 0, "data": [] } } );
     }
     else if (typeof data !== 'undefined') {
-      res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
+      res.status(200).json({ "response": { "status": 0, "count": data.length,  "data": data } } );
     }
     //en otro caso se muestra error
     else {
