@@ -1,7 +1,7 @@
 var server = require('mongodb').Server;
 var mongoose = require('mongoose');
-var crypt     = require('crypt3');
-var moment     = require('moment');
+var crypt = require('crypt3');
+var moment = require('moment');
 
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
@@ -9,11 +9,11 @@ var properties = PropertiesReader('kyrosapi.properties');
 // Definición del log
 var fs = require('fs');
 var log = require('tracer').console({
-    transport : function(data) {
+    transport: function (data) {
         //console.log(data.output);
-        fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
-            fs.write(id, data.output+"\n", null, 'utf8', function() {
-                fs.close(id, function() {
+        fs.open(properties.get('main.log.file'), 'a', 0666, function (e, id) {
+            fs.write(id, data.output + "\n", null, 'utf8', function () {
+                fs.close(id, function () {
                 });
             });
         });
@@ -33,64 +33,77 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 // Crear un objeto para ir almacenando todo lo necesario
 var reportModel = {};
 
-reportModel.getReportDailyData = function(vehicleLicense, callback)
-{
+reportModel.getReportDailyData = function (vehicleLicense, callback) {
+    function padToTwo(number) {
+        if (number <= 9) { number = ("0" + number).slice(-4); }
+        return number;
+    }
+
     var start = moment().startOf('day');
-    mongoose.connection.db.collection('TRACKING_'+vehicleLicense, function (err, collection) {
-      collection.find({'pos_date': {$gt:Number(start)}}).sort({"pos_date":1}).toArray(function(err, docs) {
-        var out = {
-            "reportDailyStartDate" :  "",
-            "reportDailyStartGeocoding" :  "",
-            "reportDailyEndDate" :  "",
-            "reportDailyEndGeocoding" :  "",
-            "reportDailyDuration" :  0,
-            "reportDailyAverageSpeed" :  0,
-            "reportDailyMaxSpeed" :  0,
-            "reportDailyDistance" :  0,
-            "reportDailyConsumption" :  0,
-            "reportDailyCO2" :  0,
-            "reportDailyEventsStart" :  0,
-            "reportDailyEventsStop" :  0,
-            "reportDailyEventsUnplug" :  0,
-            "reportDailyEventsMaxSpeed" :  0,
-            "tracking" :  []
+    mongoose.connection.db.collection('TRACKING_' + vehicleLicense, function (err, collection) {
+        collection.find({ 'pos_date': { $gt: Number(start) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
+            var out = {
+                "reportDailyStartDate": "",
+                "reportDailyStartGeocoding": "",
+                "reportDailyEndDate": "",
+                "reportDailyEndGeocoding": "",
+                "reportDailyDuration": 0,
+                "reportDailyAverageSpeed": 0,
+                "reportDailyMaxSpeed": 0,
+                "reportDailyDistance": 0,
+                "reportDailyConsumption": 0,
+                "reportDailyCO2": 0,
+                "reportDailyEventsStart": 0,
+                "reportDailyEventsStop": 0,
+                "reportDailyEventsUnplug": 0,
+                "reportDailyEventsMaxSpeed": 0,
+                "tracking": []
             };
-          for (var i=0; i<docs.length;i++) {
-              var posDateInit = 0;
-              var posDateEnd = 0;
-              var sumSpeed = 0;
-              var count = 0;
-              if (i==0) {
-                  var epochStart = moment(new Date(docs[i].pos_date));
-                  out.reportDailyStartDate = epochStart.format("HH:mm:ss");
-                  out.reportDailyStartGeocoding = docs[i].geocoding;
-                  posDateInit = docs[i].pos_date;
-              } else if (i==docs.length) {
-                  var epochEnd = moment(new Date(docs[i].pos_date));
-                  out.reportDailyEndtDate = epochEnd.format("HH:mm:ss");
-                  out.reportDailyEndGeocoding = docs[i].geocoding;
-                  posDateEnd = docs[i].pos_date;
-              }
-              out.reportDailyDistance = out.reportDailyDistance + docs[i].distance;
-              if (docs[i].speed > out.reportDailyMaxSpeed) {
-                  out.reportDailyMaxSpeed = docs[i].speed.toFixed(2);
-              }
-              sumSpeed = sumSpeed + docs[i].speed;
-              count = count + 1;
 
-          }
-          var duration = posDateEnd - posDateInit;
-          var dateDuration = new Date(posDateEnd - posDateInit);
-          var h = dateDuration.getHours();
-          var m = dateDuration.getMinutes();
-          var s = dateDuration.getSeconds();
-          out.reportDailyDuration = h + ":" + m + ":" + s;
+            var posDateInit = 0;
+            var posDateEnd = 0;
+            var sumSpeed = 0;
+            var count = 0;
 
-          out.reportDailyAverageSpeed = (sumSpeed / count).toFixed(2);
+            for (var i = 0; i < docs.length; i++) {
 
-          callback(null, out);
-      });
-  });
+                if (i == 0) {
+                    var epochStart = moment(new Date(docs[i].pos_date));
+                    out.reportDailyStartDate = epochStart.format("HH:mm:ss");
+                    out.reportDailyStartGeocoding = docs[i].geocoding;
+                    posDateInit = docs[i].pos_date;
+                } else if (i == docs.length - 1) {
+                    var epochEnd = moment(new Date(docs[i].pos_date));
+                    out.reportDailyEndDate = epochEnd.format("HH:mm:ss");
+                    out.reportDailyEndGeocoding = docs[i].geocoding;
+                    posDateEnd = docs[i].pos_date;
+                }
+                out.reportDailyDistance = out.reportDailyDistance + docs[i].distance;
+                if (docs[i].speed > out.reportDailyMaxSpeed) {
+                    out.reportDailyMaxSpeed = docs[i].speed.toFixed(1);
+                }
+                sumSpeed = sumSpeed + docs[i].speed;
+                count = count + 1;
+
+            }
+            var duration = posDateEnd - posDateInit;
+            var dateDuration = new Date(posDateEnd - posDateInit);
+            var h = dateDuration.getHours();
+            var m = dateDuration.getMinutes();
+            var s = dateDuration.getSeconds();
+            out.reportDailyDuration = padToTwo(h) + ":" + padToTwo(m) + ":" + padToTwo(s);
+
+            out.reportDailyAverageSpeed = (sumSpeed / count).toFixed(1);
+            out.reportDailyDistance = out.reportDailyDistance.toFixed(3);
+
+            mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                collection.find({ 'vehicle_license': vehicleLicense}).toArray(function (err, docsVehicle) {
+                    out.reportDailyConsumption = (docsVehicle[0].consumption * (out.reportDailyDistance/100)).toFixed(2);
+                    callback(null, out);
+                });
+            });
+        });
+    });
 }
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas
