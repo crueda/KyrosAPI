@@ -37,6 +37,7 @@ var api_app_user = require('./app/routes/app_user');
 var api_app_vehicle = require('./app/routes/app_vehicle');
 var api_app_monitor = require('./app/routes/app_monitor');
 var api_app_graph = require('./app/routes/app_graph');
+var api_app_report = require('./app/routes/app_report');
 
 var i18n = require("i18n");
 
@@ -99,6 +100,7 @@ app.use('/api', api_app_tracking);
 app.use('/api', api_app_vehicle);
 app.use('/api', api_app_monitor);
 app.use('/api', api_app_graph);
+app.use('/api', api_app_report);
 app.use('/api', api_app_icon);
 
 
