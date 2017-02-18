@@ -47,7 +47,7 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                 "reportDailyStartGeocoding": "",
                 "reportDailyEndDate": "",
                 "reportDailyEndGeocoding": "",
-                "reportDailyDuration": 0,
+                "reportDailyDuration": "00:00:00",
                 "reportDailyAverageSpeed": 0,
                 "reportDailyMaxSpeed": 0,
                 "reportDailyDistance": 0,
@@ -86,14 +86,18 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                 count = count + 1;
 
             }
-            var duration = posDateEnd - posDateInit;
-            var dateDuration = new Date(posDateEnd - posDateInit);
-            var h = dateDuration.getHours();
-            var m = dateDuration.getMinutes();
-            var s = dateDuration.getSeconds();
-            out.reportDailyDuration = padToTwo(h) + ":" + padToTwo(m) + ":" + padToTwo(s);
+            if (count>1) {
+                var duration = posDateEnd - posDateInit;
+                var dateDuration = new Date(posDateEnd - posDateInit);
+                var h = dateDuration.getHours();
+                var m = dateDuration.getMinutes();
+                var s = dateDuration.getSeconds();
+                out.reportDailyDuration = padToTwo(h) + ":" + padToTwo(m) + ":" + padToTwo(s);
+            } 
 
-            out.reportDailyAverageSpeed = (sumSpeed / count).toFixed(1);
+            if (count != 0) {
+                out.reportDailyAverageSpeed = (sumSpeed / count).toFixed(1);
+            }
             out.reportDailyDistance = out.reportDailyDistance.toFixed(3);
 
             mongoose.connection.db.collection('VEHICLE', function (err, collection) {

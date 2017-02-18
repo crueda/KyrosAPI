@@ -24,10 +24,10 @@ var log = require('tracer').console({
   }
 });
 
-router.post('/app/report_daily/vehicle/:vehicleLicense', function(req, res)
+router.get('/app/report_daily/vehicle/:vehicleLicense', function(req, res)
 {
     var vehicleLicense = req.params.vehicleLicense;
-    log.info("POST: /app/report_daily/vehicle/"+vehicleLicense);
+    log.info("GET: /app/report_daily/vehicle/"+vehicleLicense);
 
     if (vehicleLicense==null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
