@@ -39,8 +39,8 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
         return number;
     }
 
-    //var start = moment().startOf('day');
-    var start = 1487318303000;
+    var start = moment().startOf('day');
+    //var start = 1487318303000;
     mongoose.connection.db.collection('TRACKING_' + vehicleLicense, function (err, collection) {
         collection.find({ 'pos_date': { $gt: Number(start) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
             var out = {
@@ -123,6 +123,7 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
             mongoose.connection.db.collection('VEHICLE', function (err, collection) {
                 collection.find({ 'vehicle_license': vehicleLicense}).toArray(function (err, docsVehicle) {
                     out.reportDailyConsumption = (docsVehicle[0].consumption * (out.reportDailyDistance/100)).toFixed(2);
+                    out.reportDailyCO2 = (out.reportDailyConsumption*2.68).toFixed(2);
                     callback(null, out);
                 });
             });
