@@ -39,7 +39,8 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
         return number;
     }
 
-    var start = moment().startOf('day');
+    //var start = moment().startOf('day');
+    var start = 1487318303000;
     mongoose.connection.db.collection('TRACKING_' + vehicleLicense, function (err, collection) {
         collection.find({ 'pos_date': { $gt: Number(start) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
             var out = {
@@ -57,6 +58,7 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                 "reportDailyEventsStop": 0,
                 "reportDailyEventsUnplug": 0,
                 "reportDailyEventsMaxSpeed": 0,
+                "events": {},
                 "tracking": []
             };
 
@@ -84,6 +86,24 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                 }
                 sumSpeed = sumSpeed + docs[i].speed;
                 count = count + 1;
+
+                // tracking
+                tracking_point = {
+                    "longitude": docs[i].location.coordinates[0],
+                    "latitude": docs[i].location.coordinates[1]                
+                }
+                out.tracking.push (tracking_point);
+
+                // eventos
+                for (var j = 0; j < docs[i].events.length; j++) {
+                    var eventType = "" + docs[i].events[j].event_type;
+                    if(out.events.hasOwnProperty(eventType)){
+                        out.events[eventType] = out.events[eventType] + 1;
+                    } else {
+                        out.events[eventType] = 0;
+                    }
+                }
+                
 
             }
             if (count>1) {
