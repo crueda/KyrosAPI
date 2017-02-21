@@ -1,5 +1,6 @@
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
+var mongoose = require('mongoose');
 
 
 // Definición del log
@@ -14,6 +15,16 @@ var log = require('tracer').console({
             });
         });
     }
+});
+
+var dbMongoName = properties.get('bbdd.mongo.name');
+var dbMongoHost = properties.get('bbdd.mongo.ip');
+var dbMongoPort = properties.get('bbdd.mongo.port');
+
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName,  { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
+  if (error) {
+    log.info(error);
+  }
 });
 
 var dbConfig = {
@@ -34,8 +45,27 @@ var connection = mysql.createPool(dbConfig);
 //creamos un objeto para ir almacenando todo lo que necesitemos
 var areaModel = {};
 
-//obtenemos todos las areas
-areaModel.getAreas = function(startRow, endRow, sortBy, callback)
+areaModel.getAreas = function(callback)
+{
+    mongoose.connection.db.collection('AREA', function (err, collection) {
+      collection.find({},{ _id: 0}).toArray(function (err, docs) {
+          callback(null, docs);
+      });
+    });
+}
+
+areaModel.getArea = function (id, callback) {
+  mongoose.connection.db.collection('AREA', function (err, collection) {
+    collection.find({ 'id': parseInt(id) }, { _id: 0}).toArray(function (err, docs) {
+        callback(null, docs);
+    });
+  });
+}
+
+
+
+
+areaModel.getAreasMysql = function(startRow, endRow, sortBy, callback)
 {
     if (connection)
     {
@@ -113,8 +143,7 @@ areaModel.getAreas = function(startRow, endRow, sortBy, callback)
     }
 }
 
-//obtenemos un area por su id
-areaModel.getArea = function(id,callback)
+areaModel.getAreaMysql = function(id,callback)
 {
     if (connection)
     {
@@ -131,130 +160,6 @@ areaModel.getArea = function(id,callback)
             else
             {
                 callback(null, row);
-            }
-        });
-    }
-    else {
-      callback(null, null);
-    }
-}
-
-//añadir una nueva area
-areaModel.insertArea = function(areaData,callback)
-{
-    if (connection)
-    {
-        var sql = "INSERT INTO AREA SET DESCRIPTION = " + connection.escape(areaData.description) + "," +
-        "DATE_INIT = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.initDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
-        "DATE_END = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.endDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
-        "HOUR_INIT = " + connection.escape(areaData.initHour) + "," +
-        "HOUR_END = " + connection.escape(areaData.endHour) + "," +
-        "MONDAY=1, tuesday=1, WEDNESDAY=1, THURSDAY=1, FRIDAY=1, SATURDAY=1, SUNDAY=1, MAX_SPEED=0, " + 
-        "TYPE_AREA = " + connection.escape(areaData.typeArea) + "," +
-        "RADIUS = " + connection.escape(areaData.radius) + "," +
-        "USER_NAME = \'kyrosapi\'";
-
-        log.debug ("Query: "+sql);
-
-        connection.query(sql, function(error, result)
-        {
-            if(error)
-            {
-                callback(error, null);
-            }
-            else
-            {
-                //devolvemos la última id insertada
-                callback(null,{"insertId" : result.insertId});
-            }
-        });
-    }
-    else {
-      callback(null, null);
-    }
-}
-
-//actualizar un area
-areaModel.updateArea = function(areaData, callback)
-{
-    if(connection)
-    {
-        var sql = "UPDATE AREA SET DESCRIPTION = " + connection.escape(areaData.description) + "," +
-        "TYPE_AREA = " + connection.escape(areaData.typeArea) + "," +
-        "DATE_INIT = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.initDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
-        "DATE_END = " + "UNIX_TIMESTAMP(DATE_FORMAT(" + connection.escape(areaData.endDate) + ", '%Y-%m-%dT%H:%m:%sZ'))*1000" + "," +
-        "HOUR_INIT = " + connection.escape(areaData.initHour) + "," +
-        "HOUR_END = " + connection.escape(areaData.endHour) + "," +
-        "RADIUS = " + connection.escape(areaData.radius) + " " +
-        "WHERE id = " + areaData.id;
-
-        log.debug ("Query: "+sql);
-
-        connection.query(sql, function(error, result)
-        {
-            if(error)
-            {
-                callback(error, null);
-            }
-            else
-            {
-                callback(null,{"message":"success"});
-            }
-        });
-    }
-    else {
-      callback(null, null);
-    }
-}
-
-//eliminar un area pasando la id a eliminar
-areaModel.deleteArea = function(id, callback)
-{
-    if(connection)
-    {
-        var sqlExists = "SELECT ID as id, DESCRIPTION as description, DATE_FORMAT(FROM_UNIXTIME(FLOOR(DATE_INIT/1000)), '%Y-%m-%dT') as initDate, DATE_FORMAT(FROM_UNIXTIME(FLOOR(DATE_END/1000)), '%Y-%m-%dT') as endDate, HOUR_INIT as initHour, HOUR_END as endHour, TYPE_AREA as typeArea, RADIUS as radius, USER_NAME as username FROM AREA WHERE ID = " + connection.escape(id);
-
-        log.debug ("Query: "+sqlExists);
-
-        connection.query(sqlExists, function(err, row)
-        {
-            //si existe la id del area a eliminar
-            if(row)
-            {
-                var sql = 'DELETE FROM AREA WHERE ID = ' + connection.escape(id);
-
-                log.debug ("Query: "+sql);
-
-                connection.query(sql, function(error, result)
-                {
-                    if(error)
-                    {
-                        callback(error, null);                    }
-                    else
-                    {
-                        // Borrar de la tabla AREA_FLEET
-                        var sqlHas = 'DELETE FROM AREA_FLEET WHERE AREA_ID = ' + connection.escape(id);
-
-                        log.debug ("Query: "+sqlHas);
-
-                        connection.query(sqlHas, function(error, result)
-                        {
-                            if(error)
-                            {
-                                callback(error, null);
-                            }
-                            else
-                            {
-                              // se devuelven los datos del elemento eliminado
-                              callback(null,row);
-                            }
-                        });
-                    }
-                });
-            }
-            else
-            {
-                callback(null,{"message":"notExist"});
             }
         });
     }

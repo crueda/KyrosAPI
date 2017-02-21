@@ -8,7 +8,13 @@ console.log ("fecha->"+fecha);
 
 
 var start = moment().startOf('day');
-console.log ("start->"+Number(start));
+console.log ("start->"+Number(start-1000));
+
+ayer = moment().add(-1, 'day').startOf('day');
+console.log ("ayer->"+Number(ayer));
+
+
+
 var date = start.format("HH:mm:ss");
 console.log ("start->"+date);
 

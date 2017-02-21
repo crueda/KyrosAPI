@@ -175,7 +175,7 @@ router.post('/vehicles/', function(req, res)
     log.info("POST: /vehicles"); 
 
     var username = utils.getUsernameFromToken(req);
-    VehicleModel.getVehicles(username, function(error, data, totalRows)
+    VehicleModel.getVehicles(username, function(error, data)
     {
         if (data == null)
         {

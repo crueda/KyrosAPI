@@ -182,7 +182,7 @@ router.post('/fleets/', function(req, res)
     log.info("POST: /fleets");
 
     var username = utils.getUsernameFromToken(req);
-    fleetModel.getFleets(username, function(error, data, totalRows)
+    fleetModel.getFleets(username, function(error, data)
     {
         if (data == null)
         {

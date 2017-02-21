@@ -60,5 +60,20 @@ vehicleModel.getVehiclesFromUsername = function (username, callback) {
   });
 }
 
+vehicleModel.setAsDefault = function(username, vehicleLicense, callback)
+{
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find({'username': username}).toArray(function(err, docs) {
+            if (docs[0]!=undefined) {
+                docs[0].vehicle_license = vehicleLicense;
+                collection.save(docs[0]);
+                callback(null, docs);
+            } else {
+                callback(null, []);
+            }
+        });
+    });
+}
+
 //exportamos el objeto para tenerlo disponible en la zona de rutas
 module.exports = vehicleModel;

@@ -45,7 +45,7 @@ var i18n = require("i18n");
 var methodOverride = require('method-override');
 
 var app = express();
-var ddos = new Ddos({burst:4,limit:16,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
+var ddos = new Ddos({burst:8,limit:32,checkinterval:1,testmode:true,whitelist:['127.0.0.1,83.47.50.214']});
 app.use(ddos.express);
 
 app.use(tickle);

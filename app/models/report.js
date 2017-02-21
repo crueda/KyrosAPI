@@ -39,11 +39,26 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
         return number;
     }
 
-    var start = moment().startOf('day');
+    var start = moment().add(-1, 'day').startOf('day');
+    var end = moment().startOf('day');
     //var start = 1487318303000;
+
+    mongoose.connection.db.collection('ODOMETER', function (err, collection) {
+        collection.find({ 'vehicle_license': vehicleLicense }).toArray(function (err, docsOdometer) {
+    
     mongoose.connection.db.collection('TRACKING_' + vehicleLicense, function (err, collection) {
-        collection.find({ 'pos_date': { $gt: Number(start) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
+        collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start-1000) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
+        //collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start-1000) } ,  'events': {"$not": {"$size": 0}} }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
             var out = {
+                "dayDistance": docsOdometer[0].dayDistance,
+                "weekDistance": docsOdometer[0].weekDistance,
+                "monthDistance": docsOdometer[0].monthDistance,
+                "daySpeed": docsOdometer[0].daySpeed,
+                "weekSpeed": docsOdometer[0].weekSpeed,
+                "monthSpeed": docsOdometer[0].monthSpeed,
+                "dayConsume": docsOdometer[0].dayConsume,
+                "weekConsume": docsOdometer[0].weekConsume,
+                "monthConsume": docsOdometer[0].monthConsume,
                 "reportDailyStartDate": "",
                 "reportDailyStartGeocoding": "",
                 "reportDailyEndDate": "",
@@ -103,15 +118,15 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                         out.events[eventType] = 0;
                     }
                 }
-                
-
             }
             if (count>1) {
                 var duration = posDateEnd - posDateInit;
                 var dateDuration = new Date(posDateEnd - posDateInit);
-                var h = dateDuration.getHours();
-                var m = dateDuration.getMinutes();
-                var s = dateDuration.getSeconds();
+                var dateDurationUTC = new Date(dateDuration.getUTCFullYear(), dateDuration.getUTCMonth(), dateDuration.getUTCDate(), dateDuration.getUTCHours(), dateDuration.getUTCMinutes(), dateDuration.getUTCSeconds()); 
+
+                var h = dateDurationUTC.getHours();
+                var m = dateDurationUTC.getMinutes();
+                var s = dateDurationUTC.getSeconds();
                 out.reportDailyDuration = padToTwo(h) + ":" + padToTwo(m) + ":" + padToTwo(s);
             } 
 
@@ -128,6 +143,10 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                 });
             });
         });
+
+    });
+    });
+    
     });
 }
 

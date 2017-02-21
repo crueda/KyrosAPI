@@ -24,11 +24,6 @@ var log = require('tracer').console({
   }
 });
 
-router.get('/app/aa', function(req, res)
-{
-  res.status(200).json("ok");
-});
-
 router.get('/app/notifications', function(req, res)
 {
     var username = req.query.username;
@@ -103,7 +98,7 @@ router.get('/app/notification/:_id', function(req, res)
 });
 */
 
-
+//deprecated
 router.get('/app/notificationLimit', function(req, res)
 {
     var username = req.query.username;
@@ -144,6 +139,45 @@ router.get('/app/notificationLimit', function(req, res)
       }
 });
 
+router.post('/app/notificationLimit', function(req, res)
+{
+    var username = req.body.username;
+    var max = req.body.max;
+    var group = req.body.group;
+    if (max==undefined) {
+      max = 100;
+    }
+    if (group==undefined) {
+      group = 0;
+    }
+      log.info("GET: /app/notificationLimit?username="+username+"&max="+max);
+
+      if (username==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+      }
+      else {
+        NotificationModel.getLastNotifications(username, max, group, function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined')
+            {
+              res.status(200).json(data)
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
+      }
+});
 
 router.get('/app/notification/archive', function(req, res)
 {
