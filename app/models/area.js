@@ -48,7 +48,7 @@ var areaModel = {};
 areaModel.getAreas = function(callback)
 {
     mongoose.connection.db.collection('AREA', function (err, collection) {
-      collection.find({},{ _id: 0}).toArray(function (err, docs) {
+      collection.find({},{ '_id': 0}).toArray(function (err, docs) {
           callback(null, docs);
       });
     });
@@ -56,7 +56,7 @@ areaModel.getAreas = function(callback)
 
 areaModel.getArea = function (id, callback) {
   mongoose.connection.db.collection('AREA', function (err, collection) {
-    collection.find({ 'id': parseInt(id) }, { _id: 0}).toArray(function (err, docs) {
+    collection.find({ 'id': parseInt(id) }, { '_id': 0}).toArray(function (err, docs) {
         callback(null, docs);
     });
   });

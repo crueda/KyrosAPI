@@ -36,6 +36,22 @@ var access_log = require('tracer').console({
 function checkPermission(req, username, arrPermissionList) {
   access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
   
+  // POI
+  if ( (req.path.lastIndexOf('/pois', 0) === 0) ) {
+    if ((arrPermissionList.indexOf(properties.get('api.permission.poi.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.poi.admin')) > -1 ))
+      return true;
+  }
+  else if (req.path.lastIndexOf('/poi', 0) === 0) {
+    if (req.method == 'GET'){
+      if ((arrPermissionList.indexOf(properties.get('api.permission.poi.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.poi.admin')) > -1 ))
+        return true;
+    }
+    else {
+      if (arrPermissionList.indexOf(properties.get('api.permission.poi.admin')) > -1 )
+        return true;
+    }
+  }
+
   // AREA
   if ( (req.path.lastIndexOf('/areas', 0) === 0) ) {
     if ((arrPermissionList.indexOf(properties.get('api.permission.area.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.area.admin')) > -1 ))

@@ -1,3 +1,6 @@
+var server = require('mongodb').Server;
+var mongoose = require('mongoose');
+
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
 
@@ -15,294 +18,61 @@ var log = require('tracer').console({
     }
 });
 
-var dbConfig = {
-  host: properties.get('bbdd.mysql.ip') ,
-  user: properties.get('bbdd.mysql.user') ,
-  password: properties.get('bbdd.mysql.passwd') ,
-  database: properties.get('bbdd.mysql.name'),
-    connectionLimit: 50,
-    queueLimit: 0,
-    waitForConnection: true
-};
+var dbMongoName = properties.get('bbdd.mongo.name');
+var dbMongoHost = properties.get('bbdd.mongo.ip');
+var dbMongoPort = properties.get('bbdd.mongo.port');
 
-// Crear la conexion a la base de datos
-var mysql = require('mysql');
-var pool = mysql.createPool(dbConfig);
+mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName,  { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
+    if (error) {
+        log.info(error);
+    }
+});
 
 // Crear un objeto para ir almacenando todo lo necesario
-var uxoModel = {};
+var poiModel = {};
 
-// Obtener todos las uxos
-uxoModel.getUxos = function(startRow, endRow, sortBy, callback)
+poiModel.getPois = function(username, callback)
 {
-  pool.getConnection(function(err, connection) {
-    if (connection)
-    {
-      var sqlCount = 'SELECT count(*) as nrows FROM POI where CATEGORY_ID=' + properties.get('kyros.uxo.category.id');
-      log.debug ("Query: "+sqlCount);
-      connection.query(sqlCount, function(err, row)
-      {
-        if(row)
-        {
-          var consulta = 'SELECT POI_ID as id, DESCRIPTION as description, WEIGHT as weight, LATITUDE as latitude, LONGITUDE as longitude, ELEVATION as height FROM POI where CATEGORY_ID=' + properties.get('kyros.uxo.category.id');
-
-          var totalRows = row[0].nrows;
-
-          var sql = '';
-          var orderBy = '';
-
-          if (sortBy == null) {
-            orderBy = 'id';
-          }
-          else {
-            vsortBy = sortBy.split(',');
-            for (var i=0; i<vsortBy.length; i++ ) {
-              if (vsortBy[i].charAt(0) == '-') {
-                var element = vsortBy[i].substring(1, vsortBy[i].length);
-                if (element == 'id' || element == 'description' || element == 'weight' || element == 'longitude' || element == 'latitude' || element == 'height')
-                {
-                  if (orderBy == '')
-                    orderBy = element + ' desc';
-                  else
-                    orderBy = orderBy + ',' + element + ' desc';
-                }
-              } else {
-                var element = vsortBy[i];
-                if (element == 'id' || element == 'description' || element == 'weight' || element == 'longitude' || element == 'latitude' || element == 'height')
-                {
-                  if (orderBy == '')
-                    orderBy = element;
-                  else
-                    orderBy = orderBy + ',' + element;
-                }
-              }
-            }
-          }
-
-          if (orderBy == '') {
-            orderBy = 'id';
-          }
-
-          if (startRow == null || endRow == null) {
-            sql = consulta + " ORDER BY " + orderBy;
-          }
-          else {
-            sql = consulta + " ORDER BY " + orderBy + " LIMIT " + (endRow - startRow + 1) + " OFFSET " + startRow;
-          }
-
-          log.debug ("Query: "+sql);
-          connection.query(sql, function(error, rows)
-          {
-              connection.release();
-              if(error)
-              {
-                  callback(error, null);
-              }
-              else
-              {
-                  callback(null, rows, totalRows);
-              }
-          });
-        }
-        else
-        {
-          connection.release();
-          callback(null,[]);
-        }
-      });
-    }
-    else {
-      callback(null, null);
-    }
-  });
+    mongoose.connection.db.collection('POI', function (err, collection) {
+        collection.find({'username': username}, {'_id':0, 'username':0, 'type': 0, 'icon': 0}).limit(100).toArray(function(err, docs) {
+            callback(null, docs);
+        });
+    });
 }
 
-// Obtener un uxo por su id
-uxoModel.getUxo = function(id,callback)
+poiModel.getPoi = function(username, id, callback)
 {
-  pool.getConnection(function(err, connection) {
-    if (connection)
-    {
-        var sql = 'SELECT POI_ID as id, DESCRIPTION as description, WEIGHT as weight, LATITUDE as latitude, LONGITUDE as longitude, ELEVATION as height FROM POI WHERE POI_ID = ' + connection.escape(id);
-        log.debug ("Query: "+sql);
-        connection.query(sql, function(error, row)
-        {
-            connection.release();
-            if(error)
-            {
-                callback(error, null);
-            }
-            else
-            {
-                callback(null, row);
-            }
+    mongoose.connection.db.collection('POIS', function (err, collection) {
+        collection.find({'username': username, 'id': id}, {'_id':0,'username':0, 'type': 0, 'icon': 0}).toArray(function(err, docs) {
+            callback(null, docs);
         });
-    }
-    else
-    {
-      callback(null, null);
-    }
-  });
+    });
 }
 
-// Actualizar un uxo
-uxoModel.updateUxo = function(uxoData, callback)
-{
-  pool.getConnection(function(err, connection) {
-    if(connection)
-    {
-        var sql = 'UPDATE POI SET DESCRIPTION = ' + connection.escape(uxoData.description) + ',' +
-        'WEIGHT = ' + connection.escape(uxoData.weight) + ',' +
-        'LATITUDE = ' + connection.escape(uxoData.latitude) + ',' +
-        'LONGITUDE = ' + connection.escape(uxoData.longitude) + ',' +
-        'ELEVATION = ' + connection.escape(uxoData.height) + ' ' +
-        'WHERE POI_ID = ' + uxoData.id;
 
-        log.debug ("Query: "+sql);
-        connection.query(sql, function(error, result)
-        {
-            connection.release();
-            if(error)
-            {
-               callback(error, null);
-            }
-            else
-            {
-                callback(null,{"message":"success"});
-            }
+poiModel.getPoisFromBox = function(boxData,callback)
+{
+    mongoose.connection.db.collection('POI', function (err, collection) {
+        log.info(boxData.ullon);
+        log.info(boxData.ullat);
+        log.info(boxData.drlon);
+        log.info(boxData.drlat);
+        //collection.find( { 'location' :{ $geoWithin :{ $box : [ [ parseFloat(boxData.ullon) , parseFloat(boxData.ullat) ] ,[ parseFloat(boxData.drlon) , parseFloat(boxData.drlat) ]]}}}).toArray(function(err, docs) {
+        collection.find( { 'username': boxData.username, 'location' :{ $geoWithin :{ $box : [ [ parseFloat(boxData.ullon) , parseFloat(boxData.ullat) ] ,[ parseFloat(boxData.drlon) , parseFloat(boxData.drlat) ]]}}}).toArray(function(err, docs) {
+            log.info(docs);
+            callback(null, docs);
         });
-    }
-    else
-    {
-      callback(null, null);
-    }
-  });
+    });
 }
 
-//añadir una nuevo uxo
-uxoModel.insertUxo = function(uxoData,callback)
+poiModel.getPoisFromRadio = function(username,lat, lon, radio, callback)
 {
-  pool.getConnection(function(err, connection) {
-    if (connection)
-    {
-        var sql = 'INSERT INTO POI SET DESCRIPTION = ' + connection.escape(uxoData.description) + ',' +
-        'CATEGORY_ID = ' + properties.get('kyros.uxo.category.id') + ',' +
-        'DATE = ' + new Date().valueOf() + ',' +
-        'WEIGHT = ' + connection.escape(uxoData.weight) + ',' +
-        'ELEVATION = ' + connection.escape(uxoData.height) + ',' +
-        'LATITUDE = ' + connection.escape(uxoData.latitude) + ',' +
-        'LONGITUDE = ' + connection.escape(uxoData.longitude);
-
-        log.debug ("Query: "+sql);
-        connection.query(sql, function(error, result)
-        {
-            if(error)
-            {
-               callback(null, null);
-            }
-            else
-            {
-                var uxoId = result.insertId;
-
-                // Se Crea una zona de exclusion centrada en el UXO
-
-                //Fecha inicial el momento actual
-                var milliseconds_init = (new Date).getTime();
-
-                //Fecha inicial final: inicial + 1 año
-                var milliseconds_end = (new Date).getTime() + 31556900000;
-
-                var sql = 'INSERT INTO AREA SET DESCRIPTION = \'' + 'uxo_' + uxoId + '\',' +
-                'DATE_INIT = ' + milliseconds_init + ',' +
-                'DATE_END = ' + milliseconds_end + ',' +
-                'HOUR_INIT = ' + '0' + ',' +
-                'HOUR_END = ' + '86400' + ',' +
-                'TYPE_AREA = ' + '\'F\'' + ',' +
-                'RADIUS = ' + properties.get('kyros.uxo.radius') + ',' +
-                'USER_NAME = \'sumoAPI_uxo\'';
-
-                log.debug ("Query: "+sql);
-
-                connection.query(sql, function(error, result)
-                {
-                  connection.release();
-                  if(error)
-                  {
-                     callback(error, null);
-                  }
-                  else
-                  {
-                    //devolvemos el id del uxo insertada
-                    callback(null,{"insertId" : uxoId});
-                  }
-                });
-            }
+    mongoose.connection.db.collection('POIS', function (err, collection) {
+        collection.find({'username': username, 'location': {$near: { $geometry: { type: "Point" , coordinates: [ parseFloat(lon) , parseFloat(lat) ]}, $maxDistance: parseInt(radio)}}}).toArray(function(err, docs) {
+            callback(null, docs);
         });
-    }
-    else
-    {
-      callback(null, null);
-    }
-  });
-}
-
-// Eliminar un uxo pasando la id a eliminar
-uxoModel.deleteUxo = function(id, callback)
-{
-  pool.getConnection(function(err, connection) {
-    if(connection) {
-        var sqlExists = 'SELECT POI_ID as id, DESCRIPTION as description, WEIGHT as weight, LATITUDE as latitude, LONGITUDE as longitude, ELEVATION as height FROM POI WHERE POI_ID = ' + connection.escape(id);
-
-        log.debug ("Query: "+sqlExists);
-        connection.query(sqlExists, function(err, row)
-        {
-            //si existe la id del uxo a eliminar
-            if(row) {
-                var sqlPoi = 'DELETE FROM POI WHERE POI_ID = ' + connection.escape(id);
-
-                log.debug ("Query: "+sqlPoi);
-
-                connection.query(sqlPoi, function(error, result)
-                {
-                    if(error)
-                    {
-                      callback(error, null);
-                    }
-                    else
-                    {
-                        // Borrar la zona de exclusion asociada
-                        var area_description = "uxo_" + id;
-                        var sqlArea = "DELETE FROM AREA WHERE DESCRIPTION = '" + area_description + "'";
-                        log.debug ("Query: "+sqlArea);
-                        connection.query(sqlArea, function(error, result)
-                        {
-                            connection.release();
-                            if(error)
-                            {
-                              callback(error, null);
-                            }
-                            else
-                            {
-                              // se devuelven los datos del elemento eliminado
-                              callback(null,row);
-                            }
-                        });
-                    }
-                });
-            }
-            else
-            {
-                connection.release();
-                callback(null,{"message":"notExist"});
-            }
-        });
-    }
-    else
-    {
-      callback(null, null);
-    }
-  });
+    });
 }
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas
-module.exports = uxoModel;
+module.exports = poiModel;

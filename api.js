@@ -118,6 +118,7 @@ app.use('/', api_area);
 app.use('/', api_tracking);
 app.use('/', api_fleet);
 app.use('/', api_vehicle);
+app.use('/', api_poi);
 
 /*
 app.use('/', api_route);
@@ -126,7 +127,6 @@ app.use('/', api_driver);
 app.use('/', api_push);
 app.use('/', api_odometer);
 app.use('/', api_activity);
-app.use('/', api_poi);
 app.use('/', api_monitor);
 app.use('/', api_heatmap);
 */
