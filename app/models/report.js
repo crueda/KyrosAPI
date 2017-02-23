@@ -78,15 +78,15 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
             };
 
             if (docsOdometer[0]!=undefined) {
-                out.dayDistance = docsOdometer[0].dayDistance,
-                out.weekDistance = docsOdometer[0].weekDistance,
-                out.monthDistance = docsOdometer[0].monthDistance,
-                out.daySpeed = docsOdometer[0].daySpeed,
-                out.weekSpeed = docsOdometer[0].weekSpeed,
-                out.monthSpeed = docsOdometer[0].monthSpeed,
-                out.dayConsume = docsOdometer[0].dayConsume,
-                out.weekConsume = docsOdometer[0].weekConsume,
-                out.monthConsume = docsOdometer[0].monthConsume,
+                out.dayDistance = docsOdometer[0].dayDistance;
+                out.weekDistance = docsOdometer[0].weekDistance;
+                out.monthDistance = docsOdometer[0].monthDistance;
+                out.daySpeed = docsOdometer[0].daySpeed;
+                out.weekSpeed = docsOdometer[0].weekSpeed;
+                out.monthSpeed = docsOdometer[0].monthSpeed;
+                out.dayConsume = docsOdometer[0].dayConsume;
+                out.weekConsume = docsOdometer[0].weekConsume;
+                out.monthConsume = docsOdometer[0].monthConsume;
             }
 
             var posDateInit = 0;
