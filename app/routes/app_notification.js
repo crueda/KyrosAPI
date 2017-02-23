@@ -190,12 +190,52 @@ router.post('/app/notificationLimit', function(req, res)
       }
 });
 
+//deprecated
 router.get('/app/notification/archive', function(req, res)
 {
       var username = req.query.username;
       var notificationId = req.query.notificationId;
 
       log.info("GET: /notification/archive?username="+username + "&notificationId="+notificationId);
+
+      if (username==null || notificationId==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+      }
+      else {
+        NotificationModel.archiveNotification(username, notificationId, function(error, data)
+        {
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+              res.status(200).json(data)
+            }
+            else if (typeof data == 'undefined' || data.length == 0)
+            {
+              res.status(200).json([])
+            }
+            //en otro caso mostramos un error
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });
+      }
+});
+
+router.post('/app/notification/archive', function(req, res)
+{
+      var username = req.body.username;
+      var notificationId = req.body.notificationId;
+
+      log.info("POST: /notification/archive");
+      access_log.info("BODY >>> " + req.body);
 
       if (username==null || notificationId==null) {
         res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})

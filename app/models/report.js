@@ -50,15 +50,15 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
         collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start-1000) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
         //collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start-1000) } ,  'events': {"$not": {"$size": 0}} }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
             var out = {
-                "dayDistance": docsOdometer[0].dayDistance,
-                "weekDistance": docsOdometer[0].weekDistance,
-                "monthDistance": docsOdometer[0].monthDistance,
-                "daySpeed": docsOdometer[0].daySpeed,
-                "weekSpeed": docsOdometer[0].weekSpeed,
-                "monthSpeed": docsOdometer[0].monthSpeed,
-                "dayConsume": docsOdometer[0].dayConsume,
-                "weekConsume": docsOdometer[0].weekConsume,
-                "monthConsume": docsOdometer[0].monthConsume,
+                "dayDistance": 0,
+                "weekDistance": 0,
+                "monthDistance": 0,
+                "daySpeed": 0,
+                "weekSpeed": 0,
+                "monthSpeed": 0,
+                "dayConsume": 0,
+                "weekConsume": 0,
+                "monthConsume": 0,
                 "reportDailyStartDate": "",
                 "reportDailyStartGeocoding": "",
                 "reportDailyEndDate": "",
@@ -76,6 +76,18 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                 "events": {},
                 "tracking": []
             };
+
+            if (docsOdometer[0]!=undefined) {
+                out.dayDistance = docsOdometer[0].dayDistance,
+                out.weekDistance = docsOdometer[0].weekDistance,
+                out.monthDistance = docsOdometer[0].monthDistance,
+                out.daySpeed = docsOdometer[0].daySpeed,
+                out.weekSpeed = docsOdometer[0].weekSpeed,
+                out.monthSpeed = docsOdometer[0].monthSpeed,
+                out.dayConsume = docsOdometer[0].dayConsume,
+                out.weekConsume = docsOdometer[0].weekConsume,
+                out.monthConsume = docsOdometer[0].monthConsume,
+            }
 
             var posDateInit = 0;
             var posDateEnd = 0;
