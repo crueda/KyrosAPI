@@ -1,7 +1,8 @@
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
-var moment = require("moment");
+
 var mongoose = require('mongoose');
+var moment = require("moment");
 
 // Definición del log
 var fs = require('fs');
@@ -31,21 +32,20 @@ var dbConfig = {
 var mysql = require('mysql');
 var connection = mysql.createPool(dbConfig);
 
+
 var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
 var dbMongoPort = properties.get('bbdd.mongo.port');
 
-var db = mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName, { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
+mongoose.createConnection('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName,  { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
     if (error) {
         log.info(error);
     } 
 });
 
-// Crear un objeto para ir almacenando todo lo necesario
 var trackingModel = {};
 
 
-// Obtener todos las trackings1 de una flota
 trackingModel.getTracking1FromFleet = function(fleetId, callback)
 {  
   if (connection) {

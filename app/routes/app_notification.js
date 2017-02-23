@@ -23,6 +23,17 @@ var log = require('tracer').console({
     });
   }
 });
+var access_log = require('tracer').console({
+  format: "              {{message}}",
+  transport: function (data) {
+    fs.open(properties.get('main.access_log.file'), 'a', 0666, function (e, id) {
+      fs.write(id, data.output + "\n", null, 'utf8', function () {
+        fs.close(id, function () {
+        });
+      });
+    });
+  }
+});
 
 router.get('/app/notifications', function(req, res)
 {
@@ -393,6 +404,7 @@ router.get('/app/notification/config/remove', function(req, res)
       }
 });
 
+//deprecated
 router.get('/app/notification/config/change', function(req, res)
 {
       var username = req.query.username;
@@ -420,6 +432,37 @@ router.get('/app/notification/config/change', function(req, res)
         });
       }
 });
+
+router.post('/app/notification/config/change', function(req, res)
+{
+      var username = req.body.username;
+      var vehicleLicense = req.body.vehicleLicense;
+      var eventType = req.body.eventType;
+      var enabled = req.body.enabled;
+
+      log.info("POST: /notification/config/change");
+      access_log.info("BODY >>> " + req.body);
+
+      if (username==null || vehicleLicense==null || eventType==null) {
+        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
+      }
+      else {
+        NotificationModel.configNotificationChange(username, vehicleLicense, eventType, enabled, function(error, data)
+        {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined')
+            {
+              res.status(200).json(data)
+            }
+            else
+            {
+              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+        });
+      }
+});
+
+
 
 router.get('/app/notification/enable/user/:username', function(req, res)
 {

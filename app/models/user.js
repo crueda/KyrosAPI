@@ -31,15 +31,7 @@ var dbConfig = {
 var mysql = require('mysql');
 var pool = mysql.createPool(dbConfig);
 
-var dbMongoName = properties.get('bbdd.mongo.name');
-var dbMongoHost = properties.get('bbdd.mongo.ip');
-var dbMongoPort = properties.get('bbdd.mongo.port');
 
-mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoName,  { server: { reconnectTries: 3, poolSize: 5 } }, function (error) {
-    if (error) {
-        log.info(error);
-    } 
-});
 
 // Crear un objeto para ir almacenando todo lo necesario
 var userModel = {};
@@ -309,33 +301,7 @@ userModel.getUserWithServicesFromUsername = function(username,callback)
   });
 }
 
-userModel.getServicesFromUsername = function(username,callback)
-{
-  pool.getConnection(function(err, connection) {
-    if (connection)
-    {
-        var sql = "SELECT GROUP_CONCAT(FUNCTIONALITY.SUMO_ENUM) as serviceList from USER_FUNCTIONALITY inner join FUNCTIONALITY on USER_FUNCTIONALITY.FUNCTIONALITY_ID=FUNCTIONALITY.ID where USER_FUNCTIONALITY.USER_NAME=" + connection.escape(username);
-        log.debug ("Query:" + sql);
-        connection.query(sql, function(error, row)
-        {
-            connection.release();
-            if(error)
-            {
-                callback(error, null);
-                //throw error;
-            }
-            else
-            {
-                callback(null, row);
-            }
-        });
-    }
-    else {
-      callback(null, null);
-      //throw error;
-    }
-  });
-}
+
 
 
 

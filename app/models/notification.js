@@ -1,6 +1,6 @@
+var Db = require('mongodb').Db;
 var server = require('mongodb').Server;
 var mongoose = require('mongoose');
-var Db = require('mongodb').Db;
 
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
@@ -86,15 +86,6 @@ notificationModel.getLastNotifications = function(username, max, group, callback
 notificationModel.archiveNotification = function(username, notificationId, callback)
 {
     mongoose.connection.db.collection('APP_NOTIFICATION', function (err, collection) {
-        /*collection.find({'_id': new ObjectId(notificationId)}).toArray(function(err, docs) {
-            if (docs[0]!=undefined) {
-                docs[0].archive = 1;
-                collection.save(docs[0]);
-                callback(null, docs);
-            } else {
-                callback(null, []);
-            }
-        });*/
         collection.remove({'_id': new ObjectId(notificationId)}, function(err, doc){
              if (err) {
                callback(err, null);
@@ -107,31 +98,17 @@ notificationModel.archiveNotification = function(username, notificationId, callb
 
 notificationModel.archiveAllNotifications = function(username, callback)
 {
-  db.open(function(err, db) {
-    if(err) {
-        callback(err, null);
-    }
-    else {
-        var collection = db.collection('APP_NOTIFICATION');
-        //collection.update({}, {$set: {archive: 1}},{multi: true},function(err, result) {
-        collection.remove({'username':username } , function(err, doc){
+    mongoose.connection.db.collection('APP_NOTIFICATION', function (err, collection) {
+        collection.remove({'username': username}, function(err, doc){
              if (err) {
                callback(err, null);
              } else {
                callback(null, []);
              }
         });
-    }
-  });
-  /*
-    mongoose.connection.db.collection('NOTIFICATION_' + username, function (err, collection) {
-      //collection.update({}, {$set: {archive: 0}}, {multi: true}).toArray(function(err, docs) {
-        collection.updateMany({}, {$set: {archive: 0}}).toArray(function(err, docs) {
-            callback(null, docs);
-        });
     });
-    */
 }
+
 
 notificationModel.saveToken = function(username, token, callback)
 {
@@ -148,19 +125,48 @@ notificationModel.saveToken = function(username, token, callback)
     });
 }
 
-notificationModel.configNotificationChange = function(username, vehicleLicense, eventType, enabled, callback)
+notificationModel.configNotificationChange0 = function(username, vehicleLicense, eventType, enabled, callback)
 {
     mongoose.connection.db.collection('NOTIFICATION', function (err, collection) {
-      var element = {
-        username: username,
-        vehicle_license: vehicleLicense,
-        event_type: eventType,
-        enabled: enabled
+
+      var query = {
+        "username": username,
+        "vehicle_license": vehicleLicense,
+        "event_type": parseInt(eventType)
       };
-      collection.findOneAndUpdate(element, element, {upsert:true}, function(err, doc){
-        callback(null, element);
+      var element = {
+        "enabled": parseInt(enabled),
+      };
+      collection.findOneAndUpdate(query, element, { new:true}, function(err, doc){
+        callback(null, doc);
       });
     });
+}
+
+notificationModel.configNotificationChange = function(username, vehicleLicense, eventType, enabled, callback)
+{
+    var db = new Db(dbMongoName, new server(dbMongoHost, dbMongoPort));
+
+       db.open(function (err, db) {
+        if (err) {
+            callback(err, null);
+        }
+        else {
+            var collection = db.collection('NOTIFICATION');
+            var query = {
+                "username": username,
+                "vehicle_license": vehicleLicense,
+                "event_type": parseInt(eventType)
+            };
+            var element = {
+                "enabled": parseInt(enabled),
+            };
+
+            collection.findOneAndUpdate(query, {$set: element}, {upsert:true,new:true}, function(err, doc){
+                callback(null, doc);
+            });
+        }
+       });
 }
 
 notificationModel.configNotificationAdd = function(username, vehicleLicense, eventIdList, callback)

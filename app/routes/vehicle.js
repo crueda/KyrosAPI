@@ -5,6 +5,9 @@ var router = express.Router();
 var VehicleModel = require('../models/vehicle');
 var moment = require('moment');
 var utils = require("../utils/utils.js");
+var sys = require('sys')
+var exec = require('child_process').exec;
+
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -22,6 +25,17 @@ var log = require('tracer').console({
             });
         });
     }
+});
+var access_log = require('tracer').console({
+  format: "              {{message}}",
+  transport: function (data) {
+    fs.open(properties.get('main.access_log.file'), 'a', 0666, function (e, id) {
+      fs.write(id, data.output + "\n", null, 'utf8', function () {
+        fs.close(id, function () {
+        });
+      });
+    });
+  }
 });
 
 /**
@@ -259,6 +273,58 @@ router.get('/vehicle/:id', function(req, res)
             }
           }
         });
+    }
+    //si la id no es numerica mostramos un error de servidor
+    else
+    {
+        res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
+    }
+});
+
+
+router.post('/vehicles/area', function(req, res)
+{
+    log.info("POST: /vehicles/area");
+    access_log.info("BODY >>> " + req.body);
+
+    var areaId = req.body.areaId;
+    var timestamp = req.body.timestamp;
+
+    if(!isNaN(areaId) && !isNaN(timestamp))
+    {
+        var username = utils.getUsernameFromToken(req);
+
+var child;
+child = exec("pwd", function (error, stdout, stderr) {
+  //sys.print('stdout: ' + stdout);
+  //sys.print('stderr: ' + stderr);
+  res.status(200).json({"response": {"status":0, "data": stdout}})
+
+  if (error !== null) {
+    res.status(500).json({"response": {"status":-1, "description": error}})
+    //console.log('exec error: ' + error);
+  }
+});
+        /*VehicleModel.getVehiclesArea(username, areaId,timestamp,function(error, data)
+        { 
+          if (data == null)
+          {
+            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+          }
+          else
+          {
+            //si existe enviamos el json
+            if (typeof data !== 'undefined' && data.length > 0)
+            {
+                res.status(200).json({"response": {"status":0, "count": data.length, "data": data}})
+            }
+            //en otro caso mostramos un error
+            else
+            {
+                res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            }
+          }
+        });*/
     }
     //si la id no es numerica mostramos un error de servidor
     else
