@@ -516,8 +516,8 @@ router.get('/app/notification/config/change', function(req, res)
 router.post('/app/notification/config/change', function(req, res)
 {
       var username = req.body.username;
-      var vehicleLicense = req.body.vehicleLicense;
-      var eventType = req.body.eventType;
+      var vehicleLicense = req.body.vehicle_license;
+      var eventType = req.body.event_type;
       var enabled = req.body.enabled;
 
       log.info("POST: /notification/config/change");
