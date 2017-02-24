@@ -7,7 +7,7 @@ var moment = require('moment');
 var utils = require("../utils/utils.js");
 var sys = require('sys')
 var exec = require('child_process').exec;
-
+var sys = require('util');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -16,26 +16,26 @@ var properties = PropertiesReader('kyrosapi.properties');
 // Definición del log
 var fs = require('fs');
 var log = require('tracer').console({
-    transport : function(data) {
+    transport: function (data) {
         //console.log(data.output);
-        fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
-            fs.write(id, data.output+"\n", null, 'utf8', function() {
-                fs.close(id, function() {
+        fs.open(properties.get('main.log.file'), 'a', 0666, function (e, id) {
+            fs.write(id, data.output + "\n", null, 'utf8', function () {
+                fs.close(id, function () {
                 });
             });
         });
     }
 });
 var access_log = require('tracer').console({
-  format: "              {{message}}",
-  transport: function (data) {
-    fs.open(properties.get('main.access_log.file'), 'a', 0666, function (e, id) {
-      fs.write(id, data.output + "\n", null, 'utf8', function () {
-        fs.close(id, function () {
+    format: "              {{message}}",
+    transport: function (data) {
+        fs.open(properties.get('main.access_log.file'), 'a', 0666, function (e, id) {
+            fs.write(id, data.output + "\n", null, 'utf8', function () {
+                fs.close(id, function () {
+                });
+            });
         });
-      });
-    });
-  }
+    }
 });
 
 /**
@@ -184,25 +184,20 @@ var access_log = require('tracer').console({
  * @apiUse TokenError
  * @apiUse TokenExpiredError
  */
-router.post('/vehicles/', function(req, res)
-{
-    log.info("POST: /vehicles"); 
+router.post('/vehicles/', function (req, res) {
+    log.info("POST: /vehicles");
 
     var username = utils.getUsernameFromToken(req);
-    VehicleModel.getVehicles(username, function(error, data)
-    {
-        if (data == null)
-        {
-          res.status(200).json({"response": {"status":0,"count":0, "data": []}});
+    VehicleModel.getVehicles(username, function (error, data) {
+        if (data == null) {
+            res.status(200).json({ "response": { "status": 0, "count": 0, "data": [] } });
         }
-        else if (typeof data !== 'undefined')
-        {
-          res.status(200).json({"response": {"status":0, "count": data.length, "data": data}});
+        else if (typeof data !== 'undefined') {
+            res.status(200).json({ "response": { "status": 0, "count": data.length, "data": data } });
         }
         //en otro caso se muestra error
-        else
-        {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}});
+        else {
+            res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } });
         }
     });
 });
@@ -246,90 +241,121 @@ router.post('/vehicles/', function(req, res)
  * @apiUse MissingRegisterError
  * @apiUse IdNumericError
  */
-router.get('/vehicle/:id', function(req, res)
-{
+router.get('/vehicle/:id', function (req, res) {
     var id = req.params.id;
-    log.info("GET: /vehicle/"+id);
+    log.info("GET: /vehicle/" + id);
 
-    if(!isNaN(id))
-    {
-        VehicleModel.getVehicle(id,function(error, data)
-        {
-          if (data == null)
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-          else
-          {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
-            {
-                res.status(200).json({"response": {"status":0, "count": 1, "data": data}})
+    if (!isNaN(id)) {
+        VehicleModel.getVehicle(id, function (error, data) {
+            if (data == null) {
+                res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.DB_ERROR } })
             }
-            //en otro caso mostramos un error
-            else
-            {
-                res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+            else {
+                //si existe enviamos el json
+                if (typeof data !== 'undefined' && data.length > 0) {
+                    res.status(200).json({ "response": { "status": 0, "count": 1, "data": data } })
+                }
+                //en otro caso mostramos un error
+                else {
+                    res.status(202).json({ "response": { "status": status.STATUS_NOT_FOUND_REGISTER, "description": messages.MISSING_REGISTER } })
+                }
             }
-          }
         });
     }
     //si la id no es numerica mostramos un error de servidor
-    else
-    {
-        res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
+    else {
+        res.status(202).json({ "response": { "status": status.STATUS_UPDATE_WITHOUT_PK_ERROR, "description": messages.ID_NUMERIC_ERROR } })
     }
 });
 
-
-router.post('/vehicles/area', function(req, res)
-{
+/**
+ * @api {post} /vehicles/area Request vehicle in área information
+ * @apiName GetVehicleArea Request vehicle in área information
+ * @apiGroup Vehicle
+ * @apiVersion 1.0.2
+ * @apiDescription Vehicles that were in an area at a given time instant
+ * @apiSampleRequest https://api.kyroslbs.com/vehicles/area
+ *
+ * @apiParam {json} data Request parameters (deviceId element is optional)
+ * @apiParamExample {json} data 
+ * {    "areaId": 1242,
+ *      "timestamp": 1487918307000,
+ *      "deviceId": [659,747,792,793,637,4]     
+ * }
+ * 
+ * @apiSuccess {json} data Result data
+ * @apiSuccessExample Success-Response:
+ *     https/1.1 200 OK
+ *     {
+ *       "response" :
+ *       {
+ *         "status" : 0,
+ *         "count" : 1,
+ *         "data" : [
+ *           {
+ *              "device_id": 123,
+ *              "pos_date": "1487918284000"
+ *           },
+ *           {
+ *              "device_id": 968,
+ *              "pos_date": "1487917766000"
+ *           }]
+ *       }
+ *     }
+ *
+ * @apiUse TokenHeader
+ * @apiUse TokenError
+ * @apiUse TokenExpiredError
+ * @apiUse MissingRegisterError
+ * @apiUse IdNumericError
+ */
+router.post('/vehicles/area', function (req, res) {
     log.info("POST: /vehicles/area");
     access_log.info("BODY >>> " + req.body);
 
     var areaId = req.body.areaId;
     var timestamp = req.body.timestamp;
+    var deviceId = req.body.deviceId;
 
-    if(!isNaN(areaId) && !isNaN(timestamp))
-    {
-        var username = utils.getUsernameFromToken(req);
+    if (!isNaN(areaId) && !isNaN(timestamp)) {
+        if (deviceId != undefined && deviceId.length>0) {
+            deviceIdList = deviceId.join(",");
+            var command = properties.get('main.script.check_areas') + " " + areaId + " " + timestamp + " " + deviceIdList
+            log.info (command);
 
-var child;
-child = exec("pwd", function (error, stdout, stderr) {
-  //sys.print('stdout: ' + stdout);
-  //sys.print('stderr: ' + stderr);
-  res.status(200).json({"response": {"status":0, "data": stdout}})
+            var child;
+            child = exec(command, function (error, stdout, stderr) {
+                if (error !== null) {
+                    res.status(500).json({ "response": { "status": -1, "description": stderr } })
+                } else {
+                    res.status(200).json({ "response": { "status": 0, "data": stdout.replace("\n","") } })
+                }
+            });
+        } else {
+            var username = utils.getUsernameFromToken(req);
+            VehicleModel.getVehiclesFromUsername(username, function (error, data) {
 
-  if (error !== null) {
-    res.status(500).json({"response": {"status":-1, "description": error}})
-    //console.log('exec error: ' + error);
-  }
-});
-        /*VehicleModel.getVehiclesArea(username, areaId,timestamp,function(error, data)
-        { 
-          if (data == null)
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-          else
-          {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
-            {
-                res.status(200).json({"response": {"status":0, "count": data.length, "data": data}})
-            }
-            //en otro caso mostramos un error
-            else
-            {
-                res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-            }
-          }
-        });*/
+                var deviceIdList = "";
+                if (data!=undefined && data.length>0) {
+                    deviceIdList = data;
+                }
+                var command = properties.get('main.script.check_areas') + " " + areaId + " " + timestamp + " " + deviceIdList
+                log.info (command);
+
+                var child;
+                child = exec(command, function (error, stdout, stderr) {
+                    if (error !== null) {
+                        res.status(500).json({ "response": { "status": -1, "description": stderr } })
+                    } else {
+                        res.status(200).json({ "response": { "status": 0, "data": stdout.replace("\n","") } })
+                    }
+                });
+            });
+        }
     }
     //si la id no es numerica mostramos un error de servidor
-    else
-    {
-        res.status(202).json({"response": {"status":status.STATUS_UPDATE_WITHOUT_PK_ERROR,"description":messages.ID_NUMERIC_ERROR}})
+    else {
+        res.status(202).json({ "response": { "status": status.STATUS_UPDATE_WITHOUT_PK_ERROR, "description": messages.ID_NUMERIC_ERROR } })
     }
 });
 
