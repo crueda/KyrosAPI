@@ -91,7 +91,7 @@ graphModel.resetGraphData = function(vehicleLicense, callback)
               collection.save(newOdemeterData);
               callback(null, newOdemeterData);
             } else {
-              callback(null, docs[0]);
+              callback(null, []);
             }
       });
   });

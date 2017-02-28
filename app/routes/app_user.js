@@ -35,6 +35,7 @@ var access_log = require('tracer').console({
   }
 });
 
+//deprecated
 router.get('/app/user/:username', function(req, res)
 {
   var username = req.params.username;
@@ -57,6 +58,32 @@ router.get('/app/user/:username', function(req, res)
     }
   });
 });
+
+router.post('/app/user/:username', function(req, res)
+{
+  var username = req.params.username;
+  var push_mode = req.body.push_mode;
+  var group_mode = req.body.group_mode;
+  var max_show_notifications = req.body.max_show_notifications;
+
+  log.info("POST: /app/user/"+username);
+  access_log.info("BODY >>> " + req.body);
+
+  UserModel.setUserPreferences(username, push_mode, group_mode, max_show_notifications, function(error, data) {
+    if (data == null) {
+      res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+    }
+    else {
+      //si existe enviamos el json
+      if (typeof data !== 'undefined') {
+        res.status(200).json(data)
+      } else {
+        res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+      }
+    }
+  });
+});
+
 
 // deprecated
 router.get('/app/setDeviceInfo/user/:username', function(req, res)
