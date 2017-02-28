@@ -160,9 +160,9 @@ function kcoords(px, py) {
 *     }
 */
 
-/* POST. Se obtiene tracking 1 de una flota */
+/* GET. Se obtiene tracking 1 de una flota */
 /** 
-* @api {post} /tracking1/fleet/:id Last tracking position of a fleet
+* @api {get} /tracking1/fleet/:id Last tracking position of a fleet
 * @apiName PostTracking1Fleet 
 * @apiGroup Tracking
 * @apiVersion 1.0.2
@@ -209,10 +209,10 @@ function kcoords(px, py) {
 * @apiUse IdNumericError
 */
 
-router.post('/tracking1/fleet/:id', function (req, res) {
+router.get('/tracking1/fleet/:id', function (req, res) {
   var id = req.params.id;
 
-  log.info("POST: /tracking1/fleet/" + id);
+  log.info("GET: /tracking1/fleet/" + id);
   access_log.info("PARAM >>> " + "id: " + id);
 
   TrackingModel.getTracking1FromFleet(id, function (error, data) {
@@ -230,9 +230,9 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 
 });
 
-/* POST. Se obtiene tracking 1 de un vehiculo */
+/* GET. Se obtiene tracking 1 de un vehiculo */
 /** 
-* @api {post} /tracking1/vehicle/:id Last position of a vehicle
+* @api {get} /tracking1/vehicle/:id Last position of a vehicle
 * @apiName PostTracking1Vehicle 
 * @apiGroup Tracking
 * @apiVersion 1.0.2
@@ -279,10 +279,10 @@ router.post('/tracking1/fleet/:id', function (req, res) {
 * @apiUse IdNumericError
 */
 
-router.post('/tracking1/vehicle/:id', function (req, res) {
+router.get('/tracking1/vehicle/:id', function (req, res) {
   var id = req.params.id;
 
-  log.info("POST: /tracking1/vehicle/" + id);
+  log.info("GET: /tracking1/vehicle/" + id);
   access_log.info("PARAM >>> " + "id: " + id);
 
   TrackingModel.getTracking1FromVehicle(id, function (error, data) {
@@ -422,7 +422,7 @@ router.post('/tracking1/vehicles', function (req, res) {
   access_log.info("BODY >>> " + req.body);
 
 
-  TrackingModel.getTracking1FromVehicles(req.body.vehicles.toString(), function (error, data) {
+  TrackingModel.getTracking1FromVehicles(req.body.vehicles, function (error, data) {
     if (data == null) {
       res.status(200).json({ "response": { "status": 0, "count": 0,  "data": [] } } )
     }

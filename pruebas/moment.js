@@ -20,5 +20,5 @@ console.log ("start->"+date);
 
 
 var now = moment(new Date(1487286000000));
-var dateFormat = now.format("YYYY-MM-DDTHH:mm:ssZ");
+var dateFormat = now.format("YYYY-MM-DDTHH:mm:ssZ").substring(0,19)+'Z';
 console.log ("dateFormat->"+dateFormat);
