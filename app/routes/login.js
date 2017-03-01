@@ -1,9 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var jwt = require('jwt-simple');
-var crypto 		= require('crypto');
-var crypt     = require('crypt3');
-var moment 		= require('moment');
+var crypto = require('crypto');
+var crypt = require('crypt3');
+var moment = require('moment');
+var ldap = require('ldapjs');
 
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
@@ -17,11 +18,11 @@ var UserModel = require('../models/user');
 // Definición del log
 var fs = require('fs');
 var log = require('tracer').console({
-  transport : function(data) {
+  transport: function (data) {
     //console.log(data.output);
-    fs.open(properties.get('main.log.file'), 'a', 0666, function(e, id) {
-      fs.write(id, data.output+"\n", null, 'utf8', function() {
-        fs.close(id, function() {
+    fs.open(properties.get('main.log.file'), 'a', 0666, function (e, id) {
+      fs.write(id, data.output + "\n", null, 'utf8', function () {
+        fs.close(id, function () {
         });
       });
     });
@@ -64,60 +65,142 @@ var log = require('tracer').console({
  *      }
  *     }
  */
-  router.post("/login", function(req,res)
-  {
-    log.info("POST: /login");
+router.post("/login", function (req, res) {
+  log.info("POST: /login");
 
-    var username = req.query.username || req.body.username ||  req.params.username || '';
-    var password = req.query.password || req.body.password ||  req.params.password || '';
+  var username = req.query.username || req.body.username || req.params.username || '';
+  var password = req.query.password || req.body.password || req.params.password || '';
 
-    log.debug("  -> username: " + username);
-    log.debug("  -> password: " + password);
+  log.debug("  -> username: " + username);
+  log.debug("  -> password: " + password);
 
-    if (username == null || password == null) {
-      res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-    }
-    else
-    {
+  if (username == null || password == null) {
+    res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.MISSING_PARAMETER } })
+  }
+  else {
 
-      try {
-        if (username == '' || password == '') {
-         log.debug('Invalid credentials');
-         res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
-         return;
+    try {
+      if (username == '' || password == '') {
+        log.debug('Invalid credentials');
+        res.status(202).json({ "response": { "status": status.STATUS_LOGIN_INCORRECT, "description": messages.LOGIN_INCORRECT } })
+        return;
+      }
+
+      // Authorize the user to see if s/he can access our resources
+      var passwordDB = '';
+
+      UserModel.getUserFromUsername(username, function (error, dbUser) {
+        if (dbUser == null) {
+          res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.SERVER_ERROR } })
+          return;
+        }
+        if (typeof dbUser == 'undefined' || dbUser.length == 0) {
+          log.debug('Invalid user');
+          res.status(202).json({ "response": { "status": status.STATUS_LOGIN_INCORRECT, "description": messages.LOGIN_INCORRECT } })
+          return;
+        }
+        else {
+          username = dbUser[0].username;
+          passwordDB = dbUser[0].password;
+
+          if (crypt(password, passwordDB) !== passwordDB) {
+            log.debug('Invalid credentials');
+            res.status(202).json({ "response": { "status": status.STATUS_LOGIN_INCORRECT, "description": messages.LOGIN_INCORRECT } })
+          } else {
+            log.debug('Login OK - Generando token');
+            res.json(genToken(username, passwordDB));
+          }
         }
 
-        // Authorize the user to see if s/he can access our resources
-        var passwordDB = '';
+      });
+    } catch (err) {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.SERVER_ERROR } })
+    }
+  }
+});
 
-        UserModel.getUserFromUsername(username,function(error, dbUser) {
-         if (dbUser==null) {
-           res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.SERVER_ERROR}})
-           return;
-         }
-         if (typeof dbUser == 'undefined' || dbUser.length == 0) {
-           log.debug('Invalid user');
-           res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
-           return;
-         }
-         else {
-           username = dbUser[0].username;
-           passwordDB = dbUser[0].password;
+router.post("/loginldap", function (req, res) {
+  log.info("POST: /loginldap");
 
-            if( crypt(password,passwordDB) !== passwordDB) {
-               log.debug('Invalid credentials');
-               res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
-            } else {
-              log.debug('Login OK - Generando token');
-              res.json(genToken(username, passwordDB));
+  var username = req.query.username || req.body.username || req.params.username || '';
+  var password = req.query.password || req.body.password || req.params.password || '';
+
+  log.debug("  -> username: " + username);
+  log.debug("  -> password: " + password);
+
+  var dn = "";
+  var cn = "";
+
+  if (username == null || password == null) {
+    res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.MISSING_PARAMETER } })
+  }
+  else {
+
+    try {
+      if (username == '' || password == '') {
+        log.debug('Invalid credentials');
+        res.status(202).json({ "response": { "status": status.STATUS_LOGIN_INCORRECT, "description": messages.LOGIN_INCORRECT } })
+        return;
+      }
+
+      // Authorize the user to see if s/he can access our resources
+      var passwordDB = '';
+
+      var adminClient = ldap.createClient({
+        url: 'ldap://172.26.30.40:389'
+      });
+
+      adminClient.bind("cn=admin,dc=kyroslbs,dc=com", "dat1234", function (err) {
+
+        adminClient.search("dc=kyroslbs,dc=com", {
+          scope: "sub",
+          filter: "(uid=" + "carm" + ")"
+        }, function (err, ldapResult) {
+          if (err != null)
+            throw err;
+
+          ldapResult.on("end", function () {
+            if (dn === "") {
+              log.debug('Invalid LDAP user');
+              res.status(202).json({ "response": { "status": status.STATUS_LOGIN_INCORRECT, "description": messages.LOGIN_INCORRECT } })
             }
-       }
+          });
 
-     });
-   } catch (err) {
-     res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.SERVER_ERROR}})
-   }
- }
+          ldapResult.on('searchEntry', function (entry) {
+            dn = entry.dn;
+            cn = entry.object.cn;
+            var passwordDB = entry.object.userPassword;
+            var username = entry.object.uid;
+            res.json(genToken(username, passwordDB));
+            /*
+                  if( crypt(password,passwordDB) !== passwordDB) {
+                     log.debug('Invalid credentials');
+                     res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.LOGIN_INCORRECT}})
+                  } else {
+                    log.debug('Login OK - Generando token');
+                    res.json(genToken(username, passwordDB));
+                  }
+                  */
+
+          });
+
+
+
+        });
+
+
+      });
+
+
+
+
+
+
+
+    } catch (err) {
+      res.status(202).json({ "response": { "status": status.STATUS_FAILURE, "description": messages.SERVER_ERROR } })
+    }
+  }
 });
 
 
@@ -145,15 +228,15 @@ function expiresInDays(numDays) {
 }
 
 function expiresInDaysISO(numDays) {
-  var utc_date = moment.parseZone(moment.utc()+86400000*numDays).utc().format('YYYY-MM-DDTHH:mm:ss.ssZ');
-  var new_utc_date = utc_date.substring(0,utc_date.indexOf("+")) + "Z";
+  var utc_date = moment.parseZone(moment.utc() + 86400000 * numDays).utc().format('YYYY-MM-DDTHH:mm:ss.ssZ');
+  var new_utc_date = utc_date.substring(0, utc_date.indexOf("+")) + "Z";
   return new_utc_date;
 }
 
 function expiresIn1Hour() {
   var now = new Date;
-  var timezone =  now.getTimezoneOffset()
-  var milisecondsUTC = now.getTime() + (timezone*60*1000);
+  var timezone = now.getTimezoneOffset()
+  var milisecondsUTC = now.getTime() + (timezone * 60 * 1000);
   return milisecondsUTC + 3600000;
 }
 
@@ -164,8 +247,8 @@ function expiresInMin(minutes) {
 }
 
 function expiresInMinISO(minutes) {
-  var utc_date = moment.parseZone(moment.utc()+350000).utc().format('YYYY-MM-DDTHH:mm:ss.ssZ');
-  var new_utc_date = utc_date.substring(0,utc_date.indexOf("+")) + "Z";
+  var utc_date = moment.parseZone(moment.utc() + 350000).utc().format('YYYY-MM-DDTHH:mm:ss.ssZ');
+  var new_utc_date = utc_date.substring(0, utc_date.indexOf("+")) + "Z";
   return new_utc_date;
 }
 
