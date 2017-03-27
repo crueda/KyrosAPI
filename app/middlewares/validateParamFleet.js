@@ -3,6 +3,7 @@ var properties = PropertiesReader('kyrosapi.properties');
 
 var jwt = require('jwt-simple');
 var FleetModel = require('../models/fleet');
+var UserModel = require('../models/user');
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 
@@ -50,13 +51,19 @@ module.exports = function (req, res, next) {
       if (!isNumber(paramFleetId))
         paramFleetId = 0;
 
-      FleetModel.getFleetsFromUsername(username, function (error, data) {
-        if (data.indexOf(paramFleetId) > -1) {
+      UserModel.getUserFromUsername(username, function (error, userData) {
+        if (userData[0].kind_monitor==2) {
           next();
-        }
-        else {
-          log.debug('Not allow');
-          res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW } })
+        } else {
+          FleetModel.getFleetsFromUsername(username, function (error, data) {
+            if (data.indexOf(paramFleetId) > -1) {
+              next();
+            }
+            else {
+              log.debug('Not allow');
+              res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW } })
+            }
+          });
         }
       });
 

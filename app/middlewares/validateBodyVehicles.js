@@ -3,6 +3,7 @@ var properties = PropertiesReader('kyrosapi.properties');
 
 var jwt = require('jwt-simple');
 var VehicleModel = require('../models/vehicle');
+var UserModel = require('../models/user');
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 
@@ -55,24 +56,30 @@ module.exports = function (req, res, next) {
                         var aVehicleIds = new Array();
                         aVehicleIds = vehicleIds.split(",");
 
-                        VehicleModel.getVehiclesFromUsername(username, function (error, data) {
-                            var notAllow = false;
-                            var notAllow_element = 0;
-                            for (var i = 0; i < aVehicleIds.length; i++) {
-                                if (data.indexOf(parseInt(aVehicleIds[i])) == -1) {
-                                    notAllow = true;
-                                    notAllow_element = aVehicleIds[i];
-                                }
-                            }
-                            if (!notAllow) {
-                                next();
-                            }
-                            else {
-                                log.debug('Not allow');
-                                res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW + ". Vehicle: " + notAllow_element } })
-                            }
-                        });
+                        UserModel.getUserFromUsername(username, function (error, userData) {
+                        if (userData[0].kind_monitor==2) {
+                            next();
+                        } else {
 
+                            VehicleModel.getVehiclesFromUsername(username, function (error, data) {
+                                var notAllow = false;
+                                var notAllow_element = 0;
+                                for (var i = 0; i < aVehicleIds.length; i++) {
+                                    if (data.indexOf(parseInt(aVehicleIds[i])) == -1) {
+                                        notAllow = true;
+                                        notAllow_element = aVehicleIds[i];
+                                    }
+                                }
+                                if (!notAllow) {
+                                    next();
+                                }
+                                else {
+                                    log.debug('Not allow');
+                                    res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW + ". Vehicle: " + notAllow_element } })
+                                }
+                            });
+                        }
+                        });
                     }
                     else {
                         res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.MISSING_PARAMETER } });

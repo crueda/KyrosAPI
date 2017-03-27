@@ -3,6 +3,7 @@ var properties = PropertiesReader('kyrosapi.properties');
 
 var jwt = require('jwt-simple');
 var VehicleModel = require('../models/vehicle');
+var UserModel = require('../models/user');
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 
@@ -43,23 +44,29 @@ module.exports = function (req, res, next) {
       }
 
       var paramDeviceId = 0;
-      for(var attributename in req.params){
-          paramDeviceId = req.params[attributename];
+      for (var attributename in req.params) {
+        paramDeviceId = req.params[attributename];
       }
       paramDeviceId = parseInt(paramDeviceId);
       if (!isNumber(paramDeviceId))
         paramDeviceId = 0;
 
-      VehicleModel.getVehiclesFromUsername(username, function (error, data) {
-        if (data.indexOf(paramDeviceId) > -1) {
+      UserModel.getUserFromUsername(username, function (error, userData) {
+        if (userData[0].kind_monitor == 2) {
           next();
-        }
-        else {
-          log.debug('Not allow');
-          res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW } })
+        } else {
+
+          VehicleModel.getVehiclesFromUsername(username, function (error, data) {
+            if (data.indexOf(paramDeviceId) > -1) {
+              next();
+            }
+            else {
+              log.debug('Not allow');
+              res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW } })
+            }
+          });
         }
       });
-
 
     } catch (err) {
       log.error("ERROR: " + err);

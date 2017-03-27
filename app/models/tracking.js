@@ -160,7 +160,7 @@ trackingModel.getTracking1FromVehicle = function (deviceId, callback) {
   });
 }
 
-trackingModel.getTracking1FromVehicles = function (vehicle, callback) {
+trackingModel.getTracking1FromVehicles = function (vehicleIds, callback) {
   mongoose.connection.db.collection('TRACKING1', function (err, collection) {
     collection.find({ "device_id": { $in: vehicleIds } }, { _id: 0, "vehicle_license": 0, "events": 0, "alarm_activated": 0, "location.type": 0 }).toArray(function (err, docs) {
       docs.forEach(function (doc) {

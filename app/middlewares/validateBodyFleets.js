@@ -3,6 +3,7 @@ var properties = PropertiesReader('kyrosapi.properties');
 
 var jwt = require('jwt-simple');
 var FleetModel = require('../models/fleet');
+var UserModel = require('../models/user');
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 
@@ -56,23 +57,30 @@ module.exports = function (req, res, next) {
             var aFleetIds = new Array();
             aFleetIds = fleetIds.split(",");
 
-            FleetModel.getFleetsFromUsername(username, function (error, data) {
-              var notAllow = false;
-              var notAllow_element = 0;
-              for (var i = 0; i < aFleetIds.length; i++) {
-                if (data.indexOf(parseInt(aFleetIds[i])) == -1) {
-                  notAllow = true;
-                  notAllow_element = aFleetIds[i];
-                }
-              }
-              if (!notAllow) {
+            UserModel.getUserFromUsername(username, function (error, userData) {
+              if (userData[0].kind_monitor==2) {
                 next();
-              }
-              else {
-                log.debug('Not allow');
-                res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW + ". Fleet: " + notAllow_element } })
+              } else {
+                FleetModel.getFleetsFromUsername(username, function (error, data) {
+                  var notAllow = false;
+                  var notAllow_element = 0;
+                  for (var i = 0; i < aFleetIds.length; i++) {
+                    if (data.indexOf(parseInt(aFleetIds[i])) == -1) {
+                      notAllow = true;
+                      notAllow_element = aFleetIds[i];
+                    }
+                  }
+                  if (!notAllow) {
+                    next();
+                  }
+                  else {
+                    log.debug('Not allow');
+                    res.status(202).json({ "response": { "status": status.STATUS_VALIDATION_ERROR, "description": messages.NOT_ALLOW + ". Fleet: " + notAllow_element } })
+                  }
+                });
               }
             });
+
 
           }
           else {
