@@ -66,47 +66,97 @@ monitorModel.putElement = function (element, depth) {
 
 
 
-monitorModel.getMonitorFromUser = function (username, callback) {
-    mongoose.connection.db.collection('TREE', function (err, collection) {
-        collection.find({ 'username': username }).toArray(function (err, docs) {
-            //log.info(JSON.stringify(docs));
-            callback(null, docs);
+monitorModel.getMonitorFromUser = function(username,callback)
+{
+    // comprobar si es usuario de sistema
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find({'username': username}).toArray(function(err, docsUser) {
+            if (docsUser[0].kind_monitor==2) {
+                mongoose.connection.db.collection('TREE', function (err, collection) {
+                    collection.find({'username': 'system'}).toArray(function(err, docs) {
+                        callback(null, docs);
+                    });
+                });
+            } else {
+                mongoose.connection.db.collection('TREE', function (err, collection) {
+                    collection.find({'username': username}).toArray(function(err, docs) {
+                        callback(null, docs);
+                    });
+                });
+            }
         });
     });
 }
 
 monitorModel.getMonitorListFromUser = function (username, callback) {
-    mongoose.connection.db.collection('MONITOR', function (err, collection) {
-        collection.find({ 'username': username }).toArray(function (err, docs) {
-            list = [];
-            //log.info (flatten(docs))
-            fdocs = flatten(docs);
-            for (var k in fdocs) {
-                if (k.indexOf("name") != -1) {
-                    //list.push({"vehicle_license":fdocs[k]});
-                    list.push(fdocs[k]);
-                }
-            }
-            mongoose.connection.db.collection('VEHICLE', function (err, collection) {
-                collection.find({ "vehicle_license": { $in: list } }).toArray(function (err, docs) {
+    // comprobar si es usuario de sistema
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find({'username': username}).toArray(function(err, docsUser) {
+            if (docsUser[0].kind_monitor==2) {
+                mongoose.connection.db.collection('MONITOR', function (err, collection) {
+                    collection.find({ 'username': 'system' }).toArray(function (err, docs) {
+                        list = [];
+                        //log.info (flatten(docs))
+                        fdocs = flatten(docs);
+                        for (var k in fdocs) {
+                            if (k.indexOf("name") != -1) {
+                                //list.push({"vehicle_license":fdocs[k]});
+                                list.push(fdocs[k]);
+                            }
+                        }
+                        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                            collection.find({ "vehicle_license": { $in: list } }).toArray(function (err, docs) {
 
-                    for (var i = 0; i < docs.length; i++) {
-                        try {
-                            docs[i].icon_real_time = docs[i].icon_real_time.substring(0, docs[i].icon_real_time.indexOf('.')) + '.svg';
-                            docs[i].icon_cover = docs[i].icon_cover.substring(0, docs[i].icon_cover.indexOf('.')) + '.svg';
-                            docs[i].icon_alarm = docs[i].icon_alarm.substring(0, docs[i].icon_alarm.indexOf('.')) + '.svg';
-                            docs[i].name_order = docs[i].vehicle_license.toLowerCase();
-                        } catch (err) { }
-                    }
+                                for (var i = 0; i < docs.length; i++) {
+                                    try {
+                                        docs[i].icon_real_time = docs[i].icon_real_time.substring(0, docs[i].icon_real_time.indexOf('.')) + '.svg';
+                                        docs[i].icon_cover = docs[i].icon_cover.substring(0, docs[i].icon_cover.indexOf('.')) + '.svg';
+                                        docs[i].icon_alarm = docs[i].icon_alarm.substring(0, docs[i].icon_alarm.indexOf('.')) + '.svg';
+                                        docs[i].name_order = docs[i].vehicle_license.toLowerCase();
+                                    } catch (err) { }
+                                }
 
-                    callback(null, docs);
+                                callback(null, docs);
+                            });
+                        });
+
+                        //callback(null, list);
+                    });
                 });
-            });
+            } else {
+                mongoose.connection.db.collection('MONITOR', function (err, collection) {
+                    collection.find({ 'username': username }).toArray(function (err, docs) {
+                        list = [];
+                        //log.info (flatten(docs))
+                        fdocs = flatten(docs);
+                        for (var k in fdocs) {
+                            if (k.indexOf("name") != -1) {
+                                //list.push({"vehicle_license":fdocs[k]});
+                                list.push(fdocs[k]);
+                            }
+                        }
+                        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                            collection.find({ "vehicle_license": { $in: list } }).toArray(function (err, docs) {
 
-            //callback(null, list);
+                                for (var i = 0; i < docs.length; i++) {
+                                    try {
+                                        docs[i].icon_real_time = docs[i].icon_real_time.substring(0, docs[i].icon_real_time.indexOf('.')) + '.svg';
+                                        docs[i].icon_cover = docs[i].icon_cover.substring(0, docs[i].icon_cover.indexOf('.')) + '.svg';
+                                        docs[i].icon_alarm = docs[i].icon_alarm.substring(0, docs[i].icon_alarm.indexOf('.')) + '.svg';
+                                        docs[i].name_order = docs[i].vehicle_license.toLowerCase();
+                                    } catch (err) { }
+                                }
+
+                                callback(null, docs);
+                            });
+                        });
+
+                        //callback(null, list);
+                    });
+                });                
+            }
         });
     });
-
 }
 
 monitorModel.setMonitorCheckedFromUser = function (requestData, callback) {
