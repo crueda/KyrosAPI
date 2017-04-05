@@ -36,10 +36,10 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 // Crear un objeto para ir almacenando todo lo necesario
 var notificationModel = {};
 
-notificationModel.getConfigNotifications = function(username, vehicleLicense, callback)
+notificationModel.getConfigNotifications = function(username, deviceId, callback)
 {
     mongoose.connection.db.collection('NOTIFICATION', function (err, collection) {
-      collection.find({"username": username, "vehicle_license": vehicleLicense}).toArray(function(err, docs) {
+      collection.find({"username": username, "device_id": deviceId}).toArray(function(err, docs) {
           callback(null, docs);
         });
     });
@@ -125,13 +125,13 @@ notificationModel.saveToken = function(username, token, callback)
     });
 }
 
-notificationModel.configNotificationChange0 = function(username, vehicleLicense, eventType, enabled, callback)
+notificationModel.configNotificationChange0 = function(username, deviceId, eventType, enabled, callback)
 {
     mongoose.connection.db.collection('NOTIFICATION', function (err, collection) {
 
       var query = {
         "username": username,
-        "vehicle_license": vehicleLicense,
+        "device_id": deviceId,
         "event_type": parseInt(eventType)
       };
       var element = {
@@ -143,7 +143,7 @@ notificationModel.configNotificationChange0 = function(username, vehicleLicense,
     });
 }
 
-notificationModel.configNotificationChange = function(username, vehicleLicense, eventType, enabled, callback)
+notificationModel.configNotificationChange = function(username, deviceId, eventType, enabled, callback)
 {
     var db = new Db(dbMongoName, new server(dbMongoHost, dbMongoPort));
 
@@ -155,7 +155,7 @@ notificationModel.configNotificationChange = function(username, vehicleLicense, 
             var collection = db.collection('NOTIFICATION');
             var query = {
                 "username": username,
-                "vehicle_license": vehicleLicense,
+                "device_id": parseInt(deviceId),
                 "event_type": parseInt(eventType)
             };
             var element = {

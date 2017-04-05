@@ -301,46 +301,20 @@ router.get('/app/notification/archive/user/:username', function(req, res)
       }
 });
 
-//deprecated
-router.get('/app/notification/config/user/:username', function(req, res)
-{
-  var username = req.params.username;
-  var vehicleLicense = req.query.vehicleLicense;
 
-  log.info("GET: /notification/config/user/"+username);
-
-  if (username==null || vehicleLicense==null) {
-    res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-  }
-  else {
-    NotificationModel.getConfigNotifications(username, vehicleLicense, function(error, data) {
-      if (data == null) {
-          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-      } else {
-        if (typeof data !== 'undefined' && data.length > 0) {
-          res.status(200).json(data)
-        } else if (typeof data == 'undefined' || data.length == 0) {
-          res.status(200).json([])
-        } else {
-          res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-        }
-      }
-    });
-  }
-});
 router.post('/app/notification/config/user/:username', function(req, res)
 {
   var username = req.params.username;
-  var vehicleLicense = req.body.vehicleLicense;
+  var deviceId = req.body.deviceId;
 
   log.info("POST: /notification/config/user/"+username);
   access_log.info("BODY >>> " + req.body);
 
-  if (username==null || vehicleLicense==null) {
+  if (username==null || deviceId==null) {
     res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
   }
   else {
-    NotificationModel.getConfigNotifications(username, vehicleLicense, function(error, data) {
+    NotificationModel.getConfigNotifications(username, deviceId, function(error, data) {
       if (data == null) {
           res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
       } else {
@@ -354,45 +328,6 @@ router.post('/app/notification/config/user/:username', function(req, res)
       }
     });
   }
-});
-
-//deprecated
-router.get('/app/notification/setToken', function(req, res)
-{
-      var username = req.query.username;
-      var token = req.query.token;
-
-      log.info("GET: /notification/setToken?username="+username + "&token="+token);
-
-      if (username==null || token==null) {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-      }
-      else {
-        NotificationModel.saveToken(username, token, function(error, data)
-        {
-          if (data == null)
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-          else
-          {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
-            {
-              res.status(200).json(data)
-            }
-            else if (typeof data == 'undefined' || data.length == 0)
-            {
-              res.status(200).json([])
-            }
-            //en otro caso mostramos un error
-            else
-            {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-            }
-          }
-        });
-      }
 });
 
 router.post('/app/notification/setToken', function(req, res)
@@ -512,50 +447,22 @@ router.get('/app/notification/config/remove', function(req, res)
       }
 });
 
-//deprecated
-router.get('/app/notification/config/change', function(req, res)
-{
-      var username = req.query.username;
-      var vehicleLicense = req.query.vehicleLicense;
-      var eventType = req.query.eventType;
-      var enabled = req.query.enabled;
-
-      log.info("GET: /notification/config/change?username="+username + "&vehicleLicense=" + vehicleLicense + "&eventType="+eventType + "&enabled=" + enabled);
-
-      if (username==null || vehicleLicense==null || eventType==null) {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-      }
-      else {
-        NotificationModel.configNotificationChange(username, vehicleLicense, eventType, enabled, function(error, data)
-        {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined')
-            {
-              res.status(200).json(data)
-            }
-            else
-            {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-            }
-        });
-      }
-});
 
 router.post('/app/notification/config/change', function(req, res)
 {
       var username = req.body.username;
-      var vehicleLicense = req.body.vehicle_license;
+      var deviceId = req.body.deviceId;
       var eventType = req.body.event_type;
       var enabled = req.body.enabled;
 
       log.info("POST: /notification/config/change");
       access_log.info("BODY >>> " + req.body);
 
-      if (username==null || vehicleLicense==null || eventType==null) {
+      if (username==null || deviceId==null || eventType==null) {
         res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
       }
       else {
-        NotificationModel.configNotificationChange(username, vehicleLicense, eventType, enabled, function(error, data)
+        NotificationModel.configNotificationChange(username, deviceId, eventType, enabled, function(error, data)
         {
             //si existe enviamos el json
             if (typeof data !== 'undefined')

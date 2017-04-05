@@ -55,7 +55,15 @@ userModel.login = function(username, password, callback)
                     if( crypt(password, docs[0]['password']) !== docs[0]['password']) {
                         callback(null, {"status": "nok"});
                     } else {
-                        callback(null, {"status": "ok", "result": docs});
+                        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                            collection.find({'device_id': parseInt(docs[0]['device_id'])}).toArray(function(err, docsVehicle) {
+                                if (docsVehicle!=undefined && docsVehicle[0]!=undefined) {
+                                    docs[0].vehicle_license = docsVehicle[0].vehicle_license;    
+                                }
+                                callback(null, {"status": "ok", "result": docs});
+                            });
+                        });
+                        
                     }
                 }
             } else {

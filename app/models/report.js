@@ -33,7 +33,7 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 // Crear un objeto para ir almacenando todo lo necesario
 var reportModel = {};
 
-reportModel.getReportDailyData = function (vehicleLicense, callback) {
+reportModel.getReportDailyData = function (deviceId, callback) {
     function padToTwo(number) {
         if (number <= 9) { number = ("0" + number).slice(-4); }
         return number;
@@ -44,10 +44,10 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
     //var start = 1487318303000;
 
     mongoose.connection.db.collection('ODOMETER', function (err, collection) {
-        collection.find({ 'vehicle_license': vehicleLicense }).toArray(function (err, docsOdometer) {
+        collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsOdometer) {
 
-            mongoose.connection.db.collection('TRACKING_' + vehicleLicense, function (err, collection) {
-                collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start - 1000) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
+            mongoose.connection.db.collection('TRACKING', function (err, collection) {
+                collection.find({ 'device_id': parseInt(deviceId), 'pos_date': { $lt: Number(end), $gt: Number(start - 1000) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
                     //collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start-1000) } ,  'events': {"$not": {"$size": 0}} }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
                     var out = {
                         "dayDistance": 0,
@@ -149,7 +149,7 @@ reportModel.getReportDailyData = function (vehicleLicense, callback) {
                     out.reportDailyDistance = out.reportDailyDistance.toFixed(3);
 
                     mongoose.connection.db.collection('VEHICLE', function (err, collection) {
-                        collection.find({ 'vehicle_license': vehicleLicense }).toArray(function (err, docsVehicle) {
+                        collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsVehicle) {
                             out.reportDailyConsumption = (docsVehicle[0].consumption * (out.reportDailyDistance / 100)).toFixed(2);
                             out.reportDailyCO2 = (out.reportDailyConsumption * 2.68).toFixed(2);
                             callback(null, out);

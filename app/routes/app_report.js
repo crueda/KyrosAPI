@@ -24,16 +24,17 @@ var log = require('tracer').console({
   }
 });
 
-router.get('/app/report_daily/vehicle/:vehicleLicense', function(req, res)
-{
-    var vehicleLicense = req.params.vehicleLicense;
-    log.info("GET: /app/report_daily/vehicle/"+vehicleLicense);
 
-    if (vehicleLicense==null) {
+router.get('/app/report_daily/device/:deviceId', function(req, res)
+{
+    var deviceId = req.params.deviceId;
+    log.info("GET: /app/report_daily/device/"+deviceId);
+
+    if (deviceId==null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
     else {
-      ReportModel.getReportDailyData(vehicleLicense,function(error, data)
+      ReportModel.getReportDailyData(deviceId,function(error, data)
       {
         if (data == null)
         {

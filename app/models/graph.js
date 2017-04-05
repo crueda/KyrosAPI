@@ -34,7 +34,7 @@ var graphModel = {};
 
 
 
-graphModel.getGraphData = function(vehicleLicense, callback)
+graphModel.getGraphData = function(deviceId, callback)
 {
   function sortFunction(a, b) {
     if (a[0] === b[0]) {
@@ -45,7 +45,7 @@ graphModel.getGraphData = function(vehicleLicense, callback)
     }
   }
   mongoose.connection.db.collection('ODOMETER', function (err, collection) {
-      collection.find({'vehicle_license': vehicleLicense}).toArray(function(err, docs) {
+      collection.find({'device_id': parseInt(deviceId)}).toArray(function(err, docs) {
           if (docs[0]!=undefined) {
             var events = [];
             for(var eventType in docs[0].eventTypeCounter) {
@@ -61,10 +61,10 @@ graphModel.getGraphData = function(vehicleLicense, callback)
   });
 }
 
-graphModel.resetGraphData = function(vehicleLicense, callback)
+graphModel.resetGraphData = function(deviceId, callback)
 {
   mongoose.connection.db.collection('ODOMETER', function (err, collection) {
-      collection.find({'vehicle_license': vehicleLicense}).toArray(function(err, docs) {
+      collection.find({'device_id': parseInt(deviceId)}).toArray(function(err, docs) {
           if (docs[0]!=undefined) {
               var newOdemeterData = docs[0];
               newOdemeterData.weekTrackingCounter = {

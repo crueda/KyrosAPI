@@ -60,12 +60,13 @@ vehicleModel.getVehiclesFromUsername = function (username, callback) {
   });
 }
 
-vehicleModel.setAsDefault = function(username, vehicleLicense, callback)
+
+vehicleModel.setAsDefault = function(username, deviceId, callback)
 {
     mongoose.connection.db.collection('USER', function (err, collection) {
         collection.find({'username': username}).toArray(function(err, docs) {
             if (docs[0]!=undefined) {
-                docs[0].vehicle_license = vehicleLicense;
+                docs[0].device_id = parseInt(deviceId);
                 collection.save(docs[0]);
                 callback(null, docs);
             } else {
@@ -75,31 +76,6 @@ vehicleModel.setAsDefault = function(username, vehicleLicense, callback)
     });
 }
 
-/*
-vehicleModel.getVehiclesArea = function (username, areaId, timestamp, callback) {
-  vehicleModel.getVehiclesFromUsername(username, function (error, monitor_vehicle) {
-
-    mongoose.connection.db.collection('AREA', function (err, collection) {
-      collection.find({"id": areaId}).toArray(function (err, docsArea) {
-        if (docsArea[0]!=undefined) {
-          mongoose.connection.db.collection('TRACKING', function (err, collection) {
-            collection.find({ 'location': {$geoWithin: {$box:docsArea[0].location.coordinates}} }).toArray(function (err, docsTracking) {
-                var docsResult = [];
-                for (var i=0; i<docsTracking.length; i++) {
-                }
-                callback(null, docsResult);
-            });
-          });
-        } else {
-          callback(null, []);
-        }
-
-      });
-    });
-
-  });
-}
-*/
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas
 module.exports = vehicleModel;

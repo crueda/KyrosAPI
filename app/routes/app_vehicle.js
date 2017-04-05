@@ -24,47 +24,14 @@ var log = require('tracer').console({
   }
 });
 
-//deprecated
-router.get('/app/vehicle/setAsDefault', function(req, res)
-{
-    var vehicleLicense = req.query.vehicleLicense;
-    var username = req.query.username;
-      log.info("GET: /vehicle/setAsDefault?username"+ username + "&vehicleLicense=" + vehicleLicense);
-
-      VehicleModel.setAsDefault(username, vehicleLicense,function(error, data)
-      {
-          if (data == null)
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-          else
-          {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
-            {
-              res.status(200).json(data)
-            }
-            else if (typeof data == 'undefined' || data.length == 0)
-            {
-              res.status(200).json([])
-            }
-            //en otro caso mostramos un error
-            else
-            {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-            }
-          }
-      });
-
-});
 
 router.post('/app/vehicle/setAsDefault', function(req, res)
 {
-    var vehicleLicense = req.body.vehicleLicense;
+    var deviceId = req.body.deviceId;
     var username = req.body.username;
-      log.info("POST: /vehicle/setAsDefault?username"+ username + "&vehicleLicense=" + vehicleLicense);
+      log.info("POST: /vehicle/setAsDefault?username"+ username + "&deviceId=" + deviceId);
 
-      VehicleModel.setAsDefault(username, vehicleLicense,function(error, data)
+      VehicleModel.setAsDefault(username, deviceId,function(error, data)
       {
           if (data == null)
           {

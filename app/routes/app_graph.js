@@ -24,16 +24,16 @@ var log = require('tracer').console({
   }
 });
 
-router.get('/app/graph/vehicle/:vehicleLicense', function(req, res)
+router.get('/app/graph/device/:deviceId', function(req, res)
 {
-    var vehicleLicense = req.params.vehicleLicense;
-    log.info("GET: /app/graph/vehicle/"+vehicleLicense);
+    var deviceId = req.params.deviceId;
+    log.info("GET: /app/graph/device/"+deviceId);
 
-    if (vehicleLicense==null) {
+    if (deviceId==null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
     else {
-      GraphModel.getGraphData(vehicleLicense,function(error, data)
+      GraphModel.getGraphData(deviceId,function(error, data)
       {
         if (data == null)
         {
@@ -60,16 +60,16 @@ router.get('/app/graph/vehicle/:vehicleLicense', function(req, res)
     }
 });
 
-router.get('/app/graph/reset/vehicle/:vehicleLicense', function(req, res)
+router.get('/app/graph/reset/device/:deviceId', function(req, res)
 {
-    var vehicleLicense = req.params.vehicleLicense;
-    log.info("GET: /app/graph/reset/vehicle/"+vehicleLicense);
+    var deviceId = req.params.deviceId;
+    log.info("GET: /app/graph/reset/device/"+deviceId);
 
-    if (vehicleLicense==null) {
+    if (deviceId==null) {
       res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
     }
     else {
-      GraphModel.resetGraphData(vehicleLicense,function(error, data)
+      GraphModel.resetGraphData(deviceId,function(error, data)
       {
         if (data == null)
         {

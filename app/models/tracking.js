@@ -116,31 +116,6 @@ trackingModel.getTracking1FromVehicles_Mysql = function (vehicleIds, callback) {
   }
 }
 
-/*
-trackingModel.getTracking1FromFleet = function (fleetId, callback) {
-  mongoose.connection.db.collection('FLEET', function (err, collection) {
-    collection.find({ "device_id": { $in: vehicleIds } }, { _id: 0, "vehicle_license": 0, "events": 0, "alarm_activated": 0, "location.type": 0 }).toArray(function (err, docs) {
-
-      mongoose.connection.db.collection('TRACKING1', function (err, collection) {
-        collection.find({ "device_id": { $in: vehicleIds } }, { _id: 0, "vehicle_license": 0, "events": 0, "alarm_activated": 0, "location.type": 0 }).toArray(function (err, docs) {
-          docs.forEach(function (doc) {
-            doc['trackingDate'] = moment(new Date(doc["pos_date"])).format("YYYY-MM-DDTHH:mm:ssZ").substring(0, 19) + 'Z';
-            doc['longitude'] = doc['location']['coordinates'][0];
-            doc['latitude'] = doc['location']['coordinates'][1];
-            doc['location'] = undefined;
-            doc['pos_date'] = undefined;
-            doc['deviceId'] = doc['device_id'];
-            doc['id'] = doc['tracking_id'];
-            doc['device_id'] = undefined;
-            doc['tracking_id'] = undefined;
-          });
-          callback(null, docs);
-        });
-      });
-    });
-  });
-}*/
-
 trackingModel.getTracking1FromVehicle = function (deviceId, callback) {
   mongoose.connection.db.collection('TRACKING1', function (err, collection) {
     collection.find({ "device_id": parseInt(deviceId) }, { _id: 0, "vehicle_license": 0, "events": 0, "alarm_activated": 0, "location.type": 0 }).toArray(function (err, docs) {
@@ -219,19 +194,10 @@ trackingModel.getTracking1Radio = function (lat, lon, radio, callback) {
     });
   });
 }
-/*
-trackingModel.getTracking1FromVehicle = function(vehicleLicense,callback)
-{
-    mongoose.connection.db.collection('TRACKING_'+vehicleLicense, function (err, collection) {
-        collection.find().sort({'pos_date': -1}).limit(1).toArray(function(err, docs) {
-            callback(null, docs);
-        });
-    });
-}*/
 
 trackingModel.getTracking1AndIconFromVehicle = function (vehicleLicense, callback) {
-  mongoose.connection.db.collection('TRACKING_' + vehicleLicense, function (err, collection) {
-    collection.find().sort({ 'pos_date': -1 }).limit(1).toArray(function (err, docs) {
+  mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+    collection.find({"vehicle_license": vehicleLicense}).toArray(function (err, docs) {
       mongoose.connection.db.collection('VEHICLE', function (err, collection) {
         collection.find({ "vehicle_license": vehicleLicense }).toArray(function (err, docs2) {
           if (docs[0] != undefined) {
@@ -250,9 +216,38 @@ trackingModel.getTracking1AndIconFromVehicle = function (vehicleLicense, callbac
   });
 }
 
+trackingModel.getTracking1AndIconFromDevice = function (deviceId, callback) {
+  mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+    collection.find({"device_id": parseInt(deviceId)}).toArray(function (err, docs) {
+      mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+        collection.find({ "device_id": parseInt(deviceId) }).toArray(function (err, docs2) {
+          if (docs[0] != undefined) {
+            if (docs2[0] != undefined) {
+              docs[0].icon = docs2[0].icon_real_time.substring(0, docs2[0].icon_real_time.indexOf('.')) + '.svg';;
+              docs[0].alias = docs2[0].alias;
+            } else {
+              docs[0].icon = "car.svg";
+              docs[0].alias = deviceId;
+            }
+          }
+          callback(null, docs);
+        });
+      });
+    });
+  });
+}
+
 trackingModel.getTrackingFromVehicleAndDate = function (requestData, callback) {
-  mongoose.connection.db.collection('TRACKING_' + requestData.vehicleLicense, function (err, collection) {
-    collection.find({ 'pos_date': { $gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docs) {
+  mongoose.connection.db.collection('TRACKING', function (err, collection) {
+    collection.find({ 'vehicle_license': requestData.vehicleLicense, 'pos_date': { $gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docs) {
+      callback(null, docs);
+    });
+  });
+}
+
+trackingModel.getTrackingFromDeviceAndDate = function (requestData, callback) {
+  mongoose.connection.db.collection('TRACKING', function (err, collection) {
+    collection.find({ 'device_id': parseInt(requestData.deviceId), 'pos_date': { $gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docs) {
       callback(null, docs);
     });
   });

@@ -35,6 +35,7 @@ var access_log = require('tracer').console({
   }
 });
 
+//deprecated
 router.get('/app/tracking1/vehicle/:vehicleLicense', function(req, res)
 {
       var vehicleLicense = req.params.vehicleLicense;
@@ -66,14 +67,46 @@ router.get('/app/tracking1/vehicle/:vehicleLicense', function(req, res)
       });
 });
 
+router.get('/app/tracking1/device/:deviceId', function(req, res)
+{
+      var deviceId = req.params.deviceId;
+      log.info("GET: /tracking1/device/"+deviceId);
+
+      TrackingModel.getTracking1AndIconFromDevice(deviceId,function(error, data)
+      {
+        if (data == null)
+        {
+          res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
+        }
+        else
+        {
+          //si existe enviamos el json
+          if (typeof data !== 'undefined' && data.length > 0)
+          {
+            res.status(200).json(data)
+          }
+          else if (typeof data == 'undefined' || data.length == 0)
+          {
+            res.status(200).json([])
+          }
+          //en otro caso mostramos un error
+          else
+          {
+            res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+          }
+        }
+      });
+});
+
 //deprecated
-router.get('/app/tracking/vehicle/:vehicleLicense', function(req, res)
+router.post('/app/tracking/vehicle/:vehicleLicense', function(req, res)
 {
       var vehicleLicense = req.params.vehicleLicense;
-      var initDate = req.query.initDate;
-      var endDate = req.query.endDate;
+      var initDate = req.body.initDate;
+      var endDate = req.body.endDate;
 
       log.info("GET: /app/tracking/vehicle/"+vehicleLicense);
+      access_log.info("BODY >>> " + req.body);
 
       if (initDate==null || endDate==null) {
         res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
@@ -116,13 +149,13 @@ router.get('/app/tracking/vehicle/:vehicleLicense', function(req, res)
       }
 });
 
-router.post('/app/tracking/vehicle/:vehicleLicense', function(req, res)
+router.post('/app/tracking/device/:deviceId', function(req, res)
 {
-      var vehicleLicense = req.params.vehicleLicense;
+      var deviceId = req.params.deviceId;
       var initDate = req.body.initDate;
       var endDate = req.body.endDate;
 
-      log.info("GET: /app/tracking/vehicle/"+vehicleLicense);
+      log.info("POST: /app/tracking/device/"+deviceId);
       access_log.info("BODY >>> " + req.body);
 
       if (initDate==null || endDate==null) {
@@ -130,11 +163,11 @@ router.post('/app/tracking/vehicle/:vehicleLicense', function(req, res)
       }
       else {
         var requestData = {
-          vehicleLicense : vehicleLicense,
+          deviceId : deviceId,
           initDate : initDate,
           endDate : endDate
         };
-        TrackingModel.getTrackingFromVehicleAndDate(requestData, function(error, data)
+        TrackingModel.getTrackingFromDeviceAndDate(requestData, function(error, data)
         {
           if (data == null)
           {
