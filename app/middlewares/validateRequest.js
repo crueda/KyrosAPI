@@ -36,6 +36,10 @@ var access_log = require('tracer').console({
 function checkPermission(req, username, arrPermissionList) {
   access_log.info ("[" + username + "]: " + req.originalMethod + " -> " + req.originalUrl);
   
+  if (arrPermissionList==undefined) {
+    return false;
+  }
+
   // POI
   if ( (req.path.lastIndexOf('/pois', 0) === 0) ) {
     if ((arrPermissionList.indexOf(properties.get('api.permission.poi.read')) > -1 ) || (arrPermissionList.indexOf(properties.get('api.permission.poi.admin')) > -1 ))
