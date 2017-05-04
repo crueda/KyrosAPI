@@ -16,12 +16,23 @@ gulp.task('default', function() {
   // place code for your default task here
 });
 
+// --------------------------------------------------------------------------------
+// Actualizar en demos
+// --------------------------------------------------------------------------------
+gulp.task('demos', ['upload-app-demos', 'upload-properties-demos', 'upload-appjs-demos'], function() {
+  console.log('Actualizado el entorno de demos!');
+});
+
 
 // --------------------------------------------------------------------------------
 // Actualizar en produccion
 // --------------------------------------------------------------------------------
-gulp.task('pro', ['upload-app-pro', 'upload-properties-pro', 'upload-appjs-pro'], function() {
-  console.log('Actualizado el entorno de producción!');
+gulp.task('pro1', ['upload-app-pro1', 'upload-properties-pro1', 'upload-appjs-pro1'], function() {
+  console.log('Actualizado el entorno de producción 1 !');
+});
+
+gulp.task('pro2', ['upload-app-pro2', 'upload-properties-pro2', 'upload-appjs-pro2'], function() {
+  console.log('Actualizado el entorno de producción 2 !');
 });
 
 gulp.task('pro-doc', ['apidoc', 'gen-changelog'], function() {
@@ -40,13 +51,13 @@ gulp.task('pro-doc', ['apidoc', 'gen-changelog'], function() {
 // --------------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------------
-// Subir ficheros a produccion
+// Subir ficheros a demos
 // --------------------------------------------------------------------------------
-gulp.task('upload-app-pro', function() {
+gulp.task('upload-app-demos', function() {
   rsync({
     ssh: true,
     src: '/Users/Carlos/Workspace/Kyros/KyrosAPI/app',
-    dest: 'root@192.168.28.251:/opt/KyrosAPI/',
+    dest: 'root@192.168.28.244:/opt/KyrosAPI/',
     recursive: true,
     syncDest: true,
     args: ['--verbose']
@@ -55,25 +66,99 @@ gulp.task('upload-app-pro', function() {
   });
 });
 
-gulp.task('upload-properties-pro', function () {
+gulp.task('upload-properties-demos', function () {
     gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/kyrosapi.properties')
         .pipe(scp({
-            host: '192.168.28.251',
+            host: '192.168.28.244',
             user: 'root',
             port: 22,
             path: '/opt/KyrosAPI'
         }));
 });
 
-gulp.task('upload-appjs-pro', function () {
+gulp.task('upload-appjs-demos', function () {
     gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/api.js')
         .pipe(scp({
-            host: '192.168.28.251',
+            host: '192.168.28.244',
             user: 'root',
             port: 22,
             path: '/opt/KyrosAPI'
         }));
 });
+
+
+// --------------------------------------------------------------------------------
+// Subir ficheros a produccion
+// --------------------------------------------------------------------------------
+gulp.task('upload-app-pro1', function() {
+  rsync({
+    ssh: true,
+    src: '/Users/Carlos/Workspace/Kyros/KyrosAPI/app',
+    dest: 'root@192.168.28.136:/opt/KyrosAPI/',
+    recursive: true,
+    syncDest: true,
+    args: ['--verbose']
+  }, function(error, stdout, stderr, cmd) {
+      gutil.log(stdout);
+  });
+});
+
+gulp.task('upload-properties-pro1', function () {
+    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/kyrosapi.properties')
+        .pipe(scp({
+            host: '192.168.28.136',
+            user: 'root',
+            port: 22,
+            path: '/opt/KyrosAPI'
+        }));
+});
+
+gulp.task('upload-appjs-pro1', function () {
+    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/api.js')
+        .pipe(scp({
+            host: '192.168.28.136',
+            user: 'root',
+            port: 22,
+            path: '/opt/KyrosAPI'
+        }));
+});
+
+gulp.task('upload-app-pro2', function() {
+  rsync({
+    ssh: true,
+    src: '/Users/Carlos/Workspace/Kyros/KyrosAPI/app',
+    dest: 'root@192.168.28.137:/opt/KyrosAPI/',
+    recursive: true,
+    syncDest: true,
+    args: ['--verbose']
+  }, function(error, stdout, stderr, cmd) {
+      gutil.log(stdout);
+  });
+});
+
+gulp.task('upload-properties-pro2', function () {
+    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/kyrosapi.properties')
+        .pipe(scp({
+            host: '192.168.28.137',
+            user: 'root',
+            port: 22,
+            path: '/opt/KyrosAPI'
+        }));
+});
+
+gulp.task('upload-appjs-pro2', function () {
+    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/api.js')
+        .pipe(scp({
+            host: '192.168.28.137',
+            user: 'root',
+            port: 22,
+            path: '/opt/KyrosAPI'
+        }));
+});
+
+
+
+// --------------------------------------------------------------------------------
 
 gulp.task('upload-tests', function () {
     gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/test/*.js')
