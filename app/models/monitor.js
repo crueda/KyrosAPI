@@ -92,6 +92,7 @@ monitorModel.getMonitorListFromUser = function (username, callback) {
     // comprobar si es usuario de sistema
     mongoose.connection.db.collection('USER', function (err, collection) {
         collection.find({'username': username}).toArray(function(err, docsUser) {
+            if (docsUser[0]!=undefined) {
             if (docsUser[0].kind_monitor==2) {
                 mongoose.connection.db.collection('MONITOR', function (err, collection) {
                     collection.find({ 'username': 'system' }).toArray(function (err, docs) {
@@ -154,6 +155,7 @@ monitorModel.getMonitorListFromUser = function (username, callback) {
                         //callback(null, list);
                     });
                 });                
+            }
             }
         });
     });

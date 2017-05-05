@@ -161,9 +161,9 @@ gulp.task('upload-appjs-pro2', function () {
 // --------------------------------------------------------------------------------
 
 gulp.task('upload-tests', function () {
-    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/test/*.js')
+    gulp.src('/Users/Carlos/Workspace/Kyros/KyrosAPI/test/remote/*.js')
         .pipe(scp({
-            host: '172.26.7.3',
+            host: '172.26.6.50',
             user: 'root',
             port: 22,
             path: '/opt/testKyrosApi/test'
