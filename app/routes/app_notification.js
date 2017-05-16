@@ -109,19 +109,20 @@ router.get('/app/notification/:_id', function(req, res)
 });
 */
 
-//deprecated
-router.get('/app/notificationLimit', function(req, res)
+
+
+router.post('/app/notificationLimit', function(req, res)
 {
-    var username = req.query.username;
-    var max = req.query.max;
-    var group = req.query.group;
+    var username = req.body.username;
+    var max = req.body.max;
+    var group = req.body.group;
     if (max==undefined) {
       max = 100;
     }
     if (group==undefined) {
       group = 0;
     }
-      log.info("GET: /app/notificationLimit?username="+username+"&max="+max);
+      log.info("POST: /app/notificationLimit?username="+username+"&max="+max);
 
       if (username==null) {
         res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
@@ -150,24 +151,17 @@ router.get('/app/notificationLimit', function(req, res)
       }
 });
 
-router.post('/app/notificationLimit', function(req, res)
+router.post('/app/notificationLast', function(req, res)
 {
     var username = req.body.username;
-    var max = req.body.max;
-    var group = req.body.group;
-    if (max==undefined) {
-      max = 100;
-    }
-    if (group==undefined) {
-      group = 0;
-    }
-      log.info("GET: /app/notificationLimit?username="+username+"&max="+max);
+    var timestamp = req.body.timestamp;
+      log.info("POST: /app/notificationLast?username="+username+"&timestamp="+timestamp);
 
-      if (username==null) {
+      if (username==null || timestamp==null) {
         res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
       }
       else {
-        NotificationModel.getLastNotifications(username, max, group, function(error, data)
+        NotificationModel.getLastNotificationsTimestamp(username, timestamp, function(error, data)
         {
           if (data == null)
           {
@@ -553,6 +547,7 @@ router.get('/app/notification/disable/user/:username', function(req, res)
       }
 });
 
+//deprecated. app v1.3
 router.get('/app/notification/status/user/:username', function(req, res)
 {
       var username = req.params.username;

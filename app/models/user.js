@@ -92,6 +92,20 @@ userModel.setUserPreferences = function(username, push_mode, group_mode, max_sho
   });
 }
 
+userModel.getConfigUser = function(username, callback)
+{
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find({'username': username}).toArray(function(err, docs) {
+            if (docs[0]!=undefined) {
+                callback(null, {push_enabled: docs[0].push_enabled, max_show_notifications: docs[0].max_show_notifications});
+            } else {
+                callback(null, -1);
+            }
+        });
+    });
+}
+
+
 userModel.getUserFromUsername = function(username, callback)
 {
   mongoose.connection.db.collection('USER', function (err, collection) {
@@ -103,7 +117,7 @@ userModel.getUserFromUsername = function(username, callback)
 
 userModel.saveDeviceInfo = function(username, token, device_model,
   device_platform, device_version, device_manufacturer,device_serial, device_uuid,
-  device_height, device_width, device_language,  callback)
+  device_height, device_width, device_language, app_version,  callback)
 {
     mongoose.connection.db.collection('USER', function (err, collection) {
         collection.find({'username': username}).toArray(function(err, docs) {
@@ -119,6 +133,7 @@ userModel.saveDeviceInfo = function(username, token, device_model,
                   'device_height': device_height,
                   'device_width': device_width,
                   'device_language': device_language,
+                  'app_version': app_version,
                   'last_login': new Date().toISOString()
                 }
                 docs[0].device_info = device_info;
