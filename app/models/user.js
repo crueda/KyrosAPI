@@ -73,6 +73,43 @@ userModel.login = function(username, password, callback)
     });
 }
 
+userModel.loginApp = function(username, password, callback)
+{
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find( { 'username': username}).toArray(function(err, docs) {
+            if (docs!=undefined && docs.length>=0) {
+                if (docs[0]== undefined) {
+                    callback(null, {"status": "nok"});
+                } else {
+                    if( crypt(password, docs[0]['password']) !== docs[0]['password']) {
+                        callback(null, {"status": "nok"});
+                    } else {
+                        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                            collection.find({'device_id': parseInt(docs[0]['device_id'])}).toArray(function(err, docsVehicle) {
+                                if (docsVehicle!=undefined && docsVehicle[0]!=undefined) {
+                                    docs[0].vehicle_license = docsVehicle[0].vehicle_license;    
+                                } 
+                                mongoose.connection.db.collection('APP_RELEASE', function (err, collection) {
+                                    collection.find().sort({'date': -1}).toArray(function(err, docsRelease) {
+                                        docs[0].last_app_version = docsRelease[0].version
+                                        docs[0].last_app_url = docsRelease[0].url
+                                        callback(null, {"status": "ok", "result": docs});
+                                    });
+                                });
+
+                            });
+                        });
+                        
+                    }
+                }
+            } else {
+                callback(null, {"status": "nok"});
+            }
+        });
+    });
+}
+
+
 userModel.setUserPreferences = function(username, push_mode, group_mode, max_show_notifications, callback)
 {
   mongoose.connection.db.collection('USER', function (err, collection) {

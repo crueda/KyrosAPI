@@ -49,7 +49,7 @@ router.get('/app/login/', function(req, res)
         res.status(202).json({"status": "msg", "title": "Versión incorrecta", "message": "Por favor, consulte con logistica@kyroslbs.com para actualizar su aplicación"});
       }
       else {
-        UserModel.login(username, password, function(error, data)
+        UserModel.loginApp(username, password, function(error, data)
         {
           if (data == null)
           {
@@ -91,7 +91,7 @@ router.post('/app/login/', function(req, res)
         res.status(202).json({"status": "msg", "title": "Versión incorrecta", "message": "Por favor, consulte con logistica@kyroslbs.com para actualizar su aplicación"});
       }
       else {
-        UserModel.login(username, password, function(error, data)
+        UserModel.loginApp(username, password, function(error, data)
         {
           if (data == null)
           {
