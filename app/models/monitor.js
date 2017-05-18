@@ -87,7 +87,7 @@ monitorModel.getMonitorFromUser = function(username,callback)
         });
     });
 }
-
+/*
 monitorModel.getMonitorListFromUser_OLD = function (username, callback) {
     // comprobar si es usuario de sistema
     mongoose.connection.db.collection('USER', function (err, collection) {
@@ -160,7 +160,7 @@ monitorModel.getMonitorListFromUser_OLD = function (username, callback) {
         });
     });
 }
-
+*/
 monitorModel.getMonitorListFromUser = function (username, callback) {
     // comprobar si es usuario de sistema
     mongoose.connection.db.collection('USER', function (err, collection) {
