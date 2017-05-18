@@ -88,7 +88,7 @@ monitorModel.getMonitorFromUser = function(username,callback)
     });
 }
 
-monitorModel.getMonitorListFromUser = function (username, callback) {
+monitorModel.getMonitorListFromUser_OLD = function (username, callback) {
     // comprobar si es usuario de sistema
     mongoose.connection.db.collection('USER', function (err, collection) {
         collection.find({'username': username}).toArray(function(err, docsUser) {
@@ -138,6 +138,57 @@ monitorModel.getMonitorListFromUser = function (username, callback) {
                         }
                         mongoose.connection.db.collection('VEHICLE', function (err, collection) {
                             collection.find({ "vehicle_license": { $in: list } }).toArray(function (err, docs) {
+
+                                for (var i = 0; i < docs.length; i++) {
+                                    try {
+                                        docs[i].icon_real_time = docs[i].icon_real_time.substring(0, docs[i].icon_real_time.indexOf('.')) + '.svg';
+                                        docs[i].icon_cover = docs[i].icon_cover.substring(0, docs[i].icon_cover.indexOf('.')) + '.svg';
+                                        docs[i].icon_alarm = docs[i].icon_alarm.substring(0, docs[i].icon_alarm.indexOf('.')) + '.svg';
+                                        docs[i].name_order = docs[i].vehicle_license.toLowerCase();
+                                    } catch (err) { }
+                                }
+
+                                callback(null, docs);
+                            });
+                        });
+
+                        //callback(null, list);
+                    });
+                });                
+            }
+            }
+        });
+    });
+}
+
+monitorModel.getMonitorListFromUser = function (username, callback) {
+    // comprobar si es usuario de sistema
+    mongoose.connection.db.collection('USER', function (err, collection) {
+        collection.find({'username': username}).toArray(function(err, docsUser) {
+            if (docsUser[0]!=undefined) {
+            if (docsUser[0].kind_monitor==2) {
+                        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                            collection.find().toArray(function (err, docs) {
+
+                                for (var i = 0; i < docs.length; i++) {
+                                    try {
+                                        docs[i].icon_real_time = docs[i].icon_real_time.substring(0, docs[i].icon_real_time.indexOf('.')) + '.svg';
+                                        docs[i].icon_cover = docs[i].icon_cover.substring(0, docs[i].icon_cover.indexOf('.')) + '.svg';
+                                        docs[i].icon_alarm = docs[i].icon_alarm.substring(0, docs[i].icon_alarm.indexOf('.')) + '.svg';
+                                        docs[i].name_order = docs[i].vehicle_license.toLowerCase();
+                                    } catch (err) { }
+                                }
+
+                                callback(null, docs);
+                            });
+                        });
+
+            } else {
+                mongoose.connection.db.collection('USER', function (err, collection) {
+                    collection.find({ 'username': username }).toArray(function (err, docs) {
+
+                        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+                            collection.find({ "vehicle_license": { $in: docs[0].monitor_vehicle } }).toArray(function (err, docs) {
 
                                 for (var i = 0; i < docs.length; i++) {
                                     try {

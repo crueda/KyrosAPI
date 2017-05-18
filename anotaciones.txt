@@ -19,7 +19,7 @@ rsync -r --exclude 'test' /Users/Carlos/Workspace/Kyros/KyrosAPI/* root@192.168.
 
 ----------------------
 MOVER TESTS:
-rsync -r /Users/Carlos/Workspace/Kyros/KyrosAPI/test/*.js root@172.26.7.3:/opt/testKyrosApi/test
+rsync -r /Users/Carlos/Workspace/Kyros/KyrosAPI/test/remote/*.js root@172.26.6.50:/opt/testKyrosApi/test
 
 
 --
