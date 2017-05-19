@@ -38,6 +38,16 @@ module.exports = function (req, res, next) {
 
             var decoded = jwt.decode(token, require('../config/secret.js')());
 
+            // Comprobar la expiracion del token
+            var now = new Date;
+            var timezone =  now.getTimezoneOffset()
+            var milisecondsUTC = now.getTime() + (timezone*60*1000);
+            if (decoded.exp <= milisecondsUTC) {
+                log.info('Token Expired');
+                res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.TOKEN_EXPIRED}})
+                return;
+            }
+
             var username = decoded.iss;
             if (username == '') {
                 username = decoded.jti;

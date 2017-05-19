@@ -1,4 +1,4 @@
-./test/remote/test_area.js
+./test/local/test_app.js
 
 --reporter spec
 --growl

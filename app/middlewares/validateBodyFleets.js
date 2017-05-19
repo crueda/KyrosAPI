@@ -43,6 +43,16 @@ module.exports = function (req, res, next) {
         username = decoded.jti;
       }
 
+      // Comprobar la expiracion del token
+      var now = new Date;
+      var timezone =  now.getTimezoneOffset()
+      var milisecondsUTC = now.getTime() + (timezone*60*1000);
+      if (decoded.exp <= milisecondsUTC) {
+        log.info('Token Expired');
+        res.status(202).json({"response": {"status":status.STATUS_LOGIN_INCORRECT,"description":messages.TOKEN_EXPIRED}})
+        return;
+      }
+
 
       var myJson = req.body;
       if (myJson == undefined) {
