@@ -2,6 +2,7 @@ var server = require('mongodb').Server;
 var mongoose = require('mongoose');
 var crypt = require('crypt3');
 var moment = require('moment');
+var Moment = require('moment-timezone');
 
 var PropertiesReader = require('properties-reader');
 var properties = PropertiesReader('kyrosapi.properties');
@@ -39,9 +40,8 @@ reportModel.getReportDailyData = function (deviceId, callback) {
         return number;
     }
 
-    var start = moment().add(-1, 'day').startOf('day');
-    var end = moment().startOf('day');
-    //var start = 1487318303000;
+    var start = moment().add(-1, 'day').utc().startOf('day');
+    var end = moment().utc().startOf('day');
 
     mongoose.connection.db.collection('ODOMETER', function (err, collection) {
         collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsOdometer) {
@@ -97,13 +97,9 @@ reportModel.getReportDailyData = function (deviceId, callback) {
                     for (var i = 0; i < docs.length; i++) {
 
                         if (i == 0) {
-                            var epochStart = moment(new Date(docs[i].pos_date));
-                            out.reportDailyStartDate = epochStart.format("HH:mm:ss");
                             out.reportDailyStartGeocoding = docs[i].geocoding;
                             posDateInit = docs[i].pos_date;
                         } else if (i == docs.length - 1) {
-                            var epochEnd = moment(new Date(docs[i].pos_date));
-                            out.reportDailyEndDate = epochEnd.format("HH:mm:ss");
                             out.reportDailyEndGeocoding = docs[i].geocoding;
                             posDateEnd = docs[i].pos_date;
                         }
@@ -152,6 +148,13 @@ reportModel.getReportDailyData = function (deviceId, callback) {
                         collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsVehicle) {
                             out.reportDailyConsumption = (docsVehicle[0].consumption * (out.reportDailyDistance / 100)).toFixed(2);
                             out.reportDailyCO2 = (out.reportDailyConsumption * 2.68).toFixed(2);
+                            out.time_zone = docsVehicle[0].time_zone;
+                            if (posDateInit>0) 
+                                out.reportDailyStartDate = Moment(posDateInit).tz(docsVehicle[0].time_zone).format("HH:mm:ss");
+
+                            if (posDateEnd>0) 
+                                out.reportDailyEndDate = Moment(posDateEnd).tz(docsVehicle[0].time_zone).format("HH:mm:ss");
+
                             callback(null, out);
                         });
                     });

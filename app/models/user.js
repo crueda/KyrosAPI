@@ -160,6 +160,7 @@ userModel.saveDeviceInfo = function(username, token, device_model,
         collection.find({'username': username}).toArray(function(err, docs) {
             if (docs[0]!=undefined) {
                 docs[0].token = token;
+                docs[0].app_version = app_version;
                 device_info = {
                   'device_model': device_model,
                   'device_platform': device_platform,
@@ -170,7 +171,6 @@ userModel.saveDeviceInfo = function(username, token, device_model,
                   'device_height': device_height,
                   'device_width': device_width,
                   'device_language': device_language,
-                  'app_version': app_version,
                   'last_login': new Date().toISOString()
                 }
                 docs[0].device_info = device_info;

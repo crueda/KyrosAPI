@@ -85,8 +85,13 @@ notificationModel.getLastNotificationsTimestamp = function(username, timestamp, 
 {
     mongoose.connection.db.collection('APP_NOTIFICATION', function (err, collection) {
         collection.find({"username": username, "timestamp": {$gt: timestamp}}).sort({'vehicle_license': 1, 'timestamp': -1}).toArray(function(err, docs) {
-            var result = {'status': 'ok', 'num_notifications': docs.length, 'result': docs};
-            callback(null, result);
+            if (docs!=undefined) {
+                var result = {'status': 'ok', 'num_notifications': docs.length, 'result': docs};
+                callback(null, result);
+            } else {
+                var result = {'status': 'nok', 'num_notifications': 0, 'result': []};
+                callback(null, result);                
+            }
           });
     });
 }

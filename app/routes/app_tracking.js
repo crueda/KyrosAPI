@@ -175,18 +175,17 @@ router.post('/app/tracking/device/:deviceId', function(req, res)
           }
           else
           {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 6999)
+            if (typeof data !== 'undefined' && data.tracking.length > 6999)
             {
               res.status(200).json({"status": "nok", "result": data});
             }
-            else if (typeof data !== 'undefined' && data.length > 0)
+            else if (typeof data !== 'undefined' && data.tracking.length > 0)
             {
               res.status(200).json({"status": "ok", "result": data});
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (typeof data == 'undefined' || data.tracking.length == 0)
             {
-              res.status(200).json({"status": "ok", "result": []});
+              res.status(200).json({"status": "ok", "result": {'time_zone': '', 'tracking': []}});
               //res.status(200).json([])
             }
             //en otro caso mostramos un error

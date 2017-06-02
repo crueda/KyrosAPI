@@ -222,6 +222,7 @@ trackingModel.getTracking1AndIconFromDevice = function (deviceId, callback) {
       mongoose.connection.db.collection('VEHICLE', function (err, collection) {
         collection.find({ "device_id": parseInt(deviceId) }).toArray(function (err, docs2) {
           if (docs[0] != undefined) {
+            docs[0].time_zone = docs2[0].time_zone;
             if (docs2[0] != undefined) {
               docs[0].icon = docs2[0].icon_real_time.substring(0, docs2[0].icon_real_time.indexOf('.')) + '.svg';;
               docs[0].alias = docs2[0].alias;
@@ -246,9 +247,18 @@ trackingModel.getTrackingFromVehicleAndDate = function (requestData, callback) {
 }
 
 trackingModel.getTrackingFromDeviceAndDate = function (requestData, callback) {
+  var salida = {'time_zone': '', 'tracking': []};
   mongoose.connection.db.collection('TRACKING', function (err, collection) {
     collection.find({ 'device_id': parseInt(requestData.deviceId), 'pos_date': { $gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docs) {
-      callback(null, docs);
+        mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+          collection.find({ "device_id": parseInt(requestData.deviceId) }).toArray(function (err, docsVehicle) {
+            if (docs[0] != undefined) {
+              salida.time_zone = docsVehicle[0].time_zone;
+            }
+            salida.tracking = docs;
+            callback(null, salida);
+          });
+        });
     });
   });
 }

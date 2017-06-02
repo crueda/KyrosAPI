@@ -188,7 +188,7 @@ monitorModel.getMonitorListFromUser = function (username, callback) {
                     collection.find({ 'username': username }).toArray(function (err, docs) {
 
                         mongoose.connection.db.collection('VEHICLE', function (err, collection) {
-                            collection.find({ "vehicle_license": { $in: docs[0].monitor_vehicle } }).toArray(function (err, docs) {
+                            collection.find({ "device_id": { $in: docs[0].monitor_vehicle } }).toArray(function (err, docs) {
 
                                 for (var i = 0; i < docs.length; i++) {
                                     try {
