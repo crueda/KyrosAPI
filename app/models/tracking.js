@@ -46,8 +46,34 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 
 var trackingModel = {};
 
-
 trackingModel.getTracking1FromFleet = function (fleetId, callback) {
+  mongoose.connection.db.collection('FLEET', function (err, collection) {
+    collection.find({ "id": parseInt(fleetId) }).toArray(function (err, docsFleet) {
+      if (docsFleet!=undefined &&  docsFleet[0]!= undefined) {
+        mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+          collection.find({ "device_id": { $in: docsFleet[0].vehicle } }, { _id: 0, "vehicle_license": 0, "events": 0, "alarm_activated": 0, "location.type": 0 }).toArray(function (err, docs) {
+            docs.forEach(function (doc) {
+              doc['trackingDate'] = moment(new Date(doc["pos_date"])).format("YYYY-MM-DDTHH:mm:ssZ").substring(0, 19) + 'Z';
+              doc['longitude'] = doc['location']['coordinates'][0];
+              doc['latitude'] = doc['location']['coordinates'][1];
+              doc['location'] = undefined;
+              doc['pos_date'] = undefined;
+              doc['deviceId'] = doc['device_id'];
+              doc['id'] = doc['tracking_id'];
+              doc['device_id'] = undefined;
+              doc['tracking_id'] = undefined;
+            });
+            callback(null, docs);
+          });
+        });
+      } else {
+        callback(null, []);
+      }
+    });
+  });
+}
+
+trackingModel.getTracking1FromFleet_Mysql = function (fleetId, callback) {
   if (connection) {
     var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(ROUND(TRACKING_1.GPS_SPEED,1), 0) as speed, IFNULL(ROUND(TRACKING_1.ALTITUDE), 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE FLEET.FLEET_ID=" + fleetId;
     log.debug("Query: " + sql);
@@ -64,8 +90,39 @@ trackingModel.getTracking1FromFleet = function (fleetId, callback) {
   }
 }
 
-// Obtener todos las trackings1 de una lista de flotas
 trackingModel.getTracking1FromFleets = function (fleetIds, callback) {
+  mongoose.connection.db.collection('FLEET', function (err, collection) {
+    collection.find({ "id": { $in: fleetIds}}).toArray(function (err, docsFleet) {
+      if (docsFleet!=undefined) {
+        var vehicles = [];
+        docsFleet.forEach(function (docFleet) {
+          vehicles.push(docFleet['id']);
+        });
+        mongoose.connection.db.collection('TRACKING1', function (err, collection) {
+          collection.find({ "device_id": { $in: vehicles } }, { _id: 0, "vehicle_license": 0, "events": 0, "alarm_activated": 0, "location.type": 0 }).toArray(function (err, docs) {
+            docs.forEach(function (doc) {
+              doc['trackingDate'] = moment(new Date(doc["pos_date"])).format("YYYY-MM-DDTHH:mm:ssZ").substring(0, 19) + 'Z';
+              doc['longitude'] = doc['location']['coordinates'][0];
+              doc['latitude'] = doc['location']['coordinates'][1];
+              doc['location'] = undefined;
+              doc['pos_date'] = undefined;
+              doc['deviceId'] = doc['device_id'];
+              doc['id'] = doc['tracking_id'];
+              doc['device_id'] = undefined;
+              doc['tracking_id'] = undefined;
+            });
+            callback(null, docs);
+          });
+        });
+        
+      } else {
+        callback(null, []);
+      }
+    });
+  });
+}
+
+trackingModel.getTracking1FromFleets_Mysql = function (fleetIds, callback) {
   if (connection) {
     var sql = "select TRACKING_1.TRACKING_ID as id, TRACKING_1.DEVICE_ID as deviceId, IFNULL(ROUND(TRACKING_1.GPS_SPEED,1), 0) as speed, IFNULL(ROUND(TRACKING_1.ALTITUDE), 0) as altitude, IFNULL(TRACKING_1.HEADING, 0) as heading, (TRACKING_1.POS_LATITUDE_DEGREE + TRACKING_1.POS_LATITUDE_MIN/60) as latitude, (POS_LONGITUDE_DEGREE + TRACKING_1.POS_LONGITUDE_MIN/60) as longitude, DATE_FORMAT(FROM_UNIXTIME(FLOOR(TRACKING_1.POS_DATE/1000)), '%Y-%m-%dT%H:%m:%sZ') as trackingDate from TRACKING_1 LEFT JOIN HAS ON TRACKING_1.DEVICE_ID=HAS.DEVICE_ID LEFT JOIN FLEET ON HAS.FLEET_ID=FLEET.FLEET_ID WHERE FLEET.FLEET_ID IN(" + fleetIds + ")";
     log.debug("Query: " + sql);
@@ -154,8 +211,29 @@ trackingModel.getTracking1FromVehicles = function (vehicleIds, callback) {
   });
 }
 
-// Obtener tracking historico de un vehiculo
 trackingModel.getTrackingFromVehicle = function (deviceId, initDate, endDate, callback) {
+    var initEpoch = moment(initDate, 'YYYY-MM-DDTHH:mm:ssZ');
+    var endEpoch = moment(endDate, 'YYYY-MM-DDTHH:mm:ssZ');
+
+    mongoose.connection.db.collection('TRACKING', function (err, collection) {
+      collection.find({ 'device_id': parseInt(deviceId), 'pos_date': { $gt: parseInt(initEpoch), $lt: parseInt(endEpoch) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docs) {
+        docs.forEach(function (doc) {
+          doc['trackingDate'] = moment(new Date(doc["pos_date"])).format("YYYY-MM-DDTHH:mm:ssZ").substring(0, 19) + 'Z';
+          doc['longitude'] = doc['location']['coordinates'][0];
+          doc['latitude'] = doc['location']['coordinates'][1];
+          doc['location'] = undefined;
+          doc['pos_date'] = undefined;
+          doc['deviceId'] = doc['device_id'];
+          doc['id'] = doc['tracking_id'];
+          doc['device_id'] = undefined;
+          doc['tracking_id'] = undefined;
+        });
+        callback(null, docs);
+      });
+    });
+}
+
+trackingModel.getTrackingFromVehicle_Mysql = function (deviceId, initDate, endDate, callback) {
   if (connection) {
     var initEpoch = moment(initDate, 'YYYY-MM-DDTHH:mm:ssZ');
     var endEpoch = moment(endDate, 'YYYY-MM-DDTHH:mm:ssZ');
