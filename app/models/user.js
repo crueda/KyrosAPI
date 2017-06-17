@@ -83,7 +83,10 @@ userModel.loginApp = function(username, password, callback)
                 } else {
                     if( crypt(password, docs[0]['password']) !== docs[0]['password']) {
                         callback(null, {"status": "nok"});
-                    } else {
+                    } else if (docs[0]['blocked']==4||docs[0]['blocked']==5||docs[0]['blocked']==6||docs[0]['blocked']==7) {
+                        callback(null, {"status": "blk"});
+                    }                     
+                    else {
                         mongoose.connection.db.collection('VEHICLE', function (err, collection) {
                             collection.find({'device_id': parseInt(docs[0]['device_id'])}).toArray(function(err, docsVehicle) {
                                 if (docsVehicle!=undefined && docsVehicle[0]!=undefined) {

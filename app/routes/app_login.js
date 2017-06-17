@@ -106,10 +106,9 @@ router.post('/app/login/', function(req, res)
               data.result[0].token_api = token_api;
               res.status(200).json(data);
             }
-            //en otro caso mostramos un error
             else
             {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
+              res.status(200).json(data);
             }
           }
         });

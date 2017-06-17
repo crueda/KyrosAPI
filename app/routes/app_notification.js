@@ -71,45 +71,6 @@ router.get('/app/notifications', function(req, res)
       }
 });
 
-/*
-router.get('/app/notification/:_id', function(req, res)
-{
-    var _id = req.params._id;
-
-      log.info("GET: /notification/"+_id);
-
-      if (_id==null) {
-        res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
-      }
-      else {
-        NotificationModel.getNotification(_id, function(error, data)
-        {
-          if (data == null)
-          {
-            res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
-          }
-          else
-          {
-            //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
-            {
-              res.status(200).json(data)
-            }
-            else if (typeof data == 'undefined' || data.length == 0)
-            {
-              res.status(200).json([])
-            }
-            else
-            {
-              res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
-            }
-          }
-        });
-      }
-});
-*/
-
-
 
 router.post('/app/notificationLimit', function(req, res)
 {
