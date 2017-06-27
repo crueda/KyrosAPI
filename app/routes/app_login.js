@@ -80,18 +80,22 @@ router.post('/app/login/', function(req, res)
     var version = req.body.version;
     var username = req.body.username;
     var password = req.body.password;
+    var app_type = req.body.type;
 
-    if (version==undefined) {
-      version = 3;
-    }
+    if (app_type==undefined)
+      app_type = "kyros";
+
+    //if (version==undefined) {
+    //  version = 3;
+    //}
       if (username==null || password==null) {
         res.status(202).json({"response": {"status":status.STATUS_VALIDATION_ERROR,"description":messages.MISSING_PARAMETER}})
       }
-      else if (version < 3) {
-        res.status(202).json({"status": "msg", "title": "Versión incorrecta", "message": "Por favor, consulte con logistica@kyroslbs.com para actualizar su aplicación"});
-      }
+      //else if (version < 3) {
+      //  res.status(202).json({"status": "msg", "title": "Versión incorrecta", "message": "Por favor, consulte con logistica@kyroslbs.com para actualizar su aplicación"});
+      //}
       else {
-        UserModel.loginApp(username, password, function(error, data)
+        UserModel.loginApp(username, password, app_type, function(error, data)
         {
           if (data == null)
           {

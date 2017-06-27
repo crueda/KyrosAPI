@@ -19,7 +19,8 @@ gulp.task('default', function() {
 // --------------------------------------------------------------------------------
 // Actualizar en demos
 // --------------------------------------------------------------------------------
-gulp.task('demos', ['upload-app-demos', 'upload-properties-demos', 'upload-appjs-demos'], function() {
+//gulp.task('demos', ['upload-app-demos', 'upload-properties-demos', 'upload-appjs-demos'], function() {
+gulp.task('demos', ['upload-app-demos', 'upload-appjs-demos'], function() {
   console.log('Actualizado el entorno de demos!');
 });
 
@@ -27,11 +28,13 @@ gulp.task('demos', ['upload-app-demos', 'upload-properties-demos', 'upload-appjs
 // --------------------------------------------------------------------------------
 // Actualizar en produccion
 // --------------------------------------------------------------------------------
-gulp.task('pro1', ['upload-app-pro1', 'upload-properties-pro1', 'upload-appjs-pro1'], function() {
+//gulp.task('pro1', ['upload-app-pro1', 'upload-properties-pro1', 'upload-appjs-pro1'], function() {
+gulp.task('pro1', ['upload-app-pro1', 'upload-appjs-pro1'], function() {
   console.log('Actualizado el entorno de producción 1 !');
 });
 
-gulp.task('pro2', ['upload-app-pro2', 'upload-properties-pro2', 'upload-appjs-pro2'], function() {
+//gulp.task('pro2', ['upload-app-pro2', 'upload-properties-pro2', 'upload-appjs-pro2'], function() {
+gulp.task('pro2', ['upload-app-pro2', 'upload-appjs-pro2'], function() {
   console.log('Actualizado el entorno de producción 2 !');
 });
 
