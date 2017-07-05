@@ -39,7 +39,7 @@ var notificationModel = {};
 notificationModel.getConfigNotifications = function(username, deviceId, callback)
 {
     mongoose.connection.db.collection('NOTIFICATION', function (err, collection) {
-      collection.find({"username": username, "device_id": deviceId}).toArray(function(err, docs) {
+      collection.find({"username": username, "device_id": parseInt(deviceId)}).toArray(function(err, docs) {
           callback(null, docs);
         });
     });
@@ -144,7 +144,7 @@ notificationModel.configNotificationChange0 = function(username, deviceId, event
 
       var query = {
         "username": username,
-        "device_id": deviceId,
+        "device_id": parseInt(deviceId),
         "event_type": parseInt(eventType)
       };
       var element = {

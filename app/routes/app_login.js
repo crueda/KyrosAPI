@@ -83,7 +83,7 @@ router.post('/app/login/', function(req, res)
     var app_type = req.body.type;
 
     if (app_type==undefined)
-      app_type = "kyros";
+      app_type = "mypush";
 
     //if (version==undefined) {
     //  version = 3;

@@ -124,6 +124,10 @@ router.post('/app/setDeviceInfo/user/:username', function(req, res)
   var device_width = req.body.device_width;
   var device_language = req.body.device_language;
   var app_version = req.body.app_version;
+  var app_type = req.body.app_type;
+
+  if (app_type==undefined)
+    app_type = 'mypush'
 
   log.info("POST: /app/setDeviceInfo/user/"+username);
   access_log.info("BODY >>> " + req.body);
@@ -134,7 +138,7 @@ router.post('/app/setDeviceInfo/user/:username', function(req, res)
   else {
     UserModel.saveDeviceInfo(username, token, device_model,
       device_platform, device_version, device_manufacturer, device_serial, device_uuid,
-      device_height, device_width, device_language, app_version, function(error, data) {
+      device_height, device_width, device_language, app_version, app_type, function(error, data) {
       if (data == null) {
         res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
       }
