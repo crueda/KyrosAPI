@@ -80,7 +80,7 @@ router.post('/app/login/', function(req, res)
     var version = req.body.version;
     var username = req.body.username;
     var password = req.body.password;
-    var app_type = req.body.type;
+    var app_type = req.body.app_type;
 
     if (app_type==undefined)
       app_type = "mypush";

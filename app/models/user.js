@@ -94,8 +94,13 @@ userModel.loginApp = function(username, password, app_type, callback)
                                 } 
                                 mongoose.connection.db.collection('APP_RELEASE', function (err, collection) {
                                     collection.find({'type':app_type}).toArray(function(err, docsRelease) {
-                                        docs[0].last_app_version = docsRelease[0].version
-                                        docs[0].last_app_url = docsRelease[0].url
+                                        if (docsRelease[0]!=undefined) {
+                                            docs[0].last_app_version = docsRelease[0].version;
+                                            docs[0].last_app_url = docsRelease[0].url;
+                                        } else {
+                                            docs[0].last_app_version = "1";
+                                            docs[0].last_app_url = "";
+                                        }
                                         callback(null, {"status": "ok", "result": docs});
                                     });
                                 });
