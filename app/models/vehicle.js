@@ -76,6 +76,14 @@ vehicleModel.setAsDefault = function(username, deviceId, callback)
     });
 }
 
+vehicleModel.getLastEvents = function (id, callback) {
+  mongoose.connection.db.collection('EVENT', function (err, collection) {
+    collection.find({ 'device_id': parseInt(id)}, { _id: 0, location: 0, geocoding: 0, tracking_id: 0 }).sort({'timestamp': 1}).limit(10).toArray(function (err, docs) {
+        //callback(null, docs);
+        callback(null, [{'event_type': 12, 'value': 34, 'percentage': 12},{'event_type': 13, 'value': 64, 'percentage': 22}]);
+    });
+  });
+}
 
 //exportamos el objeto para tenerlo disponible en la zona de rutas
 module.exports = vehicleModel;

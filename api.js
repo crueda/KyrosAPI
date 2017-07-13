@@ -39,6 +39,8 @@ var api_app_monitor = require('./app/routes/app_monitor');
 var api_app_graph = require('./app/routes/app_graph');
 var api_app_report = require('./app/routes/app_report');
 
+var view_vehicle = require('./app/routes/view/view_vehicle');
+
 var i18n = require("i18n");
 
 //necesario para utilizar los verbos put y delete en formularios
@@ -103,6 +105,7 @@ app.use('/api', api_app_graph);
 app.use('/api', api_app_report);
 app.use('/api', api_app_icon);
 
+app.use('/view', view_vehicle);
 
 // AUTENTICACION TOKEN
 app.all('/*', [require('./app/middlewares/validateRequest')]);
