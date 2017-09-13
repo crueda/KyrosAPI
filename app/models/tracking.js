@@ -300,11 +300,12 @@ trackingModel.getTracking1AndIconFromDevice = function (deviceId, callback) {
       mongoose.connection.db.collection('VEHICLE', function (err, collection) {
         collection.find({ "device_id": parseInt(deviceId) }).toArray(function (err, docs2) {
           if (docs[0] != undefined) {
-            docs[0].time_zone = docs2[0].time_zone;
             if (docs2[0] != undefined) {
+              docs[0].time_zone = docs2[0].time_zone;
               docs[0].icon = docs2[0].icon_real_time.substring(0, docs2[0].icon_real_time.indexOf('.')) + '.svg';;
               docs[0].alias = docs2[0].alias;
             } else {
+              docs[0].time_zone = 0;
               docs[0].icon = "car.svg";
               docs[0].alias = deviceId;
             }

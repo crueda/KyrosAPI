@@ -43,11 +43,18 @@ reportModel.getReportDailyData = function (deviceId, callback) {
     var start = moment().add(-1, 'day').utc().startOf('day');
     var end = moment().utc().startOf('day');
 
-    mongoose.connection.db.collection('ODOMETER', function (err, collection) {
-        collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsOdometer) {
+    mongoose.connection.db.collection('VEHICLE', function (err, collection) {
+        collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsVehicle) {
 
-            mongoose.connection.db.collection('TRACKING', function (err, collection) {
-                collection.find({ 'device_id': parseInt(deviceId), 'pos_date': { $lt: Number(end), $gt: Number(start - 1000) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
+            // corregir el start y el end con la zona del vehiculo
+            start = Moment(start).tz(docsVehicle[0].time_zone);
+            end = Moment(end).tz(docsVehicle[0].time_zone);
+
+            mongoose.connection.db.collection('ODOMETER', function (err, collection) {
+            collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsOdometer) {
+
+                mongoose.connection.db.collection('TRACKING', function (err, collection) {
+                    collection.find({ 'device_id': parseInt(deviceId), 'pos_date': { $lt: Number(end), $gt: Number(start - 1000) } }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
                     //collection.find({ 'pos_date': { $lt: Number(end), $gt: Number(start-1000) } ,  'events': {"$not": {"$size": 0}} }).sort({ "pos_date": 1 }).toArray(function (err, docs) {
                     var out = {
                         "dayDistance": 0,
@@ -97,10 +104,18 @@ reportModel.getReportDailyData = function (deviceId, callback) {
                     for (var i = 0; i < docs.length; i++) {
 
                         if (i == 0) {
-                            out.reportDailyStartGeocoding = docs[i].geocoding;
+                            if (docs[i].geocoding.length>53) {
+                                out.reportDailyStartGeocoding = docs[i].geocoding.substring(0, 53) + '...';
+                            } else {
+                                out.reportDailyStartGeocoding = docs[i].geocoding;                                
+                            }
                             posDateInit = docs[i].pos_date;
                         } else if (i == docs.length - 1) {
-                            out.reportDailyEndGeocoding = docs[i].geocoding;
+                            if (docs[i].geocoding.length>53) {
+                                out.reportDailyEndGeocoding = docs[i].geocoding.substring(0, 53) + '...';
+                            } else {
+                                out.reportDailyEndGeocoding = docs[i].geocoding;                                
+                            }
                             posDateEnd = docs[i].pos_date;
                         }
                         out.reportDailyDistance = out.reportDailyDistance + docs[i].distance;
@@ -144,25 +159,31 @@ reportModel.getReportDailyData = function (deviceId, callback) {
                     }
                     out.reportDailyDistance = out.reportDailyDistance.toFixed(3);
 
-                    mongoose.connection.db.collection('VEHICLE', function (err, collection) {
-                        collection.find({ 'device_id': parseInt(deviceId) }).toArray(function (err, docsVehicle) {
-                            out.reportDailyConsumption = (docsVehicle[0].consumption * (out.reportDailyDistance / 100)).toFixed(2);
-                            out.reportDailyCO2 = (out.reportDailyConsumption * 2.68).toFixed(2);
-                            out.time_zone = docsVehicle[0].time_zone;
-                            if (posDateInit>0) 
-                                out.reportDailyStartDate = Moment(posDateInit).tz(docsVehicle[0].time_zone).format("HH:mm:ss");
+                    if (docsVehicle != undefined) {
+                                out.reportDailyConsumption = (docsVehicle[0].consumption * (out.reportDailyDistance / 100)).toFixed(2);
+                                out.reportDailyCO2 = (out.reportDailyConsumption * 2.68).toFixed(2);
+                                out.time_zone = docsVehicle[0].time_zone;
+                                if (posDateInit>0) 
+                                    out.reportDailyStartDate = Moment(posDateInit).tz(docsVehicle[0].time_zone).format("HH:mm:ss");
 
-                            if (posDateEnd>0) 
-                                out.reportDailyEndDate = Moment(posDateEnd).tz(docsVehicle[0].time_zone).format("HH:mm:ss");
+                                if (posDateEnd>0) 
+                                    out.reportDailyEndDate = Moment(posDateEnd).tz(docsVehicle[0].time_zone).format("HH:mm:ss");
+                    } else {
+                                out.reportDailyConsumption = 0;
+                                out.reportDailyCO2 = 0;
+                                out.time_zone = 0;
+                                f (posDateInit>0) 
+                                    out.reportDailyStartDate = Moment(posDateInit).tz(0).format("HH:mm:ss");
 
-                            callback(null, out);
-                        });
-                    });
+                                if (posDateEnd>0) 
+                                    out.reportDailyEndDate = Moment(posDateEnd).tz(0).format("HH:mm:ss");
+                    }
+                    callback(null, out);
                 });
-
+                });
+            });
             });
         });
-
     });
 }
 
