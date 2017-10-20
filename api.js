@@ -28,6 +28,7 @@ var api_vehicle = require('./app/routes/vehicle');
 var api_login = require('./app/routes/login');
 var api_validate = require('./app/routes/validate');
 var api_push = require('./app/routes/push');
+var api_playback = require('./app/routes/playback');
 
 var api_app_icon = require('./app/routes/app_icon');
 var api_app_notification = require('./app/routes/app_notification');
@@ -91,7 +92,7 @@ app.all('/*', function(req, res, next) {
 app.use('/', api_status);
 app.use('/', api_login);
 app.use('/', api_validate);
-
+app.use('/api', api_playback);
 
 
 app.use('/api', api_app_login);
@@ -104,7 +105,7 @@ app.use('/api', api_app_monitor);
 app.use('/api', api_app_graph);
 app.use('/api', api_app_report);
 app.use('/api', api_app_icon);
-
+ 
 app.use('/view', view_vehicle);
 
 // AUTENTICACION TOKEN
@@ -122,6 +123,7 @@ app.use('/', api_tracking);
 app.use('/', api_fleet);
 app.use('/', api_vehicle);
 app.use('/', api_poi);
+
 
 /*
 app.use('/', api_route);
