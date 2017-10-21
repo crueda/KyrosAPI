@@ -38,7 +38,7 @@ playbackModel.getKmlFromToken = function (token, callback) {
         mongoose.connection.db.collection('TRACKING', function (err, collection) {
           //var initEpoch = moment(initDate, 'YYYY-MM-DDTHH:mm:ssZ');
           //var endEpoch = moment(endDate, 'YYYY-MM-DDTHH:mm:ssZ');
-            collection.find({ 'device_id': docs[0].device_id, 'pos_date': { $gt: parseInt(docs[0].init_date), $lt: parseInt(docs[0].end_date) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docsTracking) {
+            collection.find({ 'device_id': parseInt(docs[0].device_id), 'pos_date': { $gt: parseInt(docs[0].init_date), $lt: parseInt(docs[0].end_date) } }).sort({ 'pos_date': 1 }).limit(7000).toArray(function (err, docsTracking) {
 
             var kml_init_date =  moment(docsTracking[0].pos_date).format("YYYY-MM-DDTHH:mm:ss.SSS");
               
