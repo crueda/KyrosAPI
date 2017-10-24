@@ -161,14 +161,19 @@ xmlns:atom="http://www.w3.org/2005/Atom">
 Fecha inicial:    ` + initIsoDate + `<br>
 Fecha final:      ` + endIsoDate + `<br>
 Tiempo:           ` + totalIsoDate + `<br>
-Distancia:        ` + distance.toFixed(3) + ` Km<br>
-Velocidad mínima: ` + min_speed.toFixed(2) + ` Km/h<br>
+Distancia:        ` + distance.toFixed(3) + ` Km<br>`
+if (min_speed>0) {
+  kml_init = kml_init + `Velocidad mínima: ` + min_speed.toFixed(2) + ` Km/h<br>`
+}
+kml_init = kml_init + `
 Velocidad máxima: ` + max_speed.toFixed(2) + ` Km/h<br>
-Velocidad media:  ` + (distance/(dateDuration/3600000)).toFixed(2) + ` Km/h<br>
-Altitud mínima:   ` + min_altitude.toFixed(0) + ` m<br>
-Altitud máxima:   ` + max_altitude.toFixed(0) + ` m<br>
-Altitud media:    ` + (sum_altitude/docsTracking.length).toFixed(0) + ` m<br>
-]]></description>
+Velocidad media:  ` + (distance/(dateDuration/3600000)).toFixed(2) + ` Km/h<br>`
+if (min_altitude.toFixed(0)>0) {
+  kml_init = kml_init + `Altitud mínima:   ` + min_altitude.toFixed(0) + ` m<br>
+  Altitud máxima:   ` + max_altitude.toFixed(0) + ` m<br>
+  Altitud media:    ` + (sum_altitude/docsTracking.length).toFixed(0) + ` m<br>`
+}
+kml_init = kml_init + `]]></description>  
 <styleUrl>#track</styleUrl>
 <ExtendedData>
 <Data name="type"><value><![CDATA[biking]]></value></Data>
