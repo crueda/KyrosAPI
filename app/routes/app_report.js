@@ -43,7 +43,7 @@ router.get('/app/report_daily/device/:deviceId', function(req, res)
         else
         {
           //si existe enviamos el json
-          if (typeof data !== 'undefined')
+          if (data !== 'undefined')
           {
             res.status(200).json(data)
           }

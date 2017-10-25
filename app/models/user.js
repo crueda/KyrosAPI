@@ -169,7 +169,7 @@ userModel.saveDeviceInfo = function(username, token, device_model,
             if (docs[0]!=undefined) {
                 docs[0].token = token;
                 docs[0].app_version = app_version;
-                device_info = {
+                var device_info = {
                   'device_model': device_model,
                   'device_platform': device_platform,
                   'device_version': device_version,
@@ -254,10 +254,10 @@ userModel.getUsers = function(startRow, endRow, sortBy, callback)
             orderBy = 'id';
           }
           else {
-            vsortBy = sortBy.split(',');
+            var vsortBy = sortBy.split(',');
             for (var i=0; i<vsortBy.length; i++ ) {
               if (vsortBy[i].charAt(0) == '-') {
-                var element = vsortBy[i].substring(1, vsortBy[i].length);
+                let element = vsortBy[i].substring(1, vsortBy[i].length);
                 if (element == 'id' || element == 'username')
                 {
                   if (orderBy == '')
@@ -266,7 +266,7 @@ userModel.getUsers = function(startRow, endRow, sortBy, callback)
                     orderBy = orderBy + ',' + element + ' desc';
                 }
               } else {
-                var element = vsortBy[i];
+                let element = vsortBy[i];
                 if (element == 'id' || element == 'username')
                 {
                   if (orderBy == '')

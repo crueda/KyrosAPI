@@ -30,7 +30,6 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
     }
 });
 
-// Crear un objeto para ir almacenando todo lo necesario
 var heatmapModel = {};
 
 heatmapModel.getHeatmapData = function(requestData,callback)
@@ -43,7 +42,7 @@ heatmapModel.getHeatmapData = function(requestData,callback)
                 "features": []
             }
 
-            for (item in jsondocs) {
+            for (let item in jsondocs) {
                 var json_feature = {
                     "geometry": {  
                         "type": "Point",
@@ -61,6 +60,5 @@ heatmapModel.getHeatmapData = function(requestData,callback)
     });
 }
 
-//exportamos el objeto para tenerlo disponible en la zona de rutas
 module.exports = heatmapModel;
 

@@ -7,7 +7,7 @@ var moment = require('moment');
 var utils = require("../utils/utils.js");
 var sys = require('sys')
 var exec = require('child_process').exec;
-var sys = require('util');
+//var sys = require('util');
 
 // Fichero de propiedades
 var PropertiesReader = require('properties-reader');
@@ -192,7 +192,7 @@ router.post('/vehicles/', function (req, res) {
         if (data == null) {
             res.status(200).json({ "response": { "status": 0, "count": 0, "data": [] } });
         }
-        else if (typeof data !== 'undefined') {
+        else if (data !== 'undefined') {
             res.status(200).json({ "response": { "status": 0, "count": data.length, "data": data } });
         }
         //en otro caso se muestra error
@@ -252,7 +252,7 @@ router.get('/vehicle/:id', function (req, res) {
             }
             else {
                 //si existe enviamos el json
-                if (typeof data !== 'undefined' && data.length > 0) {
+                if (data !== 'undefined' && data.length > 0) {
                     res.status(200).json({ "response": { "status": 0, "count": 1, "data": data } })
                 }
                 //en otro caso mostramos un error
@@ -319,12 +319,11 @@ router.post('/vehicles/area', function (req, res) {
 
     if (!isNaN(areaId) && !isNaN(timestamp)) {
         if (deviceId != undefined && deviceId.length>0) {
-            deviceIdList = deviceId.join(",");
+            var deviceIdList = deviceId.join(",");
             var command = properties.get('main.script.check_areas') + " " + areaId + " " + timestamp + " " + deviceIdList
             log.info (command);
 
-            var child;
-            child = exec(command, function (error, stdout, stderr) {
+            exec(command, function (error, stdout, stderr) {
                 if (error !== null) {
                     res.status(500).json({ "response": { "status": -1, "description": stderr } })
                 } else {
@@ -342,8 +341,7 @@ router.post('/vehicles/area', function (req, res) {
                 var command = properties.get('main.script.check_areas') + " " + areaId + " " + timestamp + " " + deviceIdList
                 log.info (command);
 
-                var child;
-                child = exec(command, function (error, stdout, stderr) {
+                exec(command, function (error, stdout, stderr) {
                     if (error !== null) {
                         res.status(500).json({ "response": { "status": -1, "description": stderr } })
                     } else {

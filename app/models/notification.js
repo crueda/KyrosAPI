@@ -33,7 +33,6 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
     }
 });
 
-// Crear un objeto para ir almacenando todo lo necesario
 var notificationModel = {};
 
 notificationModel.getConfigNotifications = function(username, deviceId, callback)
@@ -86,10 +85,10 @@ notificationModel.getLastNotificationsTimestamp = function(username, timestamp, 
     mongoose.connection.db.collection('APP_NOTIFICATION', function (err, collection) {
         collection.find({"username": username, "timestamp": {$gt: timestamp}}).sort({'vehicle_license': 1, 'timestamp': -1}).toArray(function(err, docs) {
             if (docs!=undefined) {
-                var result = {'status': 'ok', 'num_notifications': docs.length, 'result': docs};
+                let result = {'status': 'ok', 'num_notifications': docs.length, 'result': docs};
                 callback(null, result);
             } else {
-                var result = {'status': 'nok', 'num_notifications': 0, 'result': []};
+                let result = {'status': 'nok', 'num_notifications': 0, 'result': []};
                 callback(null, result);                
             }
           });
@@ -269,7 +268,7 @@ notificationModel.statusUserVehicleNotifications = function(username, vehicleLic
 {
     mongoose.connection.db.collection('NOTIFICATION', function (err, collection) {
         collection.find({'username': username, 'vehicle_license': vehicleLicense}).toArray(function(err, docs) {
-          result = {'panic': false, 'start_stop': false, 'zone': false, 'route': false, 'poi': false, 'other': false}
+          var result = {'panic': false, 'start_stop': false, 'zone': false, 'route': false, 'poi': false, 'other': false}
           for (var i=0; i<docs.length; i++) {
             if (docs[i].event_type==902) {
               result.panic = true;

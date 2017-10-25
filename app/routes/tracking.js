@@ -35,6 +35,7 @@ var access_log = require('tracer').console({
   }
 });
 
+/*
 function kcoords(px, py) {
   var x = Math.abs(x);
   var dx = Math.floor(x);
@@ -49,6 +50,7 @@ function kcoords(px, py) {
   //return (dx + '°' + mx + 'min ' + sx + 'seg ' + dy + '°' + my + 'min ' + sy + 'seg');
   return (dx + ',' + mx + '-' + dy + ',' + my);
 }
+*/
 
 /**
 * @apiDefine LoginError
@@ -219,7 +221,7 @@ router.get('/tracking1/fleet/:id', function (req, res) {
     if (data == null) {
       res.status(200).json({ "response": { "status": 0,  "count": 0, "data": [] } } );
     }
-    else if (typeof data !== 'undefined') {
+    else if (data !== 'undefined') {
       res.status(200).json({ "response": { "status": 0,  "count": data.length, "data": data } } );
     }
     //en otro caso se muestra error
@@ -289,7 +291,7 @@ router.get('/tracking1/vehicle/:id', function (req, res) {
     if (data == null) {
       res.status(200).json({ "response": { "status": 0, "count": 0, "data": [] } } );
     }
-    else if (typeof data !== 'undefined') {
+    else if (data !== 'undefined') {
       res.status(200).json({ "response": { "status": 0,  "count": data.length, "data": data } } );
     }
     //en otro caso se muestra error
@@ -358,7 +360,7 @@ router.post('/tracking1/fleets', function (req, res) {
     if (data == null) {
       res.status(200).json({ "response": { "status": 0,  "count": 0, "data": [] } } );
     }
-    else if (typeof data !== 'undefined') {
+    else if (data !== 'undefined') {
       res.status(200).json({ "response": { "status": 0,  "count": data.length, "data": data } } );
     }
     else {
@@ -426,7 +428,7 @@ router.post('/tracking1/vehicles', function (req, res) {
     if (data == null) {
       res.status(200).json({ "response": { "status": 0, "count": 0,  "data": [] } } )
     }
-    else if (typeof data !== 'undefined') {
+    else if (data !== 'undefined') {
       res.status(200).json({ "response": { "status": 0, "count": data.length, "data": data } } )
     }
     else {
@@ -509,7 +511,7 @@ router.post('/tracking1', function (req, res) {
         if (data == null) {
           res.status(200).json({ "response": { "status": 0, "count":0, "data": [] } } )
         }
-        else if (typeof data !== 'undefined') {
+        else if (data !== 'undefined') {
           res.status(200).json({ "response": { "status": 0, "count": data.length, "data": data } } )
         }
         else {
@@ -541,7 +543,7 @@ router.post('/tracking1vehicles', function (req, res) {
         if (data == null) {
           res.status(200).json({ "response": { "status": 0, "data": { "record": [] } } })
         }
-        else if (typeof data !== 'undefined') {
+        else if (data !== 'undefined') {
           res.status(200).json({ "response": { "status": 0, "data": { "record": data } } })
         }
         else {
@@ -618,7 +620,7 @@ router.post('/tracking/vehicle/:id', function (req, res) {
     if (data == null) {
       res.status(200).json({ "response": { "status": 0,  "count": 0, "data": [] } } );
     }
-    else if (typeof data !== 'undefined') {
+    else if (data !== 'undefined') {
       res.status(200).json({ "response": { "status": 0, "count": data.length,  "data": data } } );
     }
     //en otro caso se muestra error

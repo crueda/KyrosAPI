@@ -38,16 +38,16 @@ router.get('/app/monitor/:username', function(req, res)
         else
         {
           //si existe enviamos el json
-          if (typeof data !== 'undefined' && data.length > 0)
+          if (data !== 'undefined' && data.length > 0)
           {
             //log.info (data[0]['monitor']);
-            data2 = JSON.stringify(data);
+            var data2 = JSON.stringify(data);
             //data2 = data2.replace("childs","tree");
             data2 = data2.split("childs").join("tree");
 
             res.status(200).json(JSON.parse (data2));
           }
-          else if (typeof data == 'undefined' || data.length == 0)
+          else if (data == 'undefined' || data.length == 0)
           {
             res.status(200).json([])
           }
@@ -74,11 +74,11 @@ router.get('/app/monitorList/:username', function(req, res)
         else
         {
           //si existe enviamos el json
-          if (typeof data !== 'undefined' && data.length > 0)
+          if (data !== 'undefined' && data.length > 0)
           {
             res.status(200).json(data)
           }
-          else if (typeof data == 'undefined' || data.length == 0)
+          else if (data == 'undefined' || data.length == 0)
           {
             res.status(200).json([])
           }

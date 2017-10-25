@@ -41,16 +41,14 @@ router.get('/app/graph/device/:deviceId', function(req, res)
         }
         else
         {
-          //si existe enviamos el json
-          if (typeof data !== 'undefined' && data.length > 0)
+          if (data !== 'undefined' && data.length > 0)
           {
             res.status(200).json(data)
           }
-          else if (typeof data == 'undefined' || data.length == 0)
+          else if (data == 'undefined' || data.length == 0)
           {
             res.status(200).json([])
           }
-          //en otro caso mostramos un error
           else
           {
             res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -77,12 +75,10 @@ router.get('/app/graph/reset/device/:deviceId', function(req, res)
         }
         else
         {
-          //si existe enviamos el json
-          if (typeof data !== 'undefined')
+          if (data !== 'undefined')
           {
             res.status(200).json(data)
           }
-          //en otro caso mostramos un error
           else
           {
             res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})

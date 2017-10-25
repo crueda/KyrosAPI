@@ -54,11 +54,11 @@ router.get('/app/notifications', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -98,7 +98,7 @@ router.post('/app/notificationLimit', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined')
+            if (data !== 'undefined')
             {
               res.status(200).json(data)
             }
@@ -131,7 +131,7 @@ router.post('/app/notificationLast', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined')
+            if (data !== 'undefined')
             {
               res.status(200).json(data)
             }
@@ -166,11 +166,11 @@ router.get('/app/notification/archive', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -205,11 +205,11 @@ router.post('/app/notification/archive', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -242,7 +242,7 @@ router.get('/app/notification/archive/user/:username', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined')
+            if (data !== 'undefined')
             {
               res.status(200).json("ok")
             }
@@ -273,9 +273,9 @@ router.post('/app/notification/config/user/:username', function(req, res)
       if (data == null) {
           res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
       } else {
-        if (typeof data !== 'undefined' && data.length > 0) {
+        if (data !== 'undefined' && data.length > 0) {
           res.status(200).json(data)
-        } else if (typeof data == 'undefined' || data.length == 0) {
+        } else if (data == 'undefined' || data.length == 0) {
           res.status(200).json([])
         } else {
           res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -306,11 +306,11 @@ router.post('/app/notification/setToken', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -345,11 +345,11 @@ router.get('/app/notification/config/add', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -384,11 +384,11 @@ router.get('/app/notification/config/remove', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -420,7 +420,7 @@ router.post('/app/notification/config/change', function(req, res)
         NotificationModel.configNotificationChange(username, deviceId, eventType, enabled, function(error, data)
         {
             //si existe enviamos el json
-            if (typeof data !== 'undefined')
+            if (data !== 'undefined')
             {
               res.status(200).json(data)
             }
@@ -453,11 +453,11 @@ router.get('/app/notification/enable/user/:username', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -490,11 +490,11 @@ router.get('/app/notification/disable/user/:username', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
               res.status(200).json(data)
             }
-            else if (typeof data == 'undefined' || data.length == 0)
+            else if (data == 'undefined' || data.length == 0)
             {
               res.status(200).json([])
             }
@@ -528,7 +528,7 @@ router.get('/app/notification/status/user/:username', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined')
+            if (data !== 'undefined')
             {
               res.status(200).json(data)
             }
@@ -562,7 +562,7 @@ router.get('/app/notification/status', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined')
+            if (data !== 'undefined')
             {
               res.status(200).json(data)
             }

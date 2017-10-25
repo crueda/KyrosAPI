@@ -126,7 +126,7 @@ reportModel.getReportDailyData = function (deviceId, callback) {
                         count = count + 1;
 
                         // tracking
-                        tracking_point = {
+                        var tracking_point = {
                             "longitude": docs[i].location.coordinates[0],
                             "latitude": docs[i].location.coordinates[1],
                             "timestamp": docs[i].pos_date
@@ -144,7 +144,6 @@ reportModel.getReportDailyData = function (deviceId, callback) {
                         }
                     }
                     if (count > 1) {
-                        var duration = posDateEnd - posDateInit;
                         var dateDuration = new Date(posDateEnd - posDateInit);
                         var dateDurationUTC = new Date(dateDuration.getUTCFullYear(), dateDuration.getUTCMonth(), dateDuration.getUTCDate(), dateDuration.getUTCHours(), dateDuration.getUTCMinutes(), dateDuration.getUTCSeconds());
 

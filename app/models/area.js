@@ -84,10 +84,10 @@ areaModel.getAreasMysql = function(startRow, endRow, sortBy, callback)
             orderBy = 'id';
           }
           else {
-            vsortBy = sortBy.split(',');
+            var vsortBy = sortBy.split(',');
             for (var i=0; i<vsortBy.length; i++ ) {
               if (vsortBy[i].charAt(0) == '-') {
-                var element = vsortBy[i].substring(1, vsortBy[i].length);
+                let element = vsortBy[i].substring(1, vsortBy[i].length);
                 if (element == 'id' || element == 'description' || element == 'initDate'  || element == 'endDate'  || element == 'initHour'  || element == 'endHour'  || element == 'typeArea'  || element == 'radius')
                 {
                   if (orderBy == '')
@@ -96,7 +96,7 @@ areaModel.getAreasMysql = function(startRow, endRow, sortBy, callback)
                     orderBy = orderBy + ',' + element + ' desc';
                 }
               } else {
-                var element = vsortBy[i];
+                let element = vsortBy[i];
                 if (element == 'id' || element == 'description' || element == 'initDate'  || element == 'endDate'  || element == 'initHour'  || element == 'endHour'  || element == 'typeArea'  || element == 'radius')
                 {
                   if (orderBy == '')

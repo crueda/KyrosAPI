@@ -16,20 +16,6 @@ var log = require('tracer').console({
   }
 });
 
-/*var dbConfig = {
-  host: properties.get('bbdd.mysql.ip'),
-  user: properties.get('bbdd.mysql.user'),
-  password: properties.get('bbdd.mysql.passwd'),
-  database: properties.get('bbdd.mysql.name'),
-  connectionLimit: 50,
-  queueLimit: 0,
-  waitForConnection: true
-};
-// Crear la conexion a la base de datos
-var mysql = require('mysql');
-var pool = mysql.createPool(dbConfig);
-*/
-
 var dbMongoName = properties.get('bbdd.mongo.name');
 var dbMongoHost = properties.get('bbdd.mongo.ip');
 var dbMongoPort = properties.get('bbdd.mongo.port');
@@ -98,10 +84,10 @@ fleetModel.getFleets_mysql = function (username, callback) {
               orderBy = 'id';
             }
             else {
-              vsortBy = sortBy.split(',');
+              var vsortBy = sortBy.split(',');
               for (var i = 0; i < vsortBy.length; i++) {
                 if (vsortBy[i].charAt(0) == '-') {
-                  var element = vsortBy[i].substring(1, vsortBy[i].length);
+                  let element = vsortBy[i].substring(1, vsortBy[i].length);
                   if (element == 'id' || element == 'description' || element == 'weight' || element == 'longitude' || element == 'latitude' || element == 'height') {
                     if (orderBy == '')
                       orderBy = element + ' desc';
@@ -109,7 +95,7 @@ fleetModel.getFleets_mysql = function (username, callback) {
                       orderBy = orderBy + ',' + element + ' desc';
                   }
                 } else {
-                  var element = vsortBy[i];
+                  let element = vsortBy[i];
                   if (element == 'id' || element == 'description' || element == 'weight' || element == 'longitude' || element == 'latitude' || element == 'height') {
                     if (orderBy == '')
                       orderBy = element;

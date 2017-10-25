@@ -50,7 +50,7 @@ playbackModel.getKmlFromToken = function (token, callback) {
               var h = dateDurationUTC.getHours();
               var m = dateDurationUTC.getMinutes();
               var s = dateDurationUTC.getSeconds();
-              totalIsoDate = padToTwo(h) + ":" + padToTwo(m) + ":" + padToTwo(s);
+              var totalIsoDate = padToTwo(h) + ":" + padToTwo(m) + ":" + padToTwo(s);
 
               var initIsoDate = "";
               var endIsoDate = "";

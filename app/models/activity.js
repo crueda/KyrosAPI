@@ -39,8 +39,6 @@ activityModel.getActivity = function(requestData,callback)
 
         mongoose.connection.db.collection('TRACKING', function (err, collection) {
         collection.find({'vehicle_license': requestData.vehicleLicense, 'pos_date': {$gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate)}}).sort({'pos_date': 1}).toArray(function(err, docs) {
-        //collection.find({'pos_date': {$gt: parseInt(requestData.initDate), $lt: parseInt(requestData.endDate)}}).limit(1000).sort({'pos_date': 1}).toArray(function(err, docs) {
-            log.info(docs);
             var jsondocs = jsonfy(JSON.stringify(docs)); 
 
             var json_graphs = {"datasets": 
@@ -65,7 +63,7 @@ activityModel.getActivity = function(requestData,callback)
             }
 
             var total_distance = 0;
-            for (item in jsondocs) {
+            for (let item in jsondocs) {
                 if (jsondocs[item].speed!=null)
                     json_graphs.datasets[0].data.push(jsondocs[item].speed);
                 else 
@@ -121,7 +119,7 @@ activityModel.getActivityWithHR = function(requestData,callback)
             }
 
             var total_distance = 0;
-            for (item in jsondocs) {
+            for (let item in jsondocs) {
                 json_graphs.datasets[0].data.push(jsondocs[item].speed);
                 json_graphs.datasets[1].data.push(jsondocs[item].altitude);
                 json_graphs.datasets[2].data.push(total_distance);

@@ -50,7 +50,7 @@ router.get('/app/user/:username', function(req, res)
     }
     else {
       //si existe enviamos el json
-      if (typeof data !== 'undefined') {
+      if (data !== 'undefined') {
         res.status(200).json(data)
       } else {
         res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -75,7 +75,7 @@ router.post('/app/user/:username', function(req, res)
     }
     else {
       //si existe enviamos el json
-      if (typeof data !== 'undefined') {
+      if (data !== 'undefined') {
         res.status(200).json(data)
       } else {
         res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -100,7 +100,7 @@ router.get('/app/config/user/:username', function(req, res)
       }
       else {
         //si existe enviamos el json
-        if (typeof data !== 'undefined') {
+        if (data !== 'undefined') {
           res.status(200).json(data)
         } else {
           res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -144,7 +144,7 @@ router.post('/app/setDeviceInfo/user/:username', function(req, res)
       }
       else {
         //si existe enviamos el json
-        if (typeof data !== 'undefined') {
+        if (data !== 'undefined') {
           res.status(200).json(data)
         } else {
           res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})

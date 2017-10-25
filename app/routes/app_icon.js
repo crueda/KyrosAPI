@@ -35,7 +35,7 @@ router.get('/icon/:id', function(req, res)
     }
     else {
       //si existe enviamos el json
-      if (typeof data !== 'undefined') {
+      if (data !== 'undefined') {
         res.status(200).json(data)
       } else {
         res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -61,7 +61,7 @@ router.get('/allicons', function(req, res)
         }
         else {
             //si existe enviamos el json
-            if (typeof data !== 'undefined') {
+            if (data !== 'undefined') {
               res.status(200).json(data)
             } else {
               res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -76,7 +76,7 @@ router.get('/allicons', function(req, res)
         }
         else {
             //si existe enviamos el json
-            if (typeof data !== 'undefined') {
+            if (data !== 'undefined') {
               res.status(200).json(data)
             } else {
               res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -104,7 +104,7 @@ router.get('/icons', function(req, res)
     }
     else {
       //si existe enviamos el json
-      if (typeof data !== 'undefined') {
+      if (data !== 'undefined') {
         res.status(200).json(data)
       } else {
         res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})
@@ -123,7 +123,7 @@ router.get('/iconInfo', function(req, res)
     }
     else {
       //si existe enviamos el json
-      if (typeof data !== 'undefined') {
+      if (data !== 'undefined') {
         res.status(200).json(data)
       } else {
         res.status(202).json({"response": {"status":status.STATUS_NOT_FOUND_REGISTER,"description":messages.MISSING_REGISTER}})

@@ -144,7 +144,7 @@ router.post("/loginldap", function (req, res) {
       }
 
       // Authorize the user to see if s/he can access our resources
-      var passwordDB = '';
+      //var passwordDB = '';
 
       var adminClient = ldap.createClient({
         url: 'ldap://172.26.30.40:389'

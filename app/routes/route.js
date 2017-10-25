@@ -198,13 +198,13 @@ router.post('/routes/', function(req, res)
         {
           res.status(200).json({"response": {"status":0,"data": {"record": []}}})
         }
-        else if (typeof data !== 'undefined')
+        else if (data !== 'undefined')
         {
           if (startRow == null || endRow == null) {
             startRow = 0;
             endRow = totalRows;
           }
-          res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"status":0,"data": { "record": data}}})
+          res.status(200).json({"response": {"status":0,"totalRows":totalRows,"startRow":parseInt(startRow),"endRow":parseInt(endRow),"data": { "record": data}}})
         }
         else
         {
@@ -273,7 +273,7 @@ router.get('/route/:id', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
                 res.status(200).json({"response": {"status":0,"totalRows":1,"startRow":0,"endRow":1,"data": {"record": [data]}}})
             }

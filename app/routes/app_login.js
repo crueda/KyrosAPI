@@ -1,10 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var jwt = require('jwt-simple');
-var crypto 		= require('crypto');
-var crypt     = require('crypt3');
-var moment 		= require('moment');
-
+//var crypto = require('crypto');
+//var crypt = require('crypt3');
+var moment = require('moment');
 var status = require("../utils/statusCodes.js");
 var messages = require("../utils/statusMessages.js");
 
@@ -58,7 +57,7 @@ router.get('/app/login/', function(req, res)
           else
           {
             //Autenticación correcta
-            if (typeof data.result !== 'undefined')
+            if (data.result !== 'undefined')
             {
               var token_api = genToken(username);
               data.result[0].token_api = token_api;
@@ -77,13 +76,14 @@ router.get('/app/login/', function(req, res)
 router.post('/app/login/', function(req, res)
 {
     log.info("POST: /app/login");
-    var version = req.body.version;
+    //var version = req.body.version;
     var username = req.body.username;
     var password = req.body.password;
     var app_type = req.body.app_type;
 
-    if (app_type==undefined)
+    if (app_type==undefined) {
       app_type = "mypush";
+    }
 
     //if (version==undefined) {
     //  version = 3;
@@ -95,16 +95,13 @@ router.post('/app/login/', function(req, res)
       //  res.status(202).json({"status": "msg", "title": "Versión incorrecta", "message": "Por favor, consulte con logistica@kyroslbs.com para actualizar su aplicación"});
       //}
       else {
-        UserModel.loginApp(username, password, app_type, function(error, data)
-        {
-          if (data == null)
-          {
+        UserModel.loginApp(username, password, app_type, function(error, data) {
+          if (data == null) {
             res.status(202).json({"response": {"status":status.STATUS_FAILURE,"description":messages.DB_ERROR}})
           }
-          else
-          {
+          else {
             //Autenticación correcta
-            if (typeof data.result !== 'undefined')
+            if (data.result !== 'undefined')
             {
               var token_api = genToken(username);
               data.result[0].token_api = token_api;

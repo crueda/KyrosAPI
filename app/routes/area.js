@@ -212,7 +212,7 @@ router.post('/areas/', function(req, res)
         {
           res.status(200).json({"response": {"status": 0, "count": 0, "data":  []}})
         }
-        else if (typeof data !== 'undefined')
+        else if (data !== 'undefined')
         {
           res.status(200).json({"response": {"status": 0, "count": data.length, "data": data}})
         }
@@ -292,7 +292,7 @@ router.get('/area/:id', function(req, res)
           else
           {
             //si existe enviamos el json
-            if (typeof data !== 'undefined' && data.length > 0)
+            if (data !== 'undefined' && data.length > 0)
             {
                 res.status(200).json({"response": {"status":0,"count":1,"data": [data]}})
             }

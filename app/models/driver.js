@@ -54,10 +54,10 @@ personnelModel.getPersonels = function(startRow, endRow, sortBy, callback)
           orderBy = 'id';
         }
         else {
-          vsortBy = sortBy.split(',');
+          var vsortBy = sortBy.split(',');
           for (var i=0; i<vsortBy.length; i++ ) {
             if (vsortBy[i].charAt(0) == '-') {
-              var element = vsortBy[i].substring(1, vsortBy[i].length);
+              let element = vsortBy[i].substring(1, vsortBy[i].length);
               if (element == 'id' || element == 'creationTime' || element == 'firstName' || element == 'lastName' || element == 'license' || element == 'company' || element == 'role' || element == 'access' || element == 'workingTime' || element == 'email' || element == 'nok')
               {
                 if (orderBy == '')
@@ -66,7 +66,7 @@ personnelModel.getPersonels = function(startRow, endRow, sortBy, callback)
                   orderBy = orderBy + ',' + element + ' desc';
               }
             } else {
-              var element = vsortBy[i];
+              let element = vsortBy[i];
               if (element == 'id' || element == 'creationTime' || element == 'firstName' || element == 'lastName' || element == 'license' || element == 'company' || element == 'role' || element == 'access' || element == 'workingTime' || element == 'email' || element == 'nok')
               {
                 if (orderBy == '')
@@ -203,7 +203,7 @@ personnelModel.updatePersonnel = function(personnelData, callback)
                   }
                 });
 
-                for (i=0;i<v_certificateList.length;i++)
+                for (let i=0;i<v_certificateList.length;i++)
                 {
                   var sqlCertification = 'INSERT INTO CERTIFICATION SET CERTIFICATE_ID = ' + v_certificateList[i] + ',' +
                   'DRIVER_ID = ' + connection.escape(personnelData.id) + ',' +
@@ -310,7 +310,7 @@ personnelModel.insertPersonnel = function(personnelData,callback)
                 var personnelInsertId = result.insertId;
 
                 // Insertar las certificaciones
-                for (i=0;i<v_certificateList.length;i++)
+                for (let i=0;i<v_certificateList.length;i++)
                 {
                   var sqlCertification = 'INSERT INTO CERTIFICATION SET CERTIFICATE_ID = ' + v_certificateList[i] + ',' +
                   'DRIVER_ID = ' + personnelInsertId + ',' +

@@ -32,27 +32,23 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
 // Crear un objeto para ir almacenando todo lo necesario
 var graphModel = {};
 
-
-
 graphModel.getGraphData = function(deviceId, callback)
 {
-  function sortFunction(a, b) {
+  /*function sortFunction(a, b) {
     if (a[0] === b[0]) {
         return 0;
     }
     else {
         return (a[0] < b[0]) ? -1 : 1;
     }
-  }
+  }*/
+
   mongoose.connection.db.collection('ODOMETER', function (err, collection) {
       collection.find({'device_id': parseInt(deviceId)}).toArray(function(err, docs) {
           if (docs[0]!=undefined) {
             var events = [];
             for(var eventType in docs[0].eventTypeCounter) {
-              //log.info(eventType + " - " + docs[0].eventTypeCounter[eventType]);
               events.push([eventType, docs[0].eventTypeCounter[eventType]]);
-              //events.sort(sortFunction);
-              //log.info(events);
             }
             docs[0].eventTypeVector = events;
           }

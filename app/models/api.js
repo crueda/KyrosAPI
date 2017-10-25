@@ -29,7 +29,6 @@ mongoose.connect('mongodb://' + dbMongoHost + ':' + dbMongoPort + '/' + dbMongoN
     }
 });
 
-// Crear un objeto para ir almacenando todo lo necesario
 var apiModel = {};
 
 
@@ -47,6 +46,7 @@ apiModel.getCounters = function (callback) {
 apiModel.registerOperation = function (operation, callback) {
     if (operation == 'GET') {
         fs.readFile(properties.get('main.counter.get.file'), 'utf8', function (err, data) {
+            var newdata = 0;
             try {
                 newdata = parseInt(data) + 1;
             } catch (err) {
@@ -58,12 +58,12 @@ apiModel.registerOperation = function (operation, callback) {
         });
     } else if (operation == 'POST') {
         fs.readFile(properties.get('main.counter.post.file'), 'utf8', function (err, data) {
-            isNaN(parseFloat(data))
+            //isNaN(parseFloat(data))
             
-                newdata = parseInt(data) + 1;
-                if (!isNaN(newdata)) {
+                var newdata = parseInt(data) + 1;
+                /*if (!isNaN(newdata)) {
                     newdata = 1;
-                }
+                }*/
             fs.writeFile(properties.get('main.counter.post.file'), newdata, function (err) {
             });
         });
@@ -72,6 +72,4 @@ apiModel.registerOperation = function (operation, callback) {
     callback(null, null);
 
 }
-
-//exportamos el objeto para tenerlo disponible en la zona de rutas
 module.exports = apiModel;
