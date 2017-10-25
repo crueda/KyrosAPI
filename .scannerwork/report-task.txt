@@ -1,0 +1,6 @@
+projectKey=KyrosAPI
+serverUrl=http://192.168.28.82:9000
+serverVersion=6.6.0.32724
+dashboardUrl=http://192.168.28.82:9000/dashboard/index/KyrosAPI
+ceTaskId=AV9UCE3dAupN1nRrHRAu
+ceTaskUrl=http://192.168.28.82:9000/api/ce/task?id=AV9UCE3dAupN1nRrHRAu
